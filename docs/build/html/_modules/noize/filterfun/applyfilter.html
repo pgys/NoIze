@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>noize.filterfun.applyfilter &#8212; \\NoIze// 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for noize.filterfun.applyfilter</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># Copyright 2019 Peggy Sylopp und Aislyn Rose GbR</span>
+<span class="c1"># All rights reserved</span>
+<span class="c1"># This file is part of the  NoIze-framework</span>
+<span class="c1"># The NoIze-framework is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#@author Aislyn Rose</span>
+<span class="c1">#@version 0.1</span>
+<span class="c1">#@date 31.08.2019</span>
+<span class="c1">#</span>
+<span class="c1"># The  NoIze-framework  is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. </span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU AFFERO General Public License along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
+
+<span class="c1">###############################################################################</span>
+<span class="kn">from</span> <span class="nn">.filters</span> <span class="k">import</span> <span class="n">WienerFilter</span>
+<span class="kn">from</span> <span class="nn">..file_architecture</span> <span class="k">import</span> <span class="n">paths</span>
+<span class="kn">from</span> <span class="nn">..mathfun</span> <span class="k">import</span> <span class="n">dsp</span><span class="p">,</span> <span class="n">matrixfun</span>
+
+
+<div class="viewcode-block" id="filtersignal"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.applyfilter.filtersignal">[docs]</a><span class="k">def</span> <span class="nf">filtersignal</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">wavfile</span><span class="p">,</span> <span class="n">noise_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">apply_postfilter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;apply wiener filter to signal using noise input.</span>
+
+<span class="sd">    Parameters </span>
+<span class="sd">    ----------</span>
+<span class="sd">    output_file : str</span>
+<span class="sd">        path and name the filtered signal is to be saved</span>
+<span class="sd">    wavfile : str </span>
+<span class="sd">        the filename to the signal for filtering; if None, a signal will be </span>
+<span class="sd">        generated (default None)</span>
+<span class="sd">    noise_file : str optional</span>
+<span class="sd">        path to either noise wavfile or averaged power values in .npy file</span>
+<span class="sd">        (default None)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wf</span> <span class="o">=</span> <span class="n">WienerFilter</span><span class="p">()</span>
+
+    <span class="c1"># load signal (to be filtered)</span>
+    <span class="n">samples_orig</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">get_samples</span><span class="p">(</span><span class="n">wavfile</span><span class="p">)</span>
+    <span class="c1"># set how many subframes are needed to process entire target signal</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">set_num_subframes</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples_orig</span><span class="p">),</span> <span class="n">is_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># prepare noise</span>
+    <span class="c1"># set up how noise will be considered: either as wavfile, averaged</span>
+    <span class="c1"># power values, or the first section of the target wavfile (i.e. None)</span>
+    <span class="n">samples_noise</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">noise_file</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;.wav&#39;</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_file</span><span class="p">)[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]:</span>
+            <span class="n">samples_noise</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">get_samples</span><span class="p">(</span><span class="n">noise_file</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;.npy&#39;</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">noise_file</span><span class="p">)[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="s1">&#39;powspec&#39;</span> <span class="ow">in</span> <span class="n">noise_file</span><span class="o">.</span><span class="n">stem</span><span class="p">:</span>
+                <span class="n">noise_power</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">load_power_vals</span><span class="p">(</span><span class="n">noise_file</span><span class="p">)</span>
+                <span class="n">samples_noise</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="s1">&#39;beg&#39;</span> <span class="ow">in</span> <span class="n">noise_file</span><span class="o">.</span><span class="n">stem</span><span class="p">:</span>
+                <span class="n">samples_noise</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">load_feature_data</span><span class="p">(</span><span class="n">noise_file</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">starting_noise_len</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span><span class="n">wf</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">samples_noise</span> <span class="o">=</span> <span class="n">samples_orig</span><span class="p">[:</span><span class="n">starting_noise_len</span><span class="p">]</span>
+    <span class="c1"># if noise samples have been collected...</span>
+    <span class="k">if</span> <span class="n">samples_noise</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># set how many subframes are needed to process entire noise signal</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">set_num_subframes</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">samples_noise</span><span class="p">),</span> <span class="n">is_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># prepare noise power matrix (if it&#39;s not loaded already)</span>
+    <span class="k">if</span> <span class="n">wf</span><span class="o">.</span><span class="n">noise_subframes</span><span class="p">:</span>
+        <span class="n">total_rows</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">num_fft_bins</span>
+        <span class="n">noise_power</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">((</span><span class="n">total_rows</span><span class="p">,))</span>
+        <span class="n">section</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">wf</span><span class="o">.</span><span class="n">noise_subframes</span><span class="p">):</span>
+            <span class="n">noise_section</span> <span class="o">=</span> <span class="n">samples_noise</span><span class="p">[</span><span class="n">section</span><span class="p">:</span><span class="n">section</span><span class="o">+</span><span class="n">wf</span><span class="o">.</span><span class="n">frame_length</span><span class="p">]</span>
+            <span class="n">noise_w_win</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">apply_window</span><span class="p">(</span><span class="n">noise_section</span><span class="p">,</span> <span class="n">wf</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>
+            <span class="n">noise_fft</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_fft</span><span class="p">(</span><span class="n">noise_w_win</span><span class="p">)</span>
+            <span class="n">noise_power_frame</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_power</span><span class="p">(</span><span class="n">noise_fft</span><span class="p">)</span>
+            <span class="n">noise_power</span> <span class="o">+=</span> <span class="n">noise_power_frame</span>
+            <span class="n">section</span> <span class="o">+=</span> <span class="n">wf</span><span class="o">.</span><span class="n">overlap_length</span>
+        <span class="c1"># welch&#39;s method: take average of power that has been colleced</span>
+        <span class="c1"># in windows</span>
+        <span class="n">noise_power</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_average_power</span><span class="p">(</span><span class="n">noise_power</span><span class="p">,</span> <span class="n">wf</span><span class="o">.</span><span class="n">noise_subframes</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">section</span> <span class="o">==</span> <span class="n">wf</span><span class="o">.</span><span class="n">noise_subframes</span> <span class="o">*</span> <span class="n">wf</span><span class="o">.</span><span class="n">overlap_length</span>
+
+    <span class="c1"># prepare target power matrix</span>
+    <span class="n">total_rows</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">frame_length</span> <span class="o">*</span> <span class="n">wf</span><span class="o">.</span><span class="n">target_subframes</span>
+    <span class="n">filtered_sig</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">total_rows</span><span class="p">,),</span> <span class="n">complex_vals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">section</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">target_power_baseline</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">noise_power</span> <span class="o">*=</span> <span class="n">scale</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">wf</span><span class="o">.</span><span class="n">target_subframes</span><span class="p">):</span>
+            <span class="n">target_section</span> <span class="o">=</span> <span class="n">samples_orig</span><span class="p">[</span><span class="n">section</span><span class="p">:</span><span class="n">section</span><span class="o">+</span><span class="n">wf</span><span class="o">.</span><span class="n">frame_length</span><span class="p">]</span>
+            <span class="n">target_w_window</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">apply_window</span><span class="p">(</span><span class="n">target_section</span><span class="p">,</span> <span class="n">wf</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>
+            <span class="n">target_fft</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_fft</span><span class="p">(</span><span class="n">target_w_window</span><span class="p">)</span>
+            <span class="n">target_power_frame</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_power</span><span class="p">(</span><span class="n">target_fft</span><span class="p">)</span>
+            <span class="c1"># now start filtering!!</span>
+            <span class="c1"># initialize SNR matrix</span>
+            <span class="k">if</span> <span class="n">frame</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">posteri</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">target_power_frame</span><span class="p">),))</span>
+                <span class="n">wf</span><span class="o">.</span><span class="n">posteri_snr</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_posteri_snr</span><span class="p">(</span>
+                    <span class="n">target_power_frame</span><span class="p">,</span> <span class="n">noise_power</span><span class="p">)</span>
+                <span class="n">wf</span><span class="o">.</span><span class="n">posteri_prime</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_posteri_prime</span><span class="p">(</span><span class="n">wf</span><span class="o">.</span><span class="n">posteri_snr</span><span class="p">)</span>
+                <span class="n">wf</span><span class="o">.</span><span class="n">priori_snr</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_prior_snr</span><span class="p">(</span><span class="n">snr</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">posteri_snr</span><span class="p">,</span>
+                                                <span class="n">snr_prime</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">posteri_prime</span><span class="p">,</span>
+                                                <span class="n">smooth_factor</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
+                                                <span class="n">first_iter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                                <span class="n">gain</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">frame</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">wf</span><span class="o">.</span><span class="n">posteri_snr</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_posteri_snr</span><span class="p">(</span><span class="n">target_power_frame</span><span class="p">,</span>
+                                                    <span class="n">noise_power</span><span class="p">)</span>
+                <span class="n">wf</span><span class="o">.</span><span class="n">posteri_prime</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_posteri_prime</span><span class="p">(</span><span class="n">wf</span><span class="o">.</span><span class="n">posteri_snr</span><span class="p">)</span>
+                <span class="n">wf</span><span class="o">.</span><span class="n">priori_snr</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_prior_snr</span><span class="p">(</span><span class="n">snr</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">posteri_snr_prev</span><span class="p">,</span>
+                                                <span class="n">snr_prime</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">posteri_prime</span><span class="p">,</span>
+                                                <span class="n">smooth_factor</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
+                                                <span class="n">first_iter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                                <span class="n">gain</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">gain_prev</span><span class="p">)</span>
+            <span class="n">wf</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_gain</span><span class="p">(</span><span class="n">prior_snr</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">priori_snr</span><span class="p">)</span>
+            <span class="n">enhanced_fft</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">apply_gain_fft</span><span class="p">(</span><span class="n">target_fft</span><span class="p">,</span> <span class="n">wf</span><span class="o">.</span><span class="n">gain</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">apply_postfilter</span><span class="p">:</span>
+                <span class="n">target_noisereduced_power</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_power</span><span class="p">(</span><span class="n">enhanced_fft</span><span class="p">)</span>
+                <span class="n">wf</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">postfilter</span><span class="p">(</span><span class="n">target_power_frame</span><span class="p">,</span>
+                                        <span class="n">target_noisereduced_power</span><span class="p">,</span>
+                                        <span class="n">gain</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">gain</span><span class="p">,</span>
+                                        <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                        <span class="n">scale</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+                <span class="n">enhanced_fft</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">apply_gain_fft</span><span class="p">(</span><span class="n">target_fft</span><span class="p">,</span> <span class="n">wf</span><span class="o">.</span><span class="n">gain</span><span class="p">)</span>
+            <span class="n">enhanced_ifft</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_ifft</span><span class="p">(</span><span class="n">enhanced_fft</span><span class="p">)</span>
+            <span class="n">filtered_sig</span><span class="p">[</span><span class="n">row</span><span class="p">:</span><span class="n">row</span><span class="o">+</span><span class="n">wf</span><span class="o">.</span><span class="n">frame_length</span><span class="p">]</span> <span class="o">+=</span> <span class="n">enhanced_ifft</span>
+            <span class="c1"># prepare for next iteration</span>
+            <span class="n">wf</span><span class="o">.</span><span class="n">posteri_snr_prev</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">posteri_snr</span>
+            <span class="n">wf</span><span class="o">.</span><span class="n">gain_prev</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">gain</span>
+            <span class="n">row</span> <span class="o">+=</span> <span class="n">wf</span><span class="o">.</span><span class="n">overlap_length</span>
+            <span class="n">section</span> <span class="o">+=</span> <span class="n">wf</span><span class="o">.</span><span class="n">overlap_length</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">row</span> <span class="o">==</span> <span class="n">wf</span><span class="o">.</span><span class="n">target_subframes</span> <span class="o">*</span> <span class="n">wf</span><span class="o">.</span><span class="n">overlap_length</span>
+    <span class="k">assert</span> <span class="n">section</span> <span class="o">==</span> <span class="n">wf</span><span class="o">.</span><span class="n">target_subframes</span> <span class="o">*</span> <span class="n">wf</span><span class="o">.</span><span class="n">overlap_length</span>
+    <span class="c1"># make enhanced_ifft values real</span>
+    <span class="n">enhanced_signal</span> <span class="o">=</span> <span class="n">filtered_sig</span><span class="o">.</span><span class="n">real</span>
+    <span class="n">enhanced_signal</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">check_volume</span><span class="p">(</span><span class="n">enhanced_signal</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">enhanced_signal</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples_orig</span><span class="p">):</span>
+        <span class="n">enhanced_signal</span> <span class="o">=</span> <span class="n">enhanced_signal</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">samples_orig</span><span class="p">)]</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">save_filtered_signal</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_file</span><span class="p">),</span> <span class="n">enhanced_signal</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, P. Sylopp und A. Rose GbR.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

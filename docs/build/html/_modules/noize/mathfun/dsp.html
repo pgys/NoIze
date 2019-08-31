@@ -1,0 +1,707 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>noize.mathfun.dsp &#8212; \\NoIze// 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for noize.mathfun.dsp</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># Copyright 2019 Peggy Sylopp und Aislyn Rose GbR</span>
+<span class="c1"># All rights reserved</span>
+<span class="c1"># This file is part of the  NoIze-framework</span>
+<span class="c1"># The NoIze-framework is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#@author Aislyn Rose</span>
+<span class="c1">#@version 0.1</span>
+<span class="c1">#@date 31.08.2019</span>
+<span class="c1">#</span>
+<span class="c1"># The  NoIze-framework  is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. </span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU AFFERO General Public License along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Script with functions useful in filtering / digital signal processing</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1">###############################################################################</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">hamming</span><span class="p">,</span> <span class="n">hann</span><span class="p">,</span> <span class="n">resample</span>
+<span class="kn">from</span> <span class="nn">scipy.io.wavfile</span> <span class="k">import</span> <span class="n">read</span>
+<span class="kn">from</span> <span class="nn">numpy.fft</span> <span class="k">import</span> <span class="n">fft</span><span class="p">,</span> <span class="n">ifft</span>
+<span class="kn">from</span> <span class="nn">python_speech_features</span> <span class="k">import</span> <span class="n">logfbank</span><span class="p">,</span> <span class="n">mfcc</span>
+
+
+<div class="viewcode-block" id="load_signal"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.load_signal">[docs]</a><span class="k">def</span> <span class="nf">load_signal</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">48000</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">sr</span><span class="p">,</span> <span class="n">samps</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">wav</span><span class="p">)</span>
+    <span class="n">num_channels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">samps</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_channels</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Stereo wavfile loaded.</span><span class="se">\</span>
+<span class="s1">            </span><span class="se">\n</span><span class="s1">Can only process mono wavfiles as of now.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sr</span> <span class="o">!=</span> <span class="n">sampling_rate</span><span class="p">:</span>
+        <span class="n">samps</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">resample_audio</span><span class="p">(</span><span class="n">samps</span><span class="p">,</span> <span class="n">sr</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dur_sec</span><span class="p">:</span>
+        <span class="n">numsamps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dur_sec</span> <span class="o">*</span> <span class="n">sampling_rate</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">numsamps</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">samps</span><span class="p">)</span>
+    <span class="c1"># zero pad if signal is too short:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samps</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">numsamps</span><span class="p">:</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">numsamps</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">samps</span><span class="p">)</span>
+        <span class="n">signal_zeropadded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">samps</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">diff</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">samps</span><span class="p">):</span>
+            <span class="n">signal_zeropadded</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">row</span>
+        <span class="n">samps</span> <span class="o">=</span> <span class="n">signal_zeropadded</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">samps</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">numsamps</span><span class="p">:</span>
+        <span class="n">samps</span> <span class="o">=</span> <span class="n">samps</span><span class="p">[:</span><span class="n">numsamps</span><span class="p">]</span>
+    <span class="c1">#ensure max and min are between 1 and -1</span>
+    <span class="n">samps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">samps</span><span class="p">,(</span><span class="n">samps</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">samps</span><span class="o">.</span><span class="n">max</span><span class="p">()),(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">samps</span><span class="p">,</span> <span class="n">sr</span></div>
+
+<div class="viewcode-block" id="resample_audio"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.resample_audio">[docs]</a><span class="k">def</span> <span class="nf">resample_audio</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">sr_original</span><span class="p">,</span> <span class="n">sr_desired</span><span class="p">):</span>
+    <span class="n">time_sec</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">/</span><span class="n">sr_original</span> 
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_sec</span> <span class="o">*</span> <span class="n">sr_desired</span><span class="p">)</span>
+    <span class="n">resampled</span> <span class="o">=</span> <span class="n">resample</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resampled</span><span class="p">,</span> <span class="n">sr_desired</span></div>
+
+<div class="viewcode-block" id="calc_frame_length"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_frame_length">[docs]</a><span class="k">def</span> <span class="nf">calc_frame_length</span><span class="p">(</span><span class="n">dur_frame_millisec</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;calculates the number of samples necessary for each frame</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dur_frame_millisec : int or float</span>
+<span class="sd">        time in milliseconds each frame should be</span>
+<span class="sd">    sampling_rate : int</span>
+<span class="sd">        sampling rate of the samples to be framed</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    frame_length : int</span>
+<span class="sd">        the number of samples necessary to fill a frame</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; calc_frame_length(dur_frame_millisec=20, sampling_rate=1000)</span>
+<span class="sd">    20</span>
+<span class="sd">    &gt;&gt;&gt; calc_frame_length(dur_frame_millisec=20, sampling_rate=48000)</span>
+<span class="sd">    960</span>
+<span class="sd">    &gt;&gt;&gt; calc_frame_length(dur_frame_millisec=25.5, sampling_rate=22500)</span>
+<span class="sd">    506</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">frame_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dur_frame_millisec</span> <span class="o">*</span> <span class="n">sampling_rate</span> <span class="o">//</span> <span class="mi">1000</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">frame_length</span></div>
+
+<div class="viewcode-block" id="calc_num_overlap_samples"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_num_overlap_samples">[docs]</a><span class="k">def</span> <span class="nf">calc_num_overlap_samples</span><span class="p">(</span><span class="n">samples_per_frame</span><span class="p">,</span> <span class="n">percent_overlap</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;calculate the number of samples that constitute the overlap of frames</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    samples_per_frame : int </span>
+<span class="sd">        the number of samples in each window / frame</span>
+<span class="sd">    percent_overlap : int, float</span>
+<span class="sd">        either an integer between 0 and 100 or a decimal between 0.0 and 1.0</span>
+<span class="sd">        indicating the amount of overlap of windows / frames</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    num_overlap_samples : int </span>
+<span class="sd">        the number of samples in the overlap</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; calc_num_overlap_samples(samples_per_frame=100,percent_overlap=0.10)</span>
+<span class="sd">    10</span>
+<span class="sd">    &gt;&gt;&gt; calc_num_overlap_samples(samples_per_frame=100,percent_overlap=10)</span>
+<span class="sd">    10</span>
+<span class="sd">    &gt;&gt;&gt; calc_num_overlap_samples(samples_per_frame=960,percent_overlap=0.5)</span>
+<span class="sd">    480</span>
+<span class="sd">    &gt;&gt;&gt; calc_num_overlap_samples(samples_per_frame=960,percent_overlap=75)</span>
+<span class="sd">    720</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">percent_overlap</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">percent_overlap</span> <span class="o">*=</span> <span class="mf">0.01</span>
+    <span class="n">num_overlap_samples</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">samples_per_frame</span> <span class="o">*</span> <span class="n">percent_overlap</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">num_overlap_samples</span></div>
+
+<div class="viewcode-block" id="calc_num_subframes"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_num_subframes">[docs]</a><span class="k">def</span> <span class="nf">calc_num_subframes</span><span class="p">(</span><span class="n">tot_samples</span><span class="p">,</span> <span class="n">frame_length</span><span class="p">,</span> <span class="n">overlap_samples</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Assigns total frames needed to process entire noise or target series</span>
+
+<span class="sd">    This function calculates the number of full frames that can be </span>
+<span class="sd">    created given the total number of samples, the number of samples in </span>
+<span class="sd">    each frame, and the number of overlapping samples.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tot_samples : int </span>
+<span class="sd">        total number of samples in the entire series</span>
+<span class="sd">    frame_length : int </span>
+<span class="sd">        total number of samples in each frame / processing window</span>
+<span class="sd">    overlap_samples : int</span>
+<span class="sd">        number of samples in overlap between frames</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; calc_num_subframes(30,10,5)</span>
+<span class="sd">    5</span>
+<span class="sd">    &gt;&gt;&gt; calc_num_subframes(30,20,5)</span>
+<span class="sd">    3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trim</span> <span class="o">=</span> <span class="n">frame_length</span> <span class="o">-</span> <span class="n">overlap_samples</span>
+    <span class="n">totsamps_adjusted</span> <span class="o">=</span> <span class="n">tot_samples</span><span class="o">-</span><span class="n">trim</span>
+    <span class="n">subframes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">totsamps_adjusted</span> <span class="o">/</span> <span class="n">overlap_samples</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">subframes</span></div>
+
+<div class="viewcode-block" id="create_window"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.create_window">[docs]</a><span class="k">def</span> <span class="nf">create_window</span><span class="p">(</span><span class="n">window_type</span><span class="p">,</span> <span class="n">frame_length</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;creates window according to set window type and frame length</span>
+
+<span class="sd">    the Hamming window tapers edges to around 0.08 while the Hann window</span>
+<span class="sd">    tapers edges to 0.0. Both are commonly used in noise filtering.</span>
+
+<span class="sd">    Parameters </span>
+<span class="sd">    ----------</span>
+<span class="sd">    window_type : str</span>
+<span class="sd">        type of window to be applied (default &#39;hamming&#39;)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    window : ndarray</span>
+<span class="sd">        a window fitted to the class attribute &#39;frame_length&#39;</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; #create Hamming window</span>
+<span class="sd">    &gt;&gt;&gt; hamm_win = create_window(&#39;hamming&#39;, frame_length=5)</span>
+<span class="sd">    &gt;&gt;&gt; hamm_win</span>
+<span class="sd">    array([0.08, 0.54, 1.  , 0.54, 0.08])</span>
+<span class="sd">    &gt;&gt;&gt; #create Hann window</span>
+<span class="sd">    &gt;&gt;&gt; hann_win = create_window(&#39;hann&#39;,frame_length=5)</span>
+<span class="sd">    &gt;&gt;&gt; hann_win</span>
+<span class="sd">    array([0. , 0.5, 1. , 0.5, 0. ])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">window_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;hamming&#39;</span><span class="p">:</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="n">hamming</span><span class="p">(</span><span class="n">frame_length</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">&#39;hann&#39;</span> <span class="ow">in</span> <span class="n">window_type</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="n">hann</span><span class="p">(</span><span class="n">frame_length</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">window</span></div>
+
+<div class="viewcode-block" id="apply_window"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.apply_window">[docs]</a><span class="k">def</span> <span class="nf">apply_window</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">window</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;applies predefined window to a section of samples</span>
+
+<span class="sd">    The length of the samples must be the same length as the window. </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    samples : ndarray</span>
+<span class="sd">        series of samples with the length of input window</span>
+<span class="sd">    window : ndarray</span>
+<span class="sd">        window to be applied to the signal</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    samples_win : ndarray</span>
+<span class="sd">        series with tapered sides according to the window provided</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; input_signal = np.array([ 0.        ,  0.36371897, -0.302721,</span>
+<span class="sd">    ...                         -0.1117662 ,  0.3957433 ])</span>
+<span class="sd">    &gt;&gt;&gt; window_hamming = np.array([0.08, 0.54, 1.  , 0.54, 0.08])</span>
+<span class="sd">    apply_window(input_signal, window_hamming)</span>
+<span class="sd">    array([ 0.        ,  0.19640824, -0.302721  , -0.06035375,  0.03165946])</span>
+<span class="sd">    &gt;&gt;&gt; window_hann = np.array([0. , 0.5, 1. , 0.5, 0. ])</span>
+<span class="sd">    apply_window(input_signal, window_hann)</span>
+<span class="sd">    array([ 0.        ,  0.18185948, -0.302721  , -0.0558831 ,  0.        ])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">samples_win</span> <span class="o">=</span> <span class="n">samples</span> <span class="o">*</span> <span class="n">window</span>
+    <span class="k">return</span> <span class="n">samples_win</span></div>
+
+<div class="viewcode-block" id="calc_fft"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_fft">[docs]</a><span class="k">def</span> <span class="nf">calc_fft</span><span class="p">(</span><span class="n">signal_section</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;calculates the fast Fourier transform of a 1D time series</span>
+
+<span class="sd">    The length of the signal_section determines the number of frequency</span>
+<span class="sd">    bins analyzed. Therefore, if there are higher frequencies in the </span>
+<span class="sd">    signal, the length of the signal_section should be long enough to </span>
+<span class="sd">    accommodate those frequencies. </span>
+
+<span class="sd">    The frequency bins with energy levels at around zero denote frequencies </span>
+<span class="sd">    not prevelant in the signal;the frequency bins with prevalent energy </span>
+<span class="sd">    levels relate to frequencies as well as their amplitudes that are in </span>
+<span class="sd">    the signal.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    signal_section : ndarray</span>
+<span class="sd">        the series that the fft will be applied to</span>
+<span class="sd">    norm : bool</span>
+<span class="sd">        whether or not normalization should be applied (default False)</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fft_vals : ndarray (complex)</span>
+<span class="sd">        the series transformed into the frequency domain with the same</span>
+<span class="sd">        shape as the input series</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="s1">&#39;ortho&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">fft_vals</span> <span class="o">=</span> <span class="n">fft</span><span class="p">(</span><span class="n">signal_section</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fft_vals</span></div>
+
+<div class="viewcode-block" id="calc_power"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_power">[docs]</a><span class="k">def</span> <span class="nf">calc_power</span><span class="p">(</span><span class="n">fft_vals</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;calculates the power of fft values</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fft_vals : ndarray (complex or floats)</span>
+<span class="sd">        the fft values of a windowed section of a series</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    power_spec : ndarray</span>
+<span class="sd">        the squared absolute value of the input fft values</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; matrix = np.array([[1,1,1],[2j,2j,2j],[-3,-3,-3]],</span>
+<span class="sd">    ...                     dtype=np.complex_)</span>
+<span class="sd">    &gt;&gt;&gt; calc_power(matrix)</span>
+<span class="sd">    array([[0.33333333, 0.33333333, 0.33333333],</span>
+<span class="sd">           [1.33333333, 1.33333333, 1.33333333],</span>
+<span class="sd">           [3.        , 3.        , 3.        ]])        </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">power_spec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">fft_vals</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">fft_vals</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">power_spec</span></div>
+
+<div class="viewcode-block" id="calc_average_power"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_average_power">[docs]</a><span class="k">def</span> <span class="nf">calc_average_power</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">num_iters</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;divides matrix values by the number of times power values were added </span>
+
+<span class="sd">    This function assumes the power values of n-number of series were </span>
+<span class="sd">    calculated and added. It divides the values in the input matrix by n, </span>
+<span class="sd">    i.e. &#39;num_iters&#39;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    matrix : ndarray</span>
+<span class="sd">        a collection of floats or ints representing the sum of power </span>
+<span class="sd">        values across several series sets</span>
+<span class="sd">    num_iters : int </span>
+<span class="sd">        an integer denoting the number of times power values were added to</span>
+<span class="sd">        the input matrix</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matrix : ndarray</span>
+<span class="sd">        the averaged input matrix</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; matrix = np.array([[6,6,6],[3,3,3],[1,1,1]])</span>
+<span class="sd">    &gt;&gt;&gt; ave_matrix = calc_average_power(matrix, 3)</span>
+<span class="sd">    &gt;&gt;&gt; ave_matrix</span>
+<span class="sd">    array([[2.        , 2.        , 2.        ],</span>
+<span class="sd">           [1.        , 1.        , 1.        ],</span>
+<span class="sd">           [0.33333333, 0.33333333, 0.33333333]])</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">matrix</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;int64&#39;</span><span class="p">:</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">)):</span>
+        <span class="n">matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/=</span> <span class="n">num_iters</span>
+    <span class="k">return</span> <span class="n">matrix</span></div>
+
+<div class="viewcode-block" id="calc_posteri_snr"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_posteri_snr">[docs]</a><span class="k">def</span> <span class="nf">calc_posteri_snr</span><span class="p">(</span><span class="n">target_power_spec</span><span class="p">,</span> <span class="n">noise_power_spec</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;calculates and updates signal to noise ratio of current frame</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target_power_spec : ndarray</span>
+<span class="sd">        matrix of shape with power values of target </span>
+<span class="sd">        signal</span>
+<span class="sd">    noise_power_spec : ndarray</span>
+<span class="sd">        matrix of shape with power values of noise</span>
+<span class="sd">        signal</span>
+
+<span class="sd">    Returns </span>
+<span class="sd">    -------</span>
+<span class="sd">    posteri_snr : ndarray</span>
+<span class="sd">        matrix containing the signal to noise ratio </span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; sig_power = np.array([6,6,6,6])</span>
+<span class="sd">    &gt;&gt;&gt; noise_power = np.array([2,2,2,2])</span>
+<span class="sd">    &gt;&gt;&gt; calc_posteri_snr(sig_power, noise_power)</span>
+<span class="sd">    array([3., 3., 3., 3.])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">posteri_snr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">target_power_spec</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">target_power_spec</span><span class="p">)):</span>
+        <span class="n">posteri_snr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">target_power_spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">noise_power_spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">posteri_snr</span></div>
+
+<div class="viewcode-block" id="calc_posteri_prime"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_posteri_prime">[docs]</a><span class="k">def</span> <span class="nf">calc_posteri_prime</span><span class="p">(</span><span class="n">posteri_snr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the posteri prime </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    posteri_snr : ndarray</span>
+<span class="sd">        The signal-to-noise ratio of the noisey signal, frame by frame.</span>
+
+<span class="sd">    Returns </span>
+<span class="sd">    -------</span>
+<span class="sd">    posteri_prime : ndarray</span>
+<span class="sd">        The primed posteri_snr, calculated according to the reference paper.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Scalart, P. and Filho, J. (1996). Speech enhancement based on a priori </span>
+<span class="sd">    signal to noise estimation. Proc. IEEE Int. Conf. Acoust., Speech, Signal</span>
+<span class="sd">    Processing, 629-632.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">posteri_prime</span> <span class="o">=</span> <span class="n">posteri_snr</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">posteri_prime</span><span class="p">[</span><span class="n">posteri_prime</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">posteri_prime</span></div>
+
+<div class="viewcode-block" id="calc_prior_snr"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_prior_snr">[docs]</a><span class="k">def</span> <span class="nf">calc_prior_snr</span><span class="p">(</span><span class="n">snr</span><span class="p">,</span> <span class="n">snr_prime</span><span class="p">,</span> <span class="n">smooth_factor</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span> <span class="n">first_iter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gain</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Estimates the signal-to-noise ratio of the previous frame</span>
+
+<span class="sd">    Depending on the &#39;first_iter&#39; argument, the prior snr is calculated </span>
+<span class="sd">    according to different algorithms.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    snr : ndarray</span>
+<span class="sd">        The sound-to-noise ratio of target vs noise power/energy levels.</span>
+<span class="sd">    snr_prime : ndarray</span>
+<span class="sd">        The prime of the snr (see Scalart &amp; Filho (1996))</span>
+<span class="sd">    smooth_factor : float</span>
+<span class="sd">        The value applied to smooth the signal. (default 0.98)</span>
+<span class="sd">    first_iter : None, True, False</span>
+<span class="sd">        If None, snr prior values are estimated the same, no matter if it is</span>
+<span class="sd">        the first iteration or not (Scalart &amp; Filho (1996))</span>
+<span class="sd">        If True, snr prior values are estimated without gain (Loizou 2013)</span>
+<span class="sd">        If False, snr prior values are enstimed with gain (Loizou 2013) </span>
+<span class="sd">        (default None)</span>
+<span class="sd">    gain : None, ndarray</span>
+<span class="sd">        If None, gain will not be used. If gain, it is a previously calculated</span>
+<span class="sd">        value from the previous frame. (default None)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    prior_snr : ndarray</span>
+<span class="sd">        Estimation of signal-to-noise ratio of the previous frame of target signal.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    C Loizou, P. (2013). Speech Enhancement: Theory and Practice. </span>
+<span class="sd">    </span>
+<span class="sd">    Scalart, P. and Filho, J. (1996). Speech enhancement based on a </span>
+<span class="sd">    priori signal to noise estimation. Proc. IEEE Int. Conf. Acoust., </span>
+<span class="sd">    Speech, Signal Processing, 629-632.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">first_iter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># calculate according to apriori SNR equation (6) in paper</span>
+        <span class="c1"># Scalart, P. and Filho, J. (1996)</span>
+        <span class="n">first_arg</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">smooth_factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">snr_prime</span>
+        <span class="n">second_arg</span> <span class="o">=</span> <span class="n">smooth_factor</span> <span class="o">*</span> <span class="n">snr</span>
+        <span class="n">prior_snr</span> <span class="o">=</span> <span class="n">first_arg</span> <span class="o">+</span> <span class="n">second_arg</span>
+    <span class="k">elif</span> <span class="n">first_iter</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># calculate according to Loizou (2013)</span>
+        <span class="c1"># don&#39;t yet have previous gain or snr values to apply</span>
+        <span class="n">first_arg</span> <span class="o">=</span> <span class="n">smooth_factor</span>
+        <span class="n">second_arg</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">smooth_factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">snr_prime</span>
+        <span class="n">prior_snr</span> <span class="o">=</span> <span class="n">first_arg</span> <span class="o">+</span> <span class="n">second_arg</span>
+    <span class="k">elif</span> <span class="n">first_iter</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="c1"># now have previous gain and snr values</span>
+        <span class="n">first_arg</span> <span class="o">=</span> <span class="n">smooth_factor</span> <span class="o">*</span> <span class="p">(</span><span class="n">gain</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">snr</span>
+        <span class="n">second_arg</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">smooth_factor</span><span class="p">)</span> <span class="o">*</span> <span class="n">snr_prime</span>
+        <span class="n">prior_snr</span> <span class="o">=</span> <span class="n">first_arg</span> <span class="o">+</span> <span class="n">second_arg</span>
+    <span class="k">return</span> <span class="n">prior_snr</span></div>
+
+
+<div class="viewcode-block" id="calc_gain"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_gain">[docs]</a><span class="k">def</span> <span class="nf">calc_gain</span><span class="p">(</span><span class="n">prior_snr</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Calculates the attenuation value to reduce noise</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    prior_snr : ndarray</span>
+<span class="sd">        The prior signal-to-noise ratio estimation</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    gain : ndarray</span>
+<span class="sd">        An array of attenuation values to be applied to the signal (stft) array</span>
+<span class="sd">        at the current frame.</span>
+<span class="sd">        </span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    C Loizou, P. (2013). Speech Enhancement: Theory and Practice. </span>
+<span class="sd">    </span>
+<span class="sd">    Scalart, P. and Filho, J. (1996). Speech enhancement based on a </span>
+<span class="sd">    priori signal to noise estimation. Proc. IEEE Int. Conf. Acoust., </span>
+<span class="sd">    Speech, Signal Processing, 629-632.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">gain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">prior_snr</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">prior_snr</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">gain</span></div>
+
+<div class="viewcode-block" id="apply_gain_fft"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.apply_gain_fft">[docs]</a><span class="k">def</span> <span class="nf">apply_gain_fft</span><span class="p">(</span><span class="n">fft_vals</span><span class="p">,</span> <span class="n">gain</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Reduces noise by applying gain values to the stft / fft array of the </span>
+<span class="sd">    target signal</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fft_vals : ndarray(complex)</span>
+<span class="sd">        Matrix containing complex values (i.e. stft values) of target signal</span>
+<span class="sd">    gain : ndarray(real)</span>
+<span class="sd">        Matrix containing calculated attenuation values to apply to &#39;fft_vals&#39;</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    enhanced_fft : ndarray(complex)</span>
+<span class="sd">        Matrix with attenuated noise in target (stft) values</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">enhanced_fft</span> <span class="o">=</span> <span class="n">fft_vals</span> <span class="o">*</span> <span class="n">gain</span>
+    <span class="k">assert</span> <span class="n">enhanced_fft</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">fft_vals</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">return</span> <span class="n">enhanced_fft</span></div>
+
+<div class="viewcode-block" id="calc_ifft"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_ifft">[docs]</a><span class="k">def</span> <span class="nf">calc_ifft</span><span class="p">(</span><span class="n">signal_section</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;calculates the inverse fft of a series of fft values</span>
+
+<span class="sd">    The real values of the ifft can be used to be saved as an audiofile</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    signal_section : ndarray</span>
+<span class="sd">        The frame of fft values to apply the inverse fft to</span>
+<span class="sd">    norm : bool</span>
+<span class="sd">        Whether or not the ifft should apply &#39;ortho&#39; normalization</span>
+<span class="sd">        (default False)</span>
+
+<span class="sd">    Returns </span>
+<span class="sd">    -------</span>
+<span class="sd">    ifft_vals : ndarray(complex)</span>
+<span class="sd">        The inverse Fourier transform of filtered audio data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">norm</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="s1">&#39;ortho&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ifft_vals</span> <span class="o">=</span> <span class="n">ifft</span><span class="p">(</span><span class="n">signal_section</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ifft_vals</span></div>
+
+<div class="viewcode-block" id="control_volume"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.control_volume">[docs]</a><span class="k">def</span> <span class="nf">control_volume</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">min_limit</span><span class="p">,</span> <span class="n">max_limit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;keeps max volume of samples to within a specified range.</span>
+
+<span class="sd">    If the max volume is above or below, the audio samples are </span>
+<span class="sd">    divided or multiplied with 1.25, respectively. </span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    samples : ndarray</span>
+<span class="sd">        series of audio samples</span>
+<span class="sd">    min_limit : float</span>
+<span class="sd">        minumum boundary of the maximum value of the audio samples</span>
+<span class="sd">    max_limit: float</span>
+<span class="sd">        maximum boundary of the maximum value of the audio samples</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        samples with volume adjusted (if need be)</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; #low volume example: increase volume to desired window</span>
+<span class="sd">    &gt;&gt;&gt; x = np.array([0.03, 0.04, 0.05, 0.02])</span>
+<span class="sd">    &gt;&gt;&gt; x = control_volume(x, min_limit=0.13, max_limit=0.25)</span>
+<span class="sd">    &gt;&gt;&gt; x</span>
+<span class="sd">    array([0.09155273, 0.12207031, 0.15258789, 0.06103516])</span>
+<span class="sd">    &gt;&gt;&gt; #high volume example: decrease volume to desired window</span>
+<span class="sd">    &gt;&gt;&gt; y = np.array([0.3, 0.4, 0.5, 0.2])</span>
+<span class="sd">    &gt;&gt;&gt; y = control_volume(y, min_limit=0.13, max_limit=0.25)</span>
+<span class="sd">    &gt;&gt;&gt; y</span>
+<span class="sd">    array([0.12288, 0.16384, 0.2048 , 0.08192])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_limit</span><span class="p">:</span>
+        <span class="k">while</span> <span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_limit</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">/=</span> <span class="mf">1.25</span>
+            <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_limit</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">samples</span>
+    <span class="k">elif</span> <span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">min_limit</span><span class="p">:</span>
+        <span class="k">while</span> <span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">max_limit</span><span class="p">:</span>
+            <span class="n">samples</span> <span class="o">*=</span> <span class="mf">1.25</span>
+            <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_limit</span><span class="p">:</span>
+                <span class="n">samples</span> <span class="o">/=</span> <span class="mf">1.25</span>
+                <span class="k">return</span> <span class="n">samples</span>
+    <span class="k">return</span> <span class="n">samples</span></div>
+
+<div class="viewcode-block" id="collect_features"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.collect_features">[docs]</a><span class="k">def</span> <span class="nf">collect_features</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">feature_type</span><span class="o">=</span><span class="s1">&#39;mfcc&#39;</span><span class="p">,</span> <span class="n">sr</span><span class="o">=</span><span class="mi">48000</span><span class="p">,</span> <span class="n">window_size_ms</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                     <span class="n">window_shift_ms</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">num_filters</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">num_mfcc</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+                     <span class="n">window_function</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Collects fbank and mfcc features.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">window_function</span><span class="p">:</span>
+        <span class="c1"># default for python_speech_features:</span>
+        <span class="k">def</span> <span class="nf">window_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">x</span><span class="p">,))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;hamming&#39;</span> <span class="ow">in</span> <span class="n">window_function</span><span class="p">:</span>
+            <span class="n">window_function</span> <span class="o">=</span> <span class="n">hamming</span>
+        <span class="k">elif</span> <span class="s1">&#39;hann&#39;</span> <span class="ow">in</span> <span class="n">window_function</span><span class="p">:</span>
+            <span class="n">window_function</span> <span class="o">=</span> <span class="n">hann</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># default for python_speech_features:</span>
+            <span class="k">def</span> <span class="nf">window_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">x</span><span class="p">,))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">/</span><span class="n">sr</span><span class="o">*</span><span class="mi">1000</span> <span class="o">&lt;</span> <span class="n">window_size_ms</span><span class="p">:</span>
+        <span class="n">window_size_ms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="o">/</span><span class="n">sr</span><span class="o">*</span><span class="mi">1000</span>
+    <span class="n">frame_length</span> <span class="o">=</span> <span class="n">calc_frame_length</span><span class="p">(</span><span class="n">window_size_ms</span><span class="p">,</span> <span class="n">sr</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;fbank&#39;</span> <span class="ow">in</span> <span class="n">feature_type</span><span class="p">:</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">logfbank</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span>
+                         <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span>
+                         <span class="n">winlen</span><span class="o">=</span><span class="n">window_size_ms</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">,</span>
+                         <span class="n">winstep</span><span class="o">=</span><span class="n">window_shift_ms</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">,</span>
+                         <span class="n">nfilt</span><span class="o">=</span><span class="n">num_filters</span><span class="p">,</span>
+                         <span class="n">nfft</span><span class="o">=</span><span class="n">frame_length</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">&#39;mfcc&#39;</span> <span class="ow">in</span> <span class="n">feature_type</span><span class="p">:</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">mfcc</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span>
+                     <span class="n">samplerate</span><span class="o">=</span><span class="n">sr</span><span class="p">,</span>
+                     <span class="n">winlen</span><span class="o">=</span><span class="n">window_size_ms</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">,</span>
+                     <span class="n">winstep</span><span class="o">=</span><span class="n">window_shift_ms</span> <span class="o">*</span> <span class="mf">0.001</span><span class="p">,</span>
+                     <span class="n">nfilt</span><span class="o">=</span><span class="n">num_filters</span><span class="p">,</span>
+                     <span class="n">numcep</span><span class="o">=</span><span class="n">num_mfcc</span><span class="p">,</span>
+                     <span class="n">nfft</span><span class="o">=</span><span class="n">frame_length</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">feats</span><span class="p">,</span> <span class="n">frame_length</span><span class="p">,</span> <span class="n">window_size_ms</span></div>
+
+<span class="c1">######### Functions related to postfilter###############</span>
+
+<div class="viewcode-block" id="calc_power_ratio"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_power_ratio">[docs]</a><span class="k">def</span> <span class="nf">calc_power_ratio</span><span class="p">(</span><span class="n">original_powerspec</span><span class="p">,</span> <span class="n">noisereduced_powerspec</span><span class="p">):</span>
+    <span class="n">power_ratio</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">noisereduced_powerspec</span><span class="p">)</span> <span class="o">/</span> \
+        <span class="nb">sum</span><span class="p">(</span><span class="n">original_powerspec</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">noisereduced_powerspec</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">power_ratio</span></div>
+
+<div class="viewcode-block" id="calc_noise_frame_len"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_noise_frame_len">[docs]</a><span class="k">def</span> <span class="nf">calc_noise_frame_len</span><span class="p">(</span><span class="n">SNR_decision</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;window for calculating moving average </span>
+<span class="sd">    </span>
+<span class="sd">    Note: lower SNRs require larger window</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">SNR_decision</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">soft_decision</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">SNR_decision</span><span class="o">/</span><span class="n">threshold</span><span class="p">)</span>
+        <span class="n">soft_decision_scaled</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="n">soft_decision</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span>
+        <span class="n">noise_frame_len</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">soft_decision_scaled</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">noise_frame_len</span> <span class="o">=</span> <span class="n">SNR_decision</span>
+    <span class="k">return</span> <span class="n">noise_frame_len</span></div>
+
+<div class="viewcode-block" id="calc_linear_impulse"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.calc_linear_impulse">[docs]</a><span class="k">def</span> <span class="nf">calc_linear_impulse</span><span class="p">(</span><span class="n">noise_frame_len</span><span class="p">,</span> <span class="n">num_freq_bins</span><span class="p">):</span>
+    <span class="n">linear_filter_impulse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">num_freq_bins</span><span class="p">,))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_freq_bins</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">noise_frame_len</span><span class="p">:</span>
+            <span class="n">linear_filter_impulse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">noise_frame_len</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">linear_filter_impulse</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">linear_filter_impulse</span></div>
+
+<div class="viewcode-block" id="postfilter"><a class="viewcode-back" href="../../../noize.mathfun.html#noize.mathfun.dsp.postfilter">[docs]</a><span class="k">def</span> <span class="nf">postfilter</span><span class="p">(</span><span class="n">original_powerspec</span><span class="p">,</span> <span class="n">noisereduced_powerspec</span><span class="p">,</span> <span class="n">gain</span><span class="p">,</span>
+               <span class="n">threshold</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Apply filter that reduces musical noise resulting from other filter</span>
+
+<span class="sd">    Reference </span>
+<span class="sd">    ---------</span>
+<span class="sd">    </span>
+<span class="sd">    T. Esch and P. Vary, &quot;Efficient musical noise suppression for speech enhancement </span>
+<span class="sd">    system,&quot; Proceedings of IEEE International Conference on Acoustics, Speech and </span>
+<span class="sd">    Signal Processing, Taipei, 2009.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">power_ratio_current_frame</span> <span class="o">=</span> <span class="n">calc_power_ratio</span><span class="p">(</span>
+        <span class="n">original_powerspec</span><span class="p">,</span>
+        <span class="n">noisereduced_powerspec</span><span class="p">)</span>
+    <span class="c1"># is there speech? If so, SNR decision = 1</span>
+    <span class="k">if</span> <span class="n">power_ratio_current_frame</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">:</span>
+        <span class="n">SNR_decision</span> <span class="o">=</span> <span class="n">power_ratio_current_frame</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">SNR_decision</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">noise_frame_len</span> <span class="o">=</span> <span class="n">calc_noise_frame_len</span><span class="p">(</span><span class="n">SNR_decision</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">scale</span><span class="p">)</span>
+    <span class="c1"># apply window</span>
+    <span class="n">postfilter_coeffs</span> <span class="o">=</span> <span class="n">calc_linear_impulse</span><span class="p">(</span>
+        <span class="n">noise_frame_len</span><span class="p">,</span>
+        <span class="n">num_freq_bins</span><span class="o">=</span><span class="n">original_powerspec</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">gain_postfilter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">gain</span><span class="p">,</span> <span class="n">postfilter_coeffs</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;valid&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gain_postfilter</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, P. Sylopp und A. Rose GbR.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

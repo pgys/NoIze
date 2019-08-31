@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Filters and their Features &#8212; \\NoIze// 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mathematics Related Functions" href="noize.mathfun.html" />
+    <link rel="prev" title="Models" href="noize.models.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="filters-and-their-features">
+<h1>Filters and their Features<a class="headerlink" href="#filters-and-their-features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-noize.filterfun.filters">
+<span id="noize-filterfun-filters"></span><h2>noize.filterfun.filters<a class="headerlink" href="#module-noize.filterfun.filters" title="Permalink to this headline">¶</a></h2>
+<p>The filters module covers functions related to the filtering out of noise of
+a target signal, whether that be the collection of power spectrum values to
+calculate the average power spectrum of each audio class or to measure
+signal-to-noise ratio of a signal and ultimately the the actual filtering
+process.</p>
+<dl class="class">
+<dt id="noize.filterfun.filters.FilterSettings">
+<em class="property">class </em><code class="sig-prename descclassname">noize.filterfun.filters.</code><code class="sig-name descname">FilterSettings</code><span class="sig-paren">(</span><em class="sig-param">frame_duration_ms=20</em>, <em class="sig-param">percent_overlap=0.5</em>, <em class="sig-param">sampling_rate=48000</em>, <em class="sig-param">window_type='hamming'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#FilterSettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.FilterSettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="noize.filterfun.filters.WelchMethod">
+<em class="property">class </em><code class="sig-prename descclassname">noize.filterfun.filters.</code><code class="sig-name descname">WelchMethod</code><span class="sig-paren">(</span><em class="sig-param">len_noise_sec=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WelchMethod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WelchMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#noize.filterfun.filters.FilterSettings" title="noize.filterfun.filters.FilterSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">noize.filterfun.filters.FilterSettings</span></code></a></p>
+<dl class="method">
+<dt id="noize.filterfun.filters.WelchMethod.coll_pow_average">
+<code class="sig-name descname">coll_pow_average</code><span class="sig-paren">(</span><em class="sig-param">wave_list</em>, <em class="sig-param">scale=None</em>, <em class="sig-param">augment_data=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WelchMethod.coll_pow_average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WelchMethod.coll_pow_average" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.filterfun.filters.WelchMethod.get_power">
+<code class="sig-name descname">get_power</code><span class="sig-paren">(</span><em class="sig-param">samples</em>, <em class="sig-param">matrix2store_power</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WelchMethod.get_power"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WelchMethod.get_power" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.filterfun.filters.WelchMethod.set_num_subframes">
+<code class="sig-name descname">set_num_subframes</code><span class="sig-paren">(</span><em class="sig-param">len_samples</em>, <em class="sig-param">noise=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WelchMethod.set_num_subframes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WelchMethod.set_num_subframes" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate and set number of subframes required to process total samples</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="noize.filterfun.filters.WienerFilter">
+<em class="property">class </em><code class="sig-prename descclassname">noize.filterfun.filters.</code><code class="sig-name descname">WienerFilter</code><span class="sig-paren">(</span><em class="sig-param">smooth_factor=0.98</em>, <em class="sig-param">first_iter=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WienerFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#noize.filterfun.filters.FilterSettings" title="noize.filterfun.filters.FilterSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">noize.filterfun.filters.FilterSettings</span></code></a></p>
+<p>Interactive class to explore Wiener filter settings on audio signals</p>
+<p>These class methods implement research based algorithms with low
+computational cost, aimed for noise reduction via mobile phone</p>
+<dl class="attribute">
+<dt id="noize.filterfun.filters.WienerFilter.frame_dur">
+<code class="sig-name descname">frame_dur</code><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.frame_dur" title="Permalink to this definition">¶</a></dt>
+<dd><p>time in milliseconds of each audio frame window (default 20)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.filterfun.filters.WienerFilter.sampling_rate">
+<code class="sig-name descname">sampling_rate</code><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.sampling_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>desired sampling rate of audio; audio will be resampled to match if
+audio has other sampling rate (default 48000)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.filterfun.filters.WienerFilter.frame_length">
+<code class="sig-name descname">frame_length</code><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.frame_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of audio samples in each frame: frame_dur multiplied with
+sampling_rate, divided by 1000 (default 960)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.filterfun.filters.WienerFilter.overlap_length">
+<code class="sig-name descname">overlap_length</code><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.overlap_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>number of overlapping audio samples between subsequent frames:
+frame_length multiplied by percent_overlap, floored (default 480)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.filterfun.filters.WienerFilter.beta">
+<code class="sig-name descname">beta</code><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>value applied in Wiener filter that smooths the application of gain;
+default set according to previous research (default 0.98)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.filterfun.filters.WienerFilter.window_type">
+<code class="sig-name descname">window_type</code><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.window_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>type of window applied to audio frames: hann vs hamming (default
+‘hamming’)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.filterfun.filters.WienerFilter.window">
+<code class="sig-name descname">window</code><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.window" title="Permalink to this definition">¶</a></dt>
+<dd><p>the window according to indicated window_type and frame_length; this
+value can be applied directly to a frame of audio samples</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.filterfun.filters.WienerFilter.check_volume">
+<code class="sig-name descname">check_volume</code><span class="sig-paren">(</span><em class="sig-param">samples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.check_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.check_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>ensures volume of filtered signal is within the bounds of the original</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.filterfun.filters.WienerFilter.get_samples">
+<code class="sig-name descname">get_samples</code><span class="sig-paren">(</span><em class="sig-param">wavfile</em>, <em class="sig-param">dur_sec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.get_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.get_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>load signal and save original volume</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wavfile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – path and name of wavfile to be loaded</p></li>
+<li><p><strong>dur_sec</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>float optional</em>) – max length of time in seconds (default None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>samples</strong> – array containing signal amplitude values in time domain</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.filterfun.filters.WienerFilter.load_power_vals">
+<code class="sig-name descname">load_power_vals</code><span class="sig-paren">(</span><em class="sig-param">path_npy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.load_power_vals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.load_power_vals" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads and checks shape compatibility of averaged power values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_npy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a>) – path to .npy file containing power information.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>power_values</strong> – the power values as long as they have the shape (self.num_fft_bins, 1)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.filterfun.filters.WienerFilter.save_filtered_signal">
+<code class="sig-name descname">save_filtered_signal</code><span class="sig-paren">(</span><em class="sig-param">output_file</em>, <em class="sig-param">samples</em>, <em class="sig-param">overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.save_filtered_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.save_filtered_signal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.filterfun.filters.WienerFilter.set_num_subframes">
+<code class="sig-name descname">set_num_subframes</code><span class="sig-paren">(</span><em class="sig-param">len_samples</em>, <em class="sig-param">is_noise=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.set_num_subframes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.set_num_subframes" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the number of target or noise subframes available for processing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>len_samples</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the total number of samples in a given signal</p></li>
+<li><p><strong>is_noise</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – if False, subframe number saved under self.target_subframes, otherwise
+self.noise_subframes (default False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.filterfun.filters.WienerFilter.set_volume">
+<code class="sig-name descname">set_volume</code><span class="sig-paren">(</span><em class="sig-param">samples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.set_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.WienerFilter.set_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records and limits the maximum amplitude of original samples</p>
+<p>This enables the output wave to be within a range of
+volume that does not go below or too far above the
+orignal maximum amplitude of the signal</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>samples</strong> (<em>ndarray</em>) – the original samples of a signal (1 dimensional), of any length</p></li>
+<li><p><strong>Returns</strong> – </p></li>
+<li><p><strong>None</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.filterfun.filters.calc_audioclass_powerspecs">
+<code class="sig-prename descclassname">noize.filterfun.filters.</code><code class="sig-name descname">calc_audioclass_powerspecs</code><span class="sig-paren">(</span><em class="sig-param">filter_class</em>, <em class="sig-param">feature_class</em>, <em class="sig-param">dur_ms</em>, <em class="sig-param">augment_data=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#calc_audioclass_powerspecs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.calc_audioclass_powerspecs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="noize.filterfun.filters.coll_beg_audioclass_samps">
+<code class="sig-prename descclassname">noize.filterfun.filters.</code><code class="sig-name descname">coll_beg_audioclass_samps</code><span class="sig-paren">(</span><em class="sig-param">filter_class</em>, <em class="sig-param">feature_class</em>, <em class="sig-param">num_each_audioclass=1</em>, <em class="sig-param">dur_ms=500</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#coll_beg_audioclass_samps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.coll_beg_audioclass_samps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="noize.filterfun.filters.get_average_power">
+<code class="sig-prename descclassname">noize.filterfun.filters.</code><code class="sig-name descname">get_average_power</code><span class="sig-paren">(</span><em class="sig-param">class_waves_dict</em>, <em class="sig-param">encodelabel_dict</em>, <em class="sig-param">powspec_dir</em>, <em class="sig-param">duration_sec=1</em>, <em class="sig-param">augment_data=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#get_average_power"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.get_average_power" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="noize.filterfun.filters.get_save_begsamps">
+<code class="sig-prename descclassname">noize.filterfun.filters.</code><code class="sig-name descname">get_save_begsamps</code><span class="sig-paren">(</span><em class="sig-param">wavlist</em>, <em class="sig-param">audioclass_int</em>, <em class="sig-param">powspec_dir</em>, <em class="sig-param">samplerate=48000</em>, <em class="sig-param">dur_ms=500</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#get_save_begsamps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.filters.get_save_begsamps" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-noize.filterfun.applyfilter">
+<span id="noize-filterfun-applyfilter"></span><h2>noize.filterfun.applyfilter<a class="headerlink" href="#module-noize.filterfun.applyfilter" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="noize.filterfun.applyfilter.filtersignal">
+<code class="sig-prename descclassname">noize.filterfun.applyfilter.</code><code class="sig-name descname">filtersignal</code><span class="sig-paren">(</span><em class="sig-param">output_file</em>, <em class="sig-param">wavfile</em>, <em class="sig-param">noise_file=None</em>, <em class="sig-param">scale=1</em>, <em class="sig-param">apply_postfilter=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/applyfilter.html#filtersignal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filterfun.applyfilter.filtersignal" title="Permalink to this definition">¶</a></dt>
+<dd><p>apply wiener filter to signal using noise input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – path and name the filtered signal is to be saved</p></li>
+<li><p><strong>wavfile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the filename to the signal for filtering; if None, a signal will be
+generated (default None)</p></li>
+<li><p><strong>noise_file</strong> (<em>str optional</em>) – path to either noise wavfile or averaged power values in .npy file
+(default None)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="noize.models.html" title="previous chapter">Models</a></li>
+      <li>Next: <a href="noize.mathfun.html" title="next chapter">Mathematics Related Functions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, P. Sylopp und A. Rose GbR.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/noize.filterfun.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

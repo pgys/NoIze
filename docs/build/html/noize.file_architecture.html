@@ -1,0 +1,469 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Setup File Architecture &#8212; \\NoIze// 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Acoustic Features for Machine Learning" href="noize.acousticfeats_ml.html" />
+    <link rel="prev" title="\ \NoIze/ / package" href="noize.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="setup-file-architecture">
+<h1>Setup File Architecture<a class="headerlink" href="#setup-file-architecture" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-noize.file_architecture.paths">
+<span id="noize-file-architecture-paths"></span><h2>noize.file_architecture.paths<a class="headerlink" href="#module-noize.file_architecture.paths" title="Permalink to this headline">¶</a></h2>
+<p>The module paths.py contains functionality that manages how files are
+stored.</p>
+<dl class="class">
+<dt id="noize.file_architecture.paths.PathSetup">
+<em class="property">class </em><code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">PathSetup</code><span class="sig-paren">(</span><em class="sig-param">project_name='test_data'</em>, <em class="sig-param">smartfilt_headpath='/home/airos/Desktop/testing_ground/default_model/'</em>, <em class="sig-param">audiodata_dir=None</em>, <em class="sig-param">feature_type='mfcc'</em>, <em class="sig-param">num_filters=40</em>, <em class="sig-param">segment_length_ms=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Manages paths for files specific to this smart filter instance</p>
+<p>Based on the headpath and feature settings, directories and files are
+created. Data pertaining to feature extraction and model training are
+stored and accessed via paths built by this class instance.</p>
+<dl class="attribute">
+<dt id="noize.file_architecture.paths.PathSetup.smartfilt_headpath">
+<code class="sig-name descname">smartfilt_headpath</code><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.smartfilt_headpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the project’s directory where all feature, model and
+sound files will be saved. The name of this directory is created by
+the <cite>project_name</cite> parameter when initializing this class.</p>
+<p>Hint: as both the features and models rely heavily on
+the data used, include a reference to that data here. Only features and
+models trained with the same dataset should be allowed to be here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.file_architecture.paths.PathSetup.audiodata_dir">
+<code class="sig-name descname">audiodata_dir</code><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.audiodata_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the directory where audio training data can be found.
+One should ensure folders exist here, titled according to the sound
+data stored inside of them.</p>
+<p>For example, to train a model on classifying sounds as either a
+dishwasher, air conditioner, or running toilet, you should have three
+folders, titled ‘dishwasher’, ‘air_conditioner’ and ‘running_toilet’,
+respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.file_architecture.paths.PathSetup.labels_encoded_path">
+<code class="sig-name descname">labels_encoded_path</code><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.labels_encoded_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Once created by the program, the path to the .csv file containing
+the labels found in the <cite>àudiodata_dir</cite> and to which integer the labels
+were encoded.</p>
+<p>These pairings, label names (e.g. ‘air_conditioner’, ‘dishwasher’,
+‘toilet’) and the integers they are encoded with (0,1,2), is important
+for training the neural network - it won’t understand letters - and for
+knowing which label the network categorizes new acoustic data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.file_architecture.paths.PathSetup.labels_waves_path">
+<code class="sig-name descname">labels_waves_path</code><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.labels_waves_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Once created by the program, the path to the .csv file that stores
+the audio file paths belonging to each audio class. None otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl>
+<dt>_labels_wavfile_filename<span class="classifier">str</span></dt><dd><p>The name this program expects to find when looking for the .csv
+containing audio class labels and the audiofile paths belonging to
+that class.</p>
+</dd>
+<dt>_encoded_labels_filename<span class="classifier">str</span></dt><dd><p>The name this program expects to find when looking for the .csv
+containing the audio class labels their encoded pairings.</p>
+</dd>
+<dt>features<span class="classifier">None, True</span></dt><dd><p>None if features have not yet been successfully extracted and True if
+features have been fully extracted from entire dataset and saved.</p>
+<p>These are relevant for the training of the CNN model for scene
+classification.</p>
+</dd>
+<dt>powspec<span class="classifier">None, True</span></dt><dd><p>True if audio class average audio spectrum data are collected. None
+otherwise.</p>
+<p>These are values relevant for the noise filtering of future sound data.</p>
+</dd>
+<dt>model<span class="classifier">None, pathlib.PosixPath</span></dt><dd><p>Once a model has been traind on these features and saved, the path
+and filename of that model. None otherwise.</p>
+</dd>
+<dt>feature_dirname<span class="classifier">str</span></dt><dd><p>The generated directory name to store all data from this instance of
+feature extraction.</p>
+<p>This directory is named according to the
+type of features extracted, the number of filters applied during
+extraction, as well as the number of seconds of audio data from each
+audio file used to extract features.</p>
+<p>For example, if ‘mfcc’ features with 40 filters are extracted, and a
+1.5 second segment of audio data from each audio file is used for that
+extraction, the directory name is: ‘mfcc_40_1.5’.</p>
+</dd>
+<dt>features_dir<span class="classifier">pathlib.PosixPath</span></dt><dd><p>The path to the directory titled <cite>feature_dirname</cite>, generated by
+the program.</p>
+</dd>
+<dt>_powspec_settings<span class="classifier">str</span></dt><dd><p>The name this program expects to find when looking for the .csv
+containing the settings used when calculating the average power
+spectrum of each audio class. This is relevant for applying the filter:
+the same settings are ideally used when calculating the power spectrum
+of the signal that needs filtering.</p>
+</dd>
+<dt>powspec_path<span class="classifier">pathlib.PosixPath</span></dt><dd><p>The path to where the audio class average power spectrum files will
+be or are located for the entire dataset. These values are calculated
+independent from the features extracted for machine learning.</p>
+</dd>
+<dt>modelname<span class="classifier">str</span></dt><dd><p>The name generated and applied to models trained on these features.</p>
+</dd>
+<dt>model_dir<span class="classifier">pathlib.PosixPath</span></dt><dd><p>The path to the directory where <cite>model</cite> and related data will be or
+are currently stored.</p>
+</dd>
+<dt>model_settings_path<span class="classifier">None, pathlib.PosixPath</span></dt><dd><p>If a model has been trained and saved, the path to the .csv file
+holding the settings for that specific model.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="noize.file_architecture.paths.PathSetup.cleanup_feats">
+<code class="sig-name descname">cleanup_feats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.cleanup_feats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.cleanup_feats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for feature extraction settings and training data files.</p>
+<p>If setting files (i.e. csv files) exist without training data files
+(i.e. npy files), and a directory for training data has been provided,
+delete csv files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.file_architecture.paths.PathSetup.cleanup_models">
+<code class="sig-name descname">cleanup_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.cleanup_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.cleanup_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for model creation settings and model files.</p>
+<p>If setting files (i.e. csv files) exist without model file(s)
+(i.e. h5 files), delete csv files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.file_architecture.paths.PathSetup.cleanup_powspec">
+<code class="sig-name descname">cleanup_powspec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.cleanup_powspec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.cleanup_powspec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for power spectrum settings and filter data files.</p>
+<p>If setting files (i.e. csv files) exist without or with too few
+data files (should be one data file for each audio class in training
+data), the setting files and data files will be deleted.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.file_architecture.paths.PathSetup.get_avepowspec_path">
+<code class="sig-name descname">get_avepowspec_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.get_avepowspec_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.get_avepowspec_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.file_architecture.paths.PathSetup.get_features_path">
+<code class="sig-name descname">get_features_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.get_features_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.get_features_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.file_architecture.paths.PathSetup.get_modelpath">
+<code class="sig-name descname">get_modelpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.get_modelpath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.get_modelpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>expects model related information to be in same directory as the model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.file_architecture.paths.PathSetup.get_modelsettings_path">
+<code class="sig-name descname">get_modelsettings_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.get_modelsettings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.get_modelsettings_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the path to the model settings file</p>
+<p>If the model already exists, uses that model’s parent directory. Otherwise
+sets the path to where a new model will be trained and saved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.file_architecture.paths.PathSetup.prep_feat_dirname">
+<code class="sig-name descname">prep_feat_dirname</code><span class="sig-paren">(</span><em class="sig-param">feature_type</em>, <em class="sig-param">num_filters</em>, <em class="sig-param">segment_length_ms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.prep_feat_dirname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.PathSetup.prep_feat_dirname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.check4files">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">check4files</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#check4files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.check4files" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks for a filename in the subdirectores of a pathlib object</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.check_extension">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">check_extension</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">extension</em>, <em class="sig-param">replace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#check_extension"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.check_extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds expected extension if it not included in the filename</p>
+<p>If extension is an empty string, it assumes the filename should be
+a directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a>) – The path and filename of the file to be checked</p></li>
+<li><p><strong>extension</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The expected extension the filename to have.</p></li>
+<li><p><strong>replace</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If True and the old and new extensions don’t match, the new one
+will replace the old extension. If false, the new extension will
+follow the old one.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>filename</strong> – The corrected filename with correct extension. Returned as the same
+type as provided.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">npy</span> <span class="o">=</span> <span class="n">check_extension</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="s1">&#39;npy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">npy2</span> <span class="o">=</span> <span class="n">check_extension</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">npy3</span> <span class="o">=</span> <span class="n">check_extension</span><span class="p">(</span><span class="s1">&#39;data.npy&#39;</span><span class="p">,</span><span class="s1">&#39;npy&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">npy</span>
+<span class="go">&#39;data.npy&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">npy</span> <span class="o">==</span> <span class="n">npy2</span> <span class="o">==</span> <span class="n">npy3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">txt_posixpath</span> <span class="o">=</span> <span class="n">check_extension</span><span class="p">(</span>
+<span class="gp">... </span>                   <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="s1">&#39;txt&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">txt_str</span> <span class="o">=</span> <span class="n">check_extension</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span><span class="s1">&#39;.txt&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">txt_posixpath</span><span class="p">,</span>
+<span class="gp">... </span>                   <span class="n">pathlib</span><span class="o">.</span><span class="n">PosixPath</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">txt_str</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">txt_posixpath</span>
+<span class="go">PosixPath(&#39;data.txt&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">txt_str</span>
+<span class="go">&#39;data.txt&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_extension</span><span class="p">(</span><span class="s1">&#39;data.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;npy&#39;</span><span class="p">,</span> <span class="n">replace</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+<span class="go">&#39;data.npy&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.collect_audio_and_labels">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">collect_audio_and_labels</code><span class="sig-paren">(</span><em class="sig-param">data_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#collect_audio_and_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.collect_audio_and_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collects class label names and the wavfiles within each class</p>
+<p>Acceptable extensions: ‘.wav’</p>
+<p>Expects wavfiles to be in subdirectory: ‘data’
+labels are expected to be the names of each subdirectory in ‘data’
+does not include waves with filenames starting with ‘_’</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.is_audio_ext_allowed">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">is_audio_ext_allowed</code><span class="sig-paren">(</span><em class="sig-param">audiofile</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#is_audio_ext_allowed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.is_audio_ext_allowed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that the audiofile extension is allowed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>audiofile</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>Return value</strong> – True if the extension is allowed, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.load_dict">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">load_dict</code><span class="sig-paren">(</span><em class="sig-param">csv_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#load_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.load_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a dictionary from csv file. Expands csv limit if too large.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.load_feature_data">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">load_feature_data</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#load_feature_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.load_feature_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses path to data files to load the features</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a>) – the path and filename to the data to be loaded. The file must be
+a numpy file; if the extension ‘.npy’ is not included, it will be added.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.load_settings_file">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">load_settings_file</code><span class="sig-paren">(</span><em class="sig-param">directory, keyword=['settings', 'PrepFeatures']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#load_settings_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.load_settings_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.prep_path">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">prep_path</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">create_new=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#prep_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.prep_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.save_dict">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">save_dict</code><span class="sig-paren">(</span><em class="sig-param">dict2save</em>, <em class="sig-param">filename</em>, <em class="sig-param">replace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#save_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.save_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves dictionary as csv file to indicated path and filename</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dict2save</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – The dictionary that is to be saved</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The path and name to save the dictionary under. If ‘.csv’
+extension is not given, it is added.</p></li>
+<li><p><strong>replace</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether or not the saved dictionary should overwrite a
+preexisting file (default False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>path</strong> – The path where the dictionary was saved</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.save_feature_data">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">save_feature_data</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">matrix_data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#save_feature_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.save_feature_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to manage the saving of numpy arrays/matrices to numpy files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a>) – The path and filename the matrix data will be saved under.</p></li>
+<li><p><strong>matrix_data</strong> (<em>ndarray</em>) – The data in a numpy ndarray that is to be saved</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.save_wave">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">save_wave</code><span class="sig-paren">(</span><em class="sig-param">wavfile_name</em>, <em class="sig-param">signal_values</em>, <em class="sig-param">sampling_rate</em>, <em class="sig-param">overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#save_wave"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.save_wave" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves the wave at designated path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wavfile_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – path and name the wave is to be saved under</p></li>
+<li><p><strong>signal_values</strong> (<em>ndarray</em>) – values of real signal to be saved</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>True if successful, otherwise False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.file_architecture.paths.string2list">
+<code class="sig-prename descclassname">noize.file_architecture.paths.</code><code class="sig-name descname">string2list</code><span class="sig-paren">(</span><em class="sig-param">list_paths_string</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#string2list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.file_architecture.paths.string2list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take a string of wavfiles list and establishes back to list</p>
+<p>This handles lists of strings, lists of pathlib.PosixPath objects, and lists
+of pathlib.PurePosixPath objects that were converted into a type string object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>list_paths_string</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The list that was converted into a string object</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>list_paths</strong> – The list converted back to a list of paths as pathlib.PosixPath objects.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)">list</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">input_string</span> <span class="o">=</span> <span class="s2">&quot;[PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;)]&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span>
+<span class="go">str</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">typelist</span> <span class="o">=</span> <span class="n">string2list</span><span class="p">(</span><span class="n">input_string</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">typelist</span>
+<span class="go">[PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">typelist</span><span class="p">)</span>
+<span class="go">list</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="noize.html" title="previous chapter">\ \NoIze/ / package</a></li>
+      <li>Next: <a href="noize.acousticfeats_ml.html" title="next chapter">Acoustic Features for Machine Learning</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, P. Sylopp und A. Rose GbR.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/noize.file_architecture.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

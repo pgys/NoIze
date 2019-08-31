@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Overview &#8212; \\NoIze// 0.0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="a-walk-through-the-modules">
+<h2>A Walk Through the Modules<a class="headerlink" href="#a-walk-through-the-modules" title="Permalink to this headline">¶</a></h2>
+<p>Here you can read about what the package is doing. For a more hands-on experience, please refer to this <a class="reference external" href="https://notebooks.ai/a-n-rose/noize-demo-360a3df2">demo</a>.</p>
+</div>
+<div class="section" id="running-the-smart-filter-module">
+<h2>1) Running the smart filter module<a class="headerlink" href="#running-the-smart-filter-module" title="Permalink to this headline">¶</a></h2>
+<p>Relevant submodule:</p>
+<blockquote>
+<div><p>noize.buildsmartfilter.my_smartfilter</p>
+</div></blockquote>
+<p>In the main module, you will see how the program completes the steps we will walk through below. It imports the modules relevant to complete each step, and continues once the data necessary for each step has been collected.</p>
+</div>
+<div class="section" id="file-setup">
+<h2>2) File Setup<a class="headerlink" href="#file-setup" title="Permalink to this headline">¶</a></h2>
+<p>relevant submodule:</p>
+<blockquote>
+<div><p>noize.file_architecture.paths</p>
+</div></blockquote>
+<p>The program expects the following architecture (I’m sorry, you might need to zoom in).</p>
+</div>
+<div class="section" id="figure-1-smart-filter-file-architecture">
+<h2>Figure 1: Smart Filter File Architecture<a class="headerlink" href="#figure-1-smart-filter-file-architecture" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/noize_file_setup_generic.png" src="_images/noize_file_setup_generic.png" />
+<p>Therefore, before the program does anything with sound, it first checks for the existence of such paths and files. It seeks to find out whether or not it should extract features and train a model. The files it searches for indicate:</p>
+<ul class="simple">
+<li><p>if audio data for training exists, and if so, where they are located</p></li>
+<li><p>if model training features (i.e. mfcc, fbank) have been extracted, and if so, where they are located</p></li>
+<li><p>if filter features (i.e. audio class acoustic profiles or Welch’s method) have been extracted, and if so, where they are located</p></li>
+<li><p>if a model (i.e. scene classifier) has been trained, and if so, where it is located</p></li>
+</ul>
+</div>
+<div class="section" id="figure-2-smart-filter-setup">
+<h2>Figure 2: Smart Filter Setup<a class="headerlink" href="#figure-2-smart-filter-setup" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/noize_feature_extraction_generic.png" src="_images/noize_feature_extraction_generic.png" />
+</div>
+<div class="section" id="features-for-model-training">
+<h2>3) Features for model training<a class="headerlink" href="#features-for-model-training" title="Permalink to this headline">¶</a></h2>
+<p>Relevant submodules:</p>
+<blockquote>
+<div><p>noize.acousticfeats_ml.featorg</p>
+<p>noize.acousticfeats_ml.modelfeats</p>
+</div></blockquote>
+<p>The program checks for the existence of datasets (i.e. train.npy, val.npy, test.npy), for how the audio classes were encoded (i.e. encoded_labels.csv), and for the settings of that specific feature extraction session (i.e. settings_PrepFeatures.csv).</p>
+<p>If audio data is present and no dataset files are found, features for model training are extracted.</p>
+</div>
+<div class="section" id="features-for-noise-filtering">
+<h2>4) Features for noise filtering<a class="headerlink" href="#features-for-noise-filtering" title="Permalink to this headline">¶</a></h2>
+<p>Relevant submodule:</p>
+<blockquote>
+<div><p>noize.filterfun.filters.get_average_power</p>
+</div></blockquote>
+<p>The program checks for the existence of average power spectrum data for each audio class found in the provided audio dataset (e.g. powspec_noise_0.npy, powspec_noise_1.npy, powspec_noise_2.npy) as well as the settings associated with that feature extraction session (i.e. powspec_settings.csv).</p>
+<p>If audio data is present and no average power spectrum files are found, such data is collected from each audio class from the provided dataset.</p>
+</div>
+<div class="section" id="build-or-load-a-model">
+<h2>5) Build or load a model<a class="headerlink" href="#build-or-load-a-model" title="Permalink to this headline">¶</a></h2>
+<p>Relevant submodules:</p>
+<blockquote>
+<div><p>noize.models.cnn.buildclassifier</p>
+<p>noize.models.cnn.loadclassifier</p>
+</div></blockquote>
+<p>If a model already exists, only the settings_PrepFeatures.csv file is necessary; otherwise the train.npy, val.npy and test.npy files as well as the settings_PrepFeatures.csv file will be used to train a new model.</p>
+</div>
+<div class="section" id="real-world-data-classify-new-audio">
+<h2>6) Real-world data: Classify new audio<a class="headerlink" href="#real-world-data-classify-new-audio" title="Permalink to this headline">¶</a></h2>
+<p>Relevant submodule:</p>
+<blockquote>
+<div><p>noize.models.cnn.ClassifySound</p>
+</div></blockquote>
+<p>One second of sound will be analyzed from the file to be filtered. That section will be classified, by the previously trained model, according to its acoustic profile (i.e. power spectrum) and assigned the audio class that is most similar.</p>
+</div>
+<div class="section" id="real-world-data-filter-out-classified-noise">
+<h2>7) Real-world data: Filter out classified noise<a class="headerlink" href="#real-world-data-filter-out-classified-noise" title="Permalink to this headline">¶</a></h2>
+<p>Relevant submodule:</p>
+<blockquote>
+<div><p>noize.filterfun.applyfilter</p>
+</div></blockquote>
+<p>The Wiener Filter is then applied to remove that noise class’s acoustic profile. The filtered wavfile is then saved.</p>
+</div>
+<div class="section" id="figure-3-smart-filter-flow-chart">
+<h2>Figure 3: Smart Filter Flow Chart<a class="headerlink" href="#figure-3-smart-filter-flow-chart" title="Permalink to this headline">¶</a></h2>
+<img alt="_images/smartfilter.png" src="_images/smartfilter.png" />
+</div>
+</div>
+<div class="section" id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Installation and running of this package can be interactively explored in this Jupyter <a class="reference external" href="https://notebooks.ai/a-n-rose/noize-demo-360a3df2">notebook</a>. There you can look at the file architecture this package creates, and how new directories can be created for new datasets or different types of features extracted, etc.</p>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, P. Sylopp und A. Rose GbR.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/overview.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

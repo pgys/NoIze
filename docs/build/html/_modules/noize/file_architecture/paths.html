@@ -1,0 +1,774 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>noize.file_architecture.paths &#8212; \\NoIze// 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for noize.file_architecture.paths</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># Copyright 2019 Peggy Sylopp und Aislyn Rose GbR</span>
+<span class="c1"># All rights reserved</span>
+<span class="c1"># This file is part of the  NoIze-framework</span>
+<span class="c1"># The NoIze-framework is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#@author Aislyn Rose</span>
+<span class="c1">#@version 0.1</span>
+<span class="c1">#@date 31.08.2019</span>
+<span class="c1">#</span>
+<span class="c1"># The  NoIze-framework  is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. </span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU AFFERO General Public License along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">The module paths.py contains functionality that manages how files are </span>
+<span class="sd">stored. </span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="c1">###############################################################################</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="c1"># for saving numpy files</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># for saving wavfiles</span>
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="k">import</span> <span class="n">wavfile</span>
+
+<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="k">import</span> <span class="n">pathinvalid_error</span><span class="p">,</span> <span class="n">noaudiofiles_error</span>
+
+
+<div class="viewcode-block" id="PathSetup"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup">[docs]</a><span class="k">class</span> <span class="nc">PathSetup</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Manages paths for files specific to this smart filter instance</span>
+
+<span class="sd">    Based on the headpath and feature settings, directories and files are </span>
+<span class="sd">    created. Data pertaining to feature extraction and model training are</span>
+<span class="sd">    stored and accessed via paths built by this class instance.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    smartfilt_headpath : pathlib.PosixPath</span>
+<span class="sd">        The path to the project&#39;s directory where all feature, model and </span>
+<span class="sd">        sound files will be saved. The name of this directory is created by</span>
+<span class="sd">        the `project_name` parameter when initializing this class.</span>
+
+<span class="sd">        Hint: as both the features and models rely heavily on </span>
+<span class="sd">        the data used, include a reference to that data here. Only features and</span>
+<span class="sd">        models trained with the same dataset should be allowed to be here.</span>
+
+<span class="sd">    audiodata_dir : pathlib.PosixPath</span>
+<span class="sd">        The path to the directory where audio training data can be found.</span>
+<span class="sd">        One should ensure folders exist here, titled according to the sound</span>
+<span class="sd">        data stored inside of them. </span>
+
+<span class="sd">        For example, to train a model on classifying sounds as either a</span>
+<span class="sd">        dishwasher, air conditioner, or running toilet, you should have three</span>
+<span class="sd">        folders, titled &#39;dishwasher&#39;, &#39;air_conditioner&#39; and &#39;running_toilet&#39;,</span>
+<span class="sd">        respectively. </span>
+
+<span class="sd">    labels_encoded_path : None, pathlib.PosixPath</span>
+<span class="sd">        Once created by the program, the path to the .csv file containing </span>
+<span class="sd">        the labels found in the `àudiodata_dir` and to which integer the labels</span>
+<span class="sd">        were encoded. </span>
+
+<span class="sd">        These pairings, label names (e.g. &#39;air_conditioner&#39;, &#39;dishwasher&#39;, </span>
+<span class="sd">        &#39;toilet&#39;) and the integers they are encoded with (0,1,2), is important </span>
+<span class="sd">        for training the neural network - it won&#39;t understand letters - and for </span>
+<span class="sd">        knowing which label the network categorizes new acoustic data.</span>
+
+<span class="sd">    labels_waves_path : None, pathlib.PosixPath</span>
+<span class="sd">        Once created by the program, the path to the .csv file that stores</span>
+<span class="sd">        the audio file paths belonging to each audio class. None otherwise.</span>
+
+
+<span class="sd">    _labels_wavfile_filename : str </span>
+<span class="sd">        The name this program expects to find when looking for the .csv </span>
+<span class="sd">        containing audio class labels and the audiofile paths belonging to</span>
+<span class="sd">        that class.</span>
+
+<span class="sd">    _encoded_labels_filename : str </span>
+<span class="sd">        The name this program expects to find when looking for the .csv </span>
+<span class="sd">        containing the audio class labels their encoded pairings.</span>
+
+<span class="sd">    features : None, True </span>
+<span class="sd">        None if features have not yet been successfully extracted and True if </span>
+<span class="sd">        features have been fully extracted from entire dataset and saved.</span>
+
+<span class="sd">        These are relevant for the training of the CNN model for scene </span>
+<span class="sd">        classification.</span>
+
+<span class="sd">    powspec : None, True</span>
+<span class="sd">        True if audio class average audio spectrum data are collected. None</span>
+<span class="sd">        otherwise.</span>
+
+<span class="sd">        These are values relevant for the noise filtering of future sound data.</span>
+
+<span class="sd">    model : None, pathlib.PosixPath</span>
+<span class="sd">        Once a model has been traind on these features and saved, the path</span>
+<span class="sd">        and filename of that model. None otherwise.</span>
+
+<span class="sd">    feature_dirname : str </span>
+<span class="sd">        The generated directory name to store all data from this instance of</span>
+<span class="sd">        feature extraction. </span>
+
+<span class="sd">        This directory is named according to the</span>
+<span class="sd">        type of features extracted, the number of filters applied during</span>
+<span class="sd">        extraction, as well as the number of seconds of audio data from each</span>
+<span class="sd">        audio file used to extract features. </span>
+
+<span class="sd">        For example, if &#39;mfcc&#39; features with 40 filters are extracted, and a</span>
+<span class="sd">        1.5 second segment of audio data from each audio file is used for that</span>
+<span class="sd">        extraction, the directory name is: &#39;mfcc_40_1.5&#39;.</span>
+
+<span class="sd">    features_dir : pathlib.PosixPath</span>
+<span class="sd">        The path to the directory titled `feature_dirname`, generated by </span>
+<span class="sd">        the program.</span>
+
+<span class="sd">    _powspec_settings : str </span>
+<span class="sd">        The name this program expects to find when looking for the .csv </span>
+<span class="sd">        containing the settings used when calculating the average power</span>
+<span class="sd">        spectrum of each audio class. This is relevant for applying the filter:</span>
+<span class="sd">        the same settings are ideally used when calculating the power spectrum</span>
+<span class="sd">        of the signal that needs filtering.</span>
+
+<span class="sd">    powspec_path : pathlib.PosixPath</span>
+<span class="sd">        The path to where the audio class average power spectrum files will</span>
+<span class="sd">        be or are located for the entire dataset. These values are calculated</span>
+<span class="sd">        independent from the features extracted for machine learning. </span>
+
+<span class="sd">    modelname : str </span>
+<span class="sd">        The name generated and applied to models trained on these features.</span>
+
+<span class="sd">    model_dir : pathlib.PosixPath</span>
+<span class="sd">        The path to the directory where `model` and related data will be or</span>
+<span class="sd">        are currently stored.</span>
+
+<span class="sd">    model_settings_path : None, pathlib.PosixPath</span>
+<span class="sd">        If a model has been trained and saved, the path to the .csv file</span>
+<span class="sd">        holding the settings for that specific model.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">project_name</span><span class="o">=</span><span class="s1">&#39;test_data&#39;</span><span class="p">,</span>
+                 <span class="n">smartfilt_headpath</span><span class="o">=</span><span class="s1">&#39;/home/airos/Desktop/testing_ground/default_model/&#39;</span><span class="p">,</span>
+                 <span class="n">audiodata_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">feature_type</span><span class="o">=</span><span class="s1">&#39;mfcc&#39;</span><span class="p">,</span>
+                 <span class="n">num_filters</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+                 <span class="n">segment_length_ms</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+                 <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smartfilt_headpath</span> <span class="o">=</span> <span class="n">prep_path</span><span class="p">([</span><span class="n">smartfilt_headpath</span><span class="p">,</span> <span class="n">project_name</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">audiodata_dir</span> <span class="o">=</span> <span class="n">prep_path</span><span class="p">(</span><span class="n">audiodata_dir</span><span class="p">,</span> <span class="n">create_new</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_labels_wavfile_filename</span> <span class="o">=</span> <span class="s1">&#39;label_wavfiles.csv&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_encoded_labels_filename</span> <span class="o">=</span> <span class="s1">&#39;encoded_labels.csv&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_features_settings_filename</span> <span class="o">=</span> <span class="s1">&#39;settings_PrepFeatures.csv&#39;</span>
+        <span class="c1"># initialize variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_settings_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_encoded_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_waves_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">powspec</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_dirname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prep_feat_dirname</span><span class="p">(</span><span class="n">feature_type</span><span class="p">,</span>
+                                                      <span class="n">num_filters</span><span class="p">,</span>
+                                                      <span class="n">segment_length_ms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_features_path</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_powspec_settings</span> <span class="o">=</span> <span class="s1">&#39;powspec_settings.csv&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">powspec_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_avepowspec_path</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelname</span> <span class="o">=</span> <span class="n">project_name</span><span class="o">+</span><span class="s1">&#39;_model&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_modelpath</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model_settings_filename</span> <span class="o">=</span> <span class="s1">&#39;settings_SceneClassifier.csv&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_settings_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_modelsettings_path</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PathSetup.prep_feat_dirname"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup.prep_feat_dirname">[docs]</a>    <span class="k">def</span> <span class="nf">prep_feat_dirname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_type</span><span class="p">,</span> <span class="n">num_filters</span><span class="p">,</span> <span class="n">segment_length_ms</span><span class="p">):</span>
+        <span class="n">len_sec</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">segment_length_ms</span><span class="o">/</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">&#39;stft&#39;</span> <span class="ow">in</span> <span class="n">feature_type</span><span class="p">:</span>
+            <span class="n">feat_dirname</span> <span class="o">=</span> <span class="n">feature_type</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">len_sec</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">feat_dirname</span> <span class="o">=</span> <span class="n">feature_type</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">num_filters</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;_&#39;</span><span class="o">+</span><span class="n">len_sec</span>
+        <span class="k">return</span> <span class="n">feat_dirname</span></div>
+
+<div class="viewcode-block" id="PathSetup.get_features_path"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup.get_features_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_features_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">features_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smartfilt_headpath</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;features&#39;</span><span class="p">,</span>
+                                                        <span class="bp">self</span><span class="o">.</span><span class="n">feature_dirname</span><span class="p">)</span>
+        <span class="n">features_parent_dir</span> <span class="o">=</span> <span class="n">features_dir</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">npy_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">features_parent_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.npy&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">npy_files</span><span class="p">:</span>
+            <span class="n">powspec_files</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">training_files</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">npy_files</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;powspec_average&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">parent</span><span class="p">):</span>
+                    <span class="n">powspec_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">features_dir</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span>
+                    <span class="n">training_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">powspec_files</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">powspec</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">powspec_path</span> <span class="o">=</span> <span class="n">powspec_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span>
+            <span class="k">if</span> <span class="n">training_files</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="kc">True</span>  
+                <span class="n">label_waves_filename</span> <span class="o">=</span> <span class="n">check4files</span><span class="p">(</span><span class="n">features_dir</span><span class="p">,</span>
+                                                   <span class="bp">self</span><span class="o">.</span><span class="n">_labels_wavfile_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">label_waves_filename</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labels_waves_path</span> <span class="o">=</span> <span class="n">label_waves_filename</span>
+                <span class="n">encoded_labels_filename</span> <span class="o">=</span> <span class="n">check4files</span><span class="p">(</span><span class="n">features_dir</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">_encoded_labels_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">encoded_labels_filename</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labels_encoded_path</span> <span class="o">=</span> <span class="n">encoded_labels_filename</span>
+                <span class="k">return</span> <span class="n">features_dir</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">encoded_labels_filename</span> <span class="o">=</span> <span class="n">check4files</span><span class="p">(</span><span class="n">features_dir</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">_encoded_labels_filename</span><span class="p">)</span>
+                <span class="n">feature_settings_filename</span> <span class="o">=</span> <span class="n">check4files</span><span class="p">(</span><span class="n">features_dir</span><span class="p">,</span>
+                                                        <span class="bp">self</span><span class="o">.</span><span class="n">_features_settings_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">encoded_labels_filename</span> <span class="ow">and</span> <span class="n">feature_settings_filename</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">labels_encoded_path</span> <span class="o">=</span> <span class="n">encoded_labels_filename</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">feature_settings_path</span> <span class="o">=</span> <span class="n">feature_settings_filename</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># not necessary - already used for training</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># not yet extracted</span>
+        <span class="n">features_dir</span> <span class="o">=</span> <span class="n">prep_path</span><span class="p">(</span><span class="n">features_dir</span><span class="p">,</span> <span class="n">create_new</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_waves_path</span> <span class="o">=</span> <span class="n">features_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_labels_wavfile_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels_encoded_path</span> <span class="o">=</span> <span class="n">features_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_encoded_labels_filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_settings_path</span> <span class="o">=</span> <span class="n">features_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_features_settings_filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">features_dir</span></div>
+
+<div class="viewcode-block" id="PathSetup.get_modelpath"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup.get_modelpath">[docs]</a>    <span class="k">def</span> <span class="nf">get_modelpath</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;expects model related information to be in same directory as the model</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">model_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">smartfilt_headpath</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;models&#39;</span><span class="p">,</span>
+                                                     <span class="bp">self</span><span class="o">.</span><span class="n">feature_dirname</span><span class="p">,</span>
+                                                     <span class="bp">self</span><span class="o">.</span><span class="n">modelname</span><span class="p">)</span>
+        <span class="c1">#relevant_features = self.feature_dirname</span>
+        <span class="n">models_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">model_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.h5&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">models_list</span><span class="p">:</span>
+            <span class="c1"># just one model to choose from</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">models_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">modelpath</span> <span class="o">=</span> <span class="n">models_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># want the best model available</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">modelpath</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">models_list</span> <span class="k">if</span> <span class="s1">&#39;best&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="n">modelpath</span><span class="p">:</span>
+                    <span class="n">modelpath</span> <span class="o">=</span> <span class="n">modelpath</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;multiple models found. chose this model:&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">modelpath</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">modelpath</span>
+            <span class="k">return</span> <span class="n">model_dir</span>
+        <span class="c1"># create a new model directory</span>
+        <span class="n">model_dir</span> <span class="o">=</span> <span class="n">prep_path</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">create_new</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model_dir</span></div>
+
+<div class="viewcode-block" id="PathSetup.get_modelsettings_path"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup.get_modelsettings_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_modelsettings_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;sets the path to the model settings file</span>
+
+<span class="sd">        If the model already exists, uses that model&#39;s parent directory. Otherwise</span>
+<span class="sd">        sets the path to where a new model will be trained and saved.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">:</span>
+            <span class="n">model_settings_path</span> <span class="o">=</span> <span class="n">load_settings_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span>
+                                                     <span class="n">keyword</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;settings&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_settings_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_model_settings_filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model_settings_path</span></div>
+
+<div class="viewcode-block" id="PathSetup.get_avepowspec_path"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup.get_avepowspec_path">[docs]</a>    <span class="k">def</span> <span class="nf">get_avepowspec_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">powspec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">features_dir</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                <span class="s1">&#39;powspec_average&#39;</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">prep_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">create_new</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">powspec_path</span>
+        <span class="k">return</span> <span class="n">path</span></div>
+
+<div class="viewcode-block" id="PathSetup.cleanup_feats"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup.cleanup_feats">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup_feats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Checks for feature extraction settings and training data files.</span>
+<span class="sd">    </span>
+<span class="sd">        If setting files (i.e. csv files) exist without training data files </span>
+<span class="sd">        (i.e. npy files), and a directory for training data has been provided,</span>
+<span class="sd">        delete csv files.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">feat_csvs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.csv&#39;</span><span class="p">))</span>
+        <span class="n">npy_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.npy&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">feat_csvs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">npy_files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">audiodata_dir</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span> <span class="c1"># No feature extraction necessary.</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Press Y to remove the following conflicting files:&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">feat_csvs</span><span class="p">)))</span>
+                <span class="n">remove</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+                <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">remove</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">feat_csvs</span><span class="p">:</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Conflicting files have been removed.&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Files not removed.&#39;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;You may experience file conflicts if you rerun program&#39;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PathSetup.cleanup_powspec"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup.cleanup_powspec">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup_powspec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Checks for power spectrum settings and filter data files.</span>
+<span class="sd">    </span>
+<span class="sd">        If setting files (i.e. csv files) exist without or with too few </span>
+<span class="sd">        data files (should be one data file for each audio class in training</span>
+<span class="sd">        data), the setting files and data files will be deleted.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">powspec_csv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">powspec_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.csv&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">powspec_csv</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">powspec_csv</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;setting&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                    <span class="n">powspec_settings_dict</span> <span class="o">=</span> <span class="n">load_dict</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                    <span class="n">num_audio_classes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                        <span class="n">powspec_settings_dict</span><span class="p">[</span><span class="s1">&#39;num_audio_classes&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">num_audio_classes</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">powspec_npy</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">powspec_path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.npy&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">powspec_csv</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">powspec_npy</span> <span class="ow">or</span> \
+                <span class="n">num_audio_classes</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">num_audio_classes</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">powspec_npy</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Average Power Extraction Error: Some files are missing.&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Before continuing, delete the following files:&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Press Y to delete/remove:&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">powspec_csv</span><span class="p">)))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">powspec_npy</span><span class="p">)))</span>
+            <span class="n">remove</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">remove</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">powspec_csv</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">powspec_npy</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Conflicting files have been deleted.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Files have not been deleted. You may have filename conflicts.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="PathSetup.cleanup_models"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.PathSetup.cleanup_models">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup_models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Checks for model creation settings and model files.</span>
+<span class="sd">    </span>
+<span class="sd">        If setting files (i.e. csv files) exist without model file(s) </span>
+<span class="sd">        (i.e. h5 files), delete csv files.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">models_csvs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.csv&#39;</span><span class="p">))</span>
+        <span class="n">models_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.h5&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">models_csvs</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">models_list</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">File Conflict Error:</span><span class="se">\</span>
+<span class="s1">                </span><span class="se">\n</span><span class="s1">Unpaired csv files found and need to be removed before building model.&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Press Y to remove the following files:&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">models_csvs</span><span class="p">)))</span>
+            <span class="n">remove</span> <span class="o">=</span> <span class="nb">input</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;y&#39;</span> <span class="ow">in</span> <span class="n">remove</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">models_csvs</span><span class="p">:</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Files have been removed. There should be no conflicts.&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Files have not been removed&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Please change the name of the model to avoid file conflicts&#39;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="check4files"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.check4files">[docs]</a><span class="k">def</span> <span class="nf">check4files</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;checks for a filename in the subdirectores of a pathlib object</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">file_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">file_list</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">file_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="prep_path"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.prep_path">[docs]</a><span class="k">def</span> <span class="nf">prep_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">create_new</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">headpath</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">headpath</span> <span class="o">=</span> <span class="n">headpath</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">headpath</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">create_new</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The following path does not exist:</span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="load_dict"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.load_dict">[docs]</a><span class="k">def</span> <span class="nf">load_dict</span><span class="p">(</span><span class="n">csv_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Loads a dictionary from csv file. Expands csv limit if too large.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+            <span class="n">dict_prepped</span> <span class="o">=</span> <span class="p">{</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">rows</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">rows</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">}</span>
+    <span class="k">except</span> <span class="n">csv</span><span class="o">.</span><span class="n">Error</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Dictionary values or size is too large.&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Maxing out field size limit for loading this dictionary:&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">The new field size limit is:&#39;</span><span class="p">)</span>
+        <span class="n">maxInt</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">maxInt</span><span class="p">)</span>
+        <span class="n">csv</span><span class="o">.</span><span class="n">field_size_limit</span><span class="p">(</span><span class="n">maxInt</span><span class="p">)</span>
+        <span class="n">dict_prepped</span> <span class="o">=</span> <span class="n">load_dict</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OverflowError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">maxInt</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxInt</span><span class="o">/</span><span class="mi">10</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Reducing field size limit to: &#39;</span><span class="p">,</span> <span class="n">maxInt</span><span class="p">)</span>
+        <span class="n">dict_prepped</span> <span class="o">=</span> <span class="n">load_dict</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dict_prepped</span></div>
+
+
+<div class="viewcode-block" id="save_dict"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.save_dict">[docs]</a><span class="k">def</span> <span class="nf">save_dict</span><span class="p">(</span><span class="n">dict2save</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Saves dictionary as csv file to indicated path and filename</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dict2save : dict</span>
+<span class="sd">        The dictionary that is to be saved </span>
+<span class="sd">    filename : str </span>
+<span class="sd">        The path and name to save the dictionary under. If &#39;.csv&#39; </span>
+<span class="sd">        extension is not given, it is added.</span>
+<span class="sd">    replace : bool, optional</span>
+<span class="sd">        Whether or not the saved dictionary should overwrite a </span>
+<span class="sd">        preexisting file (default False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path : pathlib.PosixPath</span>
+<span class="sd">        The path where the dictionary was saved</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PosixPath</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span> <span class="o">!=</span> <span class="s1">&#39;.csv&#39;</span><span class="p">:</span>
+        <span class="n">filename_str</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="n">filename_csv</span> <span class="o">=</span> <span class="n">filename_str</span><span class="o">+</span><span class="s1">&#39;.csv&#39;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename_csv</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">replace</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span>
+                <span class="s1">&#39;The file </span><span class="si">{}</span><span class="s1"> already exists at this path:</span><span class="se">\</span>
+<span class="s1">                </span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">filename</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">w</span><span class="o">.</span><span class="n">writerows</span><span class="p">(</span><span class="n">dict2save</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">filename</span></div>
+
+<div class="viewcode-block" id="load_settings_file"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.load_settings_file">[docs]</a><span class="k">def</span> <span class="nf">load_settings_file</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">keyword</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;settings&#39;</span><span class="p">,</span> <span class="s1">&#39;PrepFeatures&#39;</span><span class="p">]):</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">directory</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.csv&#39;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">files_r</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">ele</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">keyword</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files_r</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;There are multiple &quot;</span><span class="si">{}</span><span class="s1">&quot; .csv files found in this directory:&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="s1">&#39; and &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">keyword</span><span class="p">)))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;There should only be one to designate feature data settings&#39;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">files_r</span><span class="p">:</span>
+            <span class="n">data_settings_path</span> <span class="o">=</span> <span class="n">files_r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">data_settings_path</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No relevant files found at the following location:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="check_extension"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.check_extension">[docs]</a><span class="k">def</span> <span class="nf">check_extension</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">extension</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Adds expected extension if it not included in the filename</span>
+
+<span class="sd">    If extension is an empty string, it assumes the filename should be</span>
+<span class="sd">    a directory.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str, pathlib.PosixPath</span>
+<span class="sd">        The path and filename of the file to be checked</span>
+<span class="sd">    extension : str</span>
+<span class="sd">        The expected extension the filename to have. </span>
+<span class="sd">    replace : bool</span>
+<span class="sd">        If True and the old and new extensions don&#39;t match, the new one</span>
+<span class="sd">        will replace the old extension. If false, the new extension will </span>
+<span class="sd">        follow the old one.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    filename : str, pathlib.PosixPath</span>
+<span class="sd">        The corrected filename with correct extension. Returned as the same</span>
+<span class="sd">        type as provided.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    ----------</span>
+<span class="sd">    &gt;&gt;&gt; npy = check_extension(&#39;data&#39;,&#39;npy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; npy2 = check_extension(&#39;data&#39;,&#39;.npy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; npy3 = check_extension(&#39;data.npy&#39;,&#39;npy&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; npy</span>
+<span class="sd">    &#39;data.npy&#39;</span>
+<span class="sd">    &gt;&gt;&gt; assert npy == npy2 == npy3</span>
+<span class="sd">    &gt;&gt;&gt; txt_posixpath = check_extension(</span>
+<span class="sd">    ...                    pathlib.Path(&#39;data&#39;),</span>
+<span class="sd">    ...                    &#39;txt&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; txt_str = check_extension(&#39;data&#39;,&#39;.txt&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; assert isinstance(txt_posixpath,</span>
+<span class="sd">    ...                    pathlib.PosixPath)</span>
+<span class="sd">    &gt;&gt;&gt; assert isinstance(txt_str, str)</span>
+<span class="sd">    &gt;&gt;&gt; txt_posixpath </span>
+<span class="sd">    PosixPath(&#39;data.txt&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; txt_str</span>
+<span class="sd">    &#39;data.txt&#39;</span>
+<span class="sd">    &gt;&gt;&gt; check_extension(&#39;data.txt&#39;, &#39;npy&#39;, replace = True)</span>
+<span class="sd">    &#39;data.npy&#39;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">filename_orig</span> <span class="o">=</span> <span class="n">filename</span>
+    <span class="k">if</span> <span class="n">extension</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extension</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">extension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;.&#39;</span><span class="p">:</span>
+            <span class="n">extension</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">+</span><span class="n">extension</span>
+    <span class="k">elif</span> <span class="n">extension</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extension</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Expected extension to be of type string. </span><span class="se">\</span>
+<span class="s1">            </span><span class="se">\n</span><span class="s1">Received type </span><span class="si">{}</span><span class="s1">.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">extension</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No extension provided. No change made to the following filename:</span><span class="se">\</span>
+<span class="s1">            </span><span class="se">\n</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">filename</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PosixPath</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">suffix</span><span class="p">:</span>
+            <span class="n">filename_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename_str</span><span class="o">+</span><span class="n">extension</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filename</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="n">extension</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">replace</span><span class="p">:</span>
+                <span class="n">ext_prev</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">suffix</span>
+                <span class="n">filename_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="n">filename_replace_ext</span> <span class="o">=</span> <span class="n">filename_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="n">ext_prev</span><span class="p">,</span> <span class="n">extension</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename_replace_ext</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">filename_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">filename_str</span><span class="o">+</span><span class="n">extension</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Unexpected type for filename: </span><span class="si">{}</span><span class="s1"> </span><span class="se">\</span>
+<span class="s1">            </span><span class="se">\n</span><span class="s1">Expected string or pathlib.PosixPath object&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">filename</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">filename_orig</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="n">filename_orig</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">filename</span></div>
+
+<div class="viewcode-block" id="is_audio_ext_allowed"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.is_audio_ext_allowed">[docs]</a><span class="k">def</span> <span class="nf">is_audio_ext_allowed</span><span class="p">(</span><span class="n">audiofile</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Checks that the audiofile extension is allowed</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    audiofile : pathlib.PosixPath, str</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Return value : bool </span>
+<span class="sd">        True if the extension is allowed, False otherwise.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">allowed_ext</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.wav&#39;</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">audiofile</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">and</span> <span class="n">audiofile</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="n">allowed_ext</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">audiofile</span><span class="o">.</span><span class="n">suffix</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">audiofile</span><span class="o">.</span><span class="n">parts</span> <span class="ow">and</span> <span class="n">audiofile</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">allowed_ext</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audiofile</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">audiofile</span> <span class="ow">in</span> <span class="n">allowed_ext</span> <span class="ow">or</span> <span class="s1">&#39;.&#39;</span><span class="o">+</span><span class="n">audiofile</span> <span class="ow">in</span> <span class="n">allowed_ext</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audiofile</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">audiofile</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">audiofile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">is_audio_ext_allowed</span><span class="p">(</span><span class="n">audiofile</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="collect_audio_and_labels"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.collect_audio_and_labels">[docs]</a><span class="k">def</span> <span class="nf">collect_audio_and_labels</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Collects class label names and the wavfiles within each class</span>
+
+<span class="sd">    Acceptable extensions: &#39;.wav&#39;</span>
+
+<span class="sd">    Expects wavfiles to be in subdirectory: &#39;data&#39;</span>
+<span class="sd">    labels are expected to be the names of each subdirectory in &#39;data&#39;</span>
+<span class="sd">    does not include waves with filenames starting with &#39;_&#39;</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">pathinvalid_error</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">all_files</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*&#39;</span><span class="p">)</span>
+    <span class="n">audiofiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">all_files</span> <span class="k">if</span> <span class="n">is_audio_ext_allowed</span><span class="p">(</span><span class="n">f</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">audiofiles</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">noaudiofiles_error</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="c1"># remove directories with &quot;_&quot; at the beginning</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">audiofiles</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;_&quot;</span><span class="p">]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">paths</span><span class="p">,</span> <span class="n">labels</span></div>
+
+<div class="viewcode-block" id="string2list"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.string2list">[docs]</a><span class="k">def</span> <span class="nf">string2list</span><span class="p">(</span><span class="n">list_paths_string</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Take a string of wavfiles list and establishes back to list</span>
+
+<span class="sd">    This handles lists of strings, lists of pathlib.PosixPath objects, and lists </span>
+<span class="sd">    of pathlib.PurePosixPath objects that were converted into a type string object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    list_paths_string : str </span>
+<span class="sd">        The list that was converted into a string object </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list_paths : list </span>
+<span class="sd">        The list converted back to a list of paths as pathlib.PosixPath objects.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; input_string = &quot;[PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;)]&quot;</span>
+<span class="sd">    &gt;&gt;&gt; type(input_string)</span>
+<span class="sd">    str</span>
+<span class="sd">    &gt;&gt;&gt; typelist = string2list(input_string)</span>
+<span class="sd">    &gt;&gt;&gt; typelist</span>
+<span class="sd">    [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;)]</span>
+<span class="sd">    &gt;&gt;&gt; type(typelist)</span>
+<span class="sd">    list</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># remove the string brackets and separate by space and comma --&gt; list</span>
+    <span class="n">list_string_red</span> <span class="o">=</span> <span class="n">list_paths_string</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;, &#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;PurePosixPath&#39;</span> <span class="ow">in</span> <span class="n">list_paths_string</span><span class="p">:</span>
+        <span class="n">remove_str</span> <span class="o">=</span> <span class="s2">&quot;PurePosixPath(&#39;&quot;</span>
+        <span class="n">end_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+    <span class="k">elif</span> <span class="s1">&#39;PosixPath&#39;</span> <span class="ow">in</span> <span class="n">list_paths_string</span><span class="p">:</span>
+        <span class="n">remove_str</span> <span class="o">=</span> <span class="s2">&quot;PosixPath(&#39;&quot;</span>
+        <span class="n">end_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">remove_str</span> <span class="o">=</span> <span class="s2">&quot;(&#39;&quot;</span>
+        <span class="n">end_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+    <span class="c1"># remove unwanted sections of the string items</span>
+    <span class="n">list_paths</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">list_string_red</span><span class="p">:</span>
+        <span class="n">list_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">remove_str</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)[:</span><span class="n">end_index</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">list_paths</span></div>
+
+<div class="viewcode-block" id="save_feature_data"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.save_feature_data">[docs]</a><span class="k">def</span> <span class="nf">save_feature_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">matrix_data</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Function to manage the saving of numpy arrays/matrices to numpy files</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str, pathlib.PosixPath</span>
+<span class="sd">        The path and filename the matrix data will be saved under. </span>
+<span class="sd">    matrix_data : ndarray</span>
+<span class="sd">        The data in a numpy ndarray that is to be saved</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">check_extension</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">matrix_data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="load_feature_data"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.load_feature_data">[docs]</a><span class="k">def</span> <span class="nf">load_feature_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Uses path to data files to load the features</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str, pathlib.PosixPath</span>
+<span class="sd">        the path and filename to the data to be loaded. The file must be</span>
+<span class="sd">        a numpy file; if the extension &#39;.npy&#39; is not included, it will be added.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">check_extension</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;.npy&#39;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="save_wave"><a class="viewcode-back" href="../../../noize.file_architecture.html#noize.file_architecture.paths.save_wave">[docs]</a><span class="k">def</span> <span class="nf">save_wave</span><span class="p">(</span><span class="n">wavfile_name</span><span class="p">,</span> <span class="n">signal_values</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;saves the wave at designated path</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavfile_name : str</span>
+<span class="sd">        path and name the wave is to be saved under</span>
+<span class="sd">    signal_values : ndarray</span>
+<span class="sd">        values of real signal to be saved</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ----------</span>
+<span class="sd">    True if successful, otherwise False</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wavfile_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">wavfile_name</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">wavfile_name</span><span class="p">)</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">wavfile_name</span><span class="o">.</span><span class="n">parent</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span><span class="p">:</span>
+        <span class="n">wavfile_name</span> <span class="o">=</span> <span class="n">if_exist_tweek_filename</span><span class="p">(</span><span class="n">wavfile_name</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">wavfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">wavfile_name</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="p">,</span> <span class="n">signal_values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">wavfile_name</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">wavfile_name</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, P. Sylopp und A. Rose GbR.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
