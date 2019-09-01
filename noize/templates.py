@@ -20,7 +20,7 @@
 # along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.
 
  
-def noizefilter(headpath, filter_project_name, target_wavfile, noise_wavfile=None, 
+def noizefilter(filter_project_name, headpath, target_wavfile, noise_wavfile=None, 
                 scale=1, apply_postfilter=False):
     '''Example code for implementing NoIze as just a noise filter.
     '''
@@ -38,7 +38,7 @@ def noizefilter(headpath, filter_project_name, target_wavfile, noise_wavfile=Non
                         scale=scale,apply_postfilter=apply_postfilter)
         return None
 
-def noizeclassifier(headpath, classifer_project_name, 
+def noizeclassifier(classifer_project_name, headpath,
                     target_wavfile=None, audiodir=None,
                     feature_type='fbank',audioclass_wavfile_limit=None):
     '''Example code for implementing NoIze as just a sound classifier.
