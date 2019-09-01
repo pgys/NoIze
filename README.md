@@ -49,117 +49,109 @@ Start a virtual environment:
 ```
 $ python3 -m venv env
 $ source env/bin/activate
-(env)$
+(env)..$
 ```
 Then install necessary installations via pip:
 ```
-(env)$ pip install -r requirements.txt
+(env)..$ pip install -r requirements.txt
 ```
-## Before running
-
-Before running, set up the necessary files and variable names.
-
-In the script 'build_my_filter.py', you will see some variable names to define:
+## NoIze as a simple filter
 
 ```
-project_name = ... 
-headpath = ...
-dataset_directory = ... 
-file2filter = ...
+(env)..$ import noize
 ```
 
-### 1) Name your project
+### Use the noisy signal's background noise for filtering:
 
-This program will use the variable 'headpath' to create a directory where new files will be saved. This program creates a subfolder (named with the variable 'project_name') in the headpath, which enables you to create a unique name for your filter project. 
-
-For example, if you set the variable 'headpath' as '/home/my_noise_filters/' and the variable 'project_name' as 'testrun', you will end up with this folder structure:
-
-* home/
-    * my_noise_filters/
-        * testrun/
-
-It is within the folder 'testrun' that audio feature and model files will be saved.
-
-### 2) Audio Training Data
-
-This program expects you have collected numerous wavfiles to train a deep neural network as a scene classifier. For each class of sounds you want to train it on, create a folder holding corresponding wavfiles. Enter the pathway to these folders into the 'build_my_filter.py' script under the variable name 'audio_classes_dir'.
-
-As an example, let's say you would like to train a network to identify and filter out traffic sounds, air conditioners, and cafe ambient noise. You would collect a  lot of audio wavfiles of each scenario and store them in a folder named as such.
-
-Let's say those folders were stored at the following path: '/home/soundata/dataset/'. The path structure would look something like this:
-
-* home
-    * soundata
-        * dataset
-            * traffic
-            * air_conditioner
-            * cafe
-            
-
-In the 'build_my_filter.py' script, set the variable name 'audio_classes_dir' to be '/home/soundata/dataset/'.
-
-### 3) Wavfile to classify and denoise
-
-As of now, this program expects only wavfiles and does not yet do real-time filtering. Therefore, you need to provide a wavfile that you would like the scene classifier to classify and then the filter to denoise. Enter the pathway of that wavfile under the variable 'soundfile' in the script 'build_my_filter.py'.
-
-### 4) Set features to extract
-
-By default, 'mfcc' features with 40 coefficients/filters are extracted. You can instead extract 'fbank' features if you would like; however for scene classification, 'mfcc' features have proven to work quite well. You can adjust the filters to be higher or lower as you like; keep in mind the higher the number of filters, the higher cost of computation.
-
-## Run 
-
-Once you have set the variables and set up your audio data files in 'build_my_filter.py', run it!
+The filtered signal will be saved under the `output_file` path.
 
 ```
-(env)$ python3 build_my_filter.py
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav')
 ```
-
-Depending on how many training files you have, duration times vary. I trained this with the DCASE2019 dataset (task A) and it took a good hour to extract the training features, but not long to train the scene classifier.
-
-## File Structure
-
-Once you run this program, it will create the following file structure, depending of course on how you set the variables. 
-
-This is basically the code from 'build_my_filter.py' and below is the folder structure that would result (using default settings):
+### Use a separate noise file for filtering:
 
 ```
-from smartnoisefilter.main import mysmartfilter
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav', 
+                            noise_file = 'backgroundnoise.wav')
+```
+### Increase or decrease the scale of the filter:
 
-project_name = 'testrun' 
-headpath = '/home/my_noise_filters/'
-dataset_directory = '/home/soundata/dataset/'
-file2filter = '/home/example_waves/test.wav'
+Default is 1 and can be set to just about any number except 0. 
 
-mysmartfilter(project_name, headpath, dataset_directory,
-                sounddata=file2filter)
+#### Decrease:
+```
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav', 
+                            scale = 0.5)
+```
+#### Increase:
+```
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav', 
+                            scale = 1.5)
+```
+### Apply post fitler to decrease 'musical noise' / distortion:
+
+Default is False
+```
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav', 
+                            apply_postfilter = True)
 ```
 
-Given the headpath and project_name variables from above, this is how the file 
-structure would look:
+## NoIze as a smart noise filter
 
-* home/
-    * my_noise_filters/
-        * testrun/
-            * features/
-                * powspec_average/
-                    * powspec_settings.csv
-                    * powspec_noise_0.npy
-                    * powspec_noise_1.npy
-                    * powspec_noise_2.npy
-                * mfcc_40/
-                    * train_data.npy
-                    * val_data.npy
-                    * test_data.npy
-                    * settings_PrepFeatures.csv
-                    * output.wav
-                    * label_wavefiles.csv
-                    * encoded_labels.csv
-            * models/
-                * mfcc_40/
-                    *modelname/
-                        * settings_SceneClassifier.csv
-                        * modelname.h5
-                        * log.csv
-                        * bestmodel_modelname.h5
+For this, a bit more effort is necessary. 
 
-This file structure uses the default settings (i.e. 'mfcc' features, with 40 coefficients). If you extract 'fbank' features, or if you extract a different number of coefficients / filters, you can adjust those in the 'build_my_filter.py' script. New folders with corresponding feature identifiers will be created (e.g. instead of mfcc_40/, it would be fbank_40 or mfcc_13, etc.). This allows you to extract various kinds of features to train your scene classifiers on and see which work best for your data/purpose. 
+### Collect some data
+
+The smart filter needs data for training. 
+
+Collect wavfiles of different noise classes you would like to filter out. For this example, let's say you've collected wavfiles belonging to the audio classes 'traffic', 'cafe', and 'train'. Save them in a directory that has such a structure:
+
+![Imgur](https://i.imgur.com/ycCLuUN.png)
+
+### Run the smart filter
+
+Once you've collected data, you can run the program. Running this line, generates a file structure, similar to that showed in the figure below.
+
+### Smart filter with defaults
+```
+(env)..$ from noize.buildsmartfilter import mysmartfilter
+
+(env)..$ project_name = 'test_smartfilter'
+(env)..$ headpath = 'directory_where_createdfiles_should_be_saved'
+
+(env)..$ filteredwavfile = mysmartfilter(project_name,
+                                headpath,
+                                audio_classes_dir,
+                                sounddata = 'noisysignal.wav')
+```
+The `filteredwavfile` is the filename where the filtered signal is stored.
+
+![Imgur](https://i.imgur.com/WBoZFkk.png)
+
+
+### Making smart filter adjustments
+
+Similar to the simple filter application presented above, one can increase/decrease the scale of the filter and apply a postfilter. Additionally, one can force the smart filter to use a different label than the one automatically classified by the smart filter. One can also decide to not implement the 'smart' part of the filter and just use the background noise from the file to reduce the noise. 
+```
+(env)..$ from noize.buildsmartfilter import mysmartfilter
+
+(env)..$ project_name = 'test_smartfilter'
+(env)..$ headpath = 'directory_where_createdfiles_should_be_saved'
+
+(env)..$ filteredwavfile = mysmartfilter(project_name,
+                                headpath,
+                                audio_classes_dir,
+                                sounddata = 'noisysignal.wav',
+                                feature_type = 'fbank', # default = 'mfcc'
+                                scale = 0.5, # defaul = 1
+                                apply_postfilter = True, # default False
+                                force_label = 'traffic', # enter the label to be applied
+                                classify_noise = False, # default True
+                                )
+```
+This will generate a similar structure to the file architecture in the last figure; however, instead of folders with 'mfcc', you would see folders with 'fbank' instead.
