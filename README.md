@@ -47,16 +47,17 @@ The `filteredwavfile` is the filename where the filtered signal is stored.
 ##### Figure 2:
 ![Imgur](https://i.imgur.com/WBoZFkk.png)
 
-For more on what these files do, <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>here</a> you can find a more detailed description.
+For more on what these files do, <a href='https://aislynrose.bitbucket.io/readme.html#file-setup'>here</a> you can find a more detailed description.
 
 ### Making smart filter adjustments
 
-Similar to the simple filter application presented above, one can increase/decrease the scale of the filter and apply a postfilter. Additionally, one can force the smart filter to use a different label than the one automatically classified by the smart filter. One can also decide to not implement the 'smart' part of the filter and just use the background noise from the file to reduce the noise. 
+One can increase/decrease the `scale` of the filter and apply a postfilter (`apply_postfilter`). Additionally, one can force the smart filter to use a different label than the one automatically classified by the smart filter (`force_label`). One can also decide to not implement the 'smart' part of the filter and just use the background noise from the file to reduce the noise (`classify_noise`). 
 ```
 (env)..$ from noize.buildsmartfilter import mysmartfilter
 
 (env)..$ project_name = 'test_smartfilter'
 (env)..$ headpath = 'directory_where_createdfiles_should_be_saved'
+(env)..$ audio_classes_dir = 'directory_where_training_data_is_located'
 
 (env)..$ filteredwavfile = mysmartfilter(project_name,
                                 headpath,
@@ -75,6 +76,8 @@ This will generate a similar structure to the file architecture in the last figu
 
 Once the sound classifier has been trained for the smart filter, the smart filter runs as follows:
 
+The upper case letters refer to functionality.
+The lower case letters refer to the major Python libraries used.
 ![Imgur](https://i.imgur.com/gsSfAtD.png)
 
 
