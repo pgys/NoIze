@@ -2,9 +2,11 @@
 
 <a href='https://aislynrose.bitbucket.io/'>Documentation</a>
 
+<a href='https://notebooks.ai/a-n-rose/noize-demo-360a3df2'>Demo</a>
+
 This smart noise filter was built under the project \\NoIze//, managed by Peggy Sylopp (contact@peggy-sylopp.net).
 
-Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@gmail.com, a-n-rose.github.io)
+Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@gmail.com, <a href='https://a-n-rose.github.io/'>a-n-rose.github.io</a>)
 
 ## About
 
