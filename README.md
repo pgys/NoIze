@@ -8,7 +8,7 @@ Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@
 
 ## About
 
-This software has functionality for noise filtering, sound classification, and smart noise filtering. <a ref='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
+This software has functionality for noise filtering, sound classification, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
 
 ## NoIze as a simple filter
 
@@ -88,12 +88,12 @@ This will train and save a classifier in the created models directory (see Figur
 (env)..$ noizeclassifier(project_name,
                         headpath,
                         audio_classes_dir,
-                        feature_type = 'fbank', # default = 'mfcc'
+                        feature_type = 'mfcc', # default = 'fbank'
                         target_wavfile = 'file2classify.wav', # default = None
                         audioclass_wavfile_limit = 120, # useful for balancing classes
                         )
 ```
-This will not only train and save a classifier (if one doesn't already exist), but will also classify the `target_wavfile`. The `feature_type` concerns which features are extracted from the training data. Options: 'mfcc' or 'fbank'. The `àudioclass_wavfile_limit` is to allow for a bit more control if you have many more wavfiles in one audio class than another.
+This will not only train and save a classifier (if one doesn't already exist), but will also classify the `target_wavfile`. The `feature_type` concerns which features are extracted from the training data. Options: 'mfcc' or 'fbank'. The default is set to FBANK, as the architecture of the classifier is based on that used in the paper by <a href='https://ieeexplore.ieee.org/abstract/document/8278160'>Sehgal and Kehtarnavaz (2017)</a>. In general, FBANK features tend to work better in speech/ voice related tasks than MFCCs. However, it is useful to be able to see which is better, which one can explore here. The `audioclass_wavfile_limit` is to allow for a bit more control if you have many more wavfiles in one audio class than another.
 
 ## NoIze as a smart noise filter
 
@@ -152,7 +152,7 @@ Similar to the simple filter application presented above, one can increase/decre
                                 classify_noise = False, # default True
                                 )
 ```
-This will generate a similar structure to the file architecture in the last figure; however, instead of folders with 'mfcc', you would see folders with 'fbank' instead.
+This will generate a similar structure to the file architecture in the last figure; however, instead of folders with 'mfcc', you would see folders with 'fbank' instead. MFCC features are set as default because they have proven quite successful in acoustic scene / noise classification.
 
 ## Structure of the smart filter 
 
@@ -160,7 +160,10 @@ Once the sound classifier has been trained for the smart filter, the smart filte
 
 ![Imgur](https://i.imgur.com/gsSfAtD.png)
 
+## References
 
+A. Sehgal and N. Kehtarnavaz, "A Convolutional Neural Network Smartphone App for Real-Time Voice Activity Detection," in IEEE Access, vol. 6, pp. 9017-9026, 2018.
+doi: 10.1109/ACCESS.2018.2800728
 
 
 
