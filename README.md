@@ -2,7 +2,7 @@
 
 <a href='https://aislynrose.bitbucket.io/'>Documentation</a>
 
-This smart noise filter was built under the project \\NoIze//, managed by Peggy Sylopp (contact@peggy-sylopp.net).
+This smart noise filter was built under the project \\ \\NoIze/ /, managed by Peggy Sylopp (contact@peggy-sylopp.net).
 
 Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@gmail.com, a-n-rose.github.io)
 
@@ -10,100 +10,17 @@ Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@
 
 This software has functionality for noise filtering, sound classification, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
 
-## NoIze as a simple filter
-
-```
-(env)..$ import noize
-```
-
-### Use the noisy signal's background noise for filtering:
-
-The filtered signal will be saved under the `output_file` path.
-
-```
-(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                            target_file = 'noisysignal.wav')
-```
-### Use a separate noise file for filtering:
-
-```
-(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                            target_file = 'noisysignal.wav', 
-                            noise_file = 'backgroundnoise.wav')
-```
-### Increase or decrease the scale of the filter:
-
-Default is 1 and can be set to just about any number except 0. 
-
-#### Decrease:
-```
-(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                            target_file = 'noisysignal.wav', 
-                            scale = 0.5)
-```
-#### Increase:
-```
-(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                            target_file = 'noisysignal.wav', 
-                            scale = 1.5)
-```
-### Apply post filter to decrease 'musical noise' / distortion:
-
-Default is False
-```
-(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                            target_file = 'noisysignal.wav', 
-                            apply_postfilter = True)
-```
-
-## NoIze as a sound classifier
-
-Data collection necessary for this to work. You can train this classifier on the <a href='https://ai.googleblog.com/2017/08/launching-speech-commands-dataset.html'>speech commands dataset</a>, acoustic scenes, healthy vs clinical speech, speech vs non-speech (i.e. silence or noise). It is not specific to noise classification. 
-
-The structure of the training data needs to be similar to Figure 1.
-
-### Just building a classifier with defaults:
-```
-(env)..$ from noize.templates import noizeclassifier
-
-(env)..$ project_name = 'test_soundclassifier'
-(env)..$ headpath = 'directory_where_createdfiles_should_be_saved'
-(env)..$ audio_classes_dir = 'directory_where_training_data_is_located'
-
-(env)..$ noizeclassifier(project_name,
-                        headpath,
-                        audio_classes_dir)
-```
-This will train and save a classifier in the created models directory (see Figure 2).
-
-### Adjusting the settings:
-
-```
-(env)..$ from noize.templates import noizeclassifier
-
-(env)..$ project_name = 'test_soundclassifier'
-(env)..$ headpath = 'directory_where_createdfiles_should_be_saved'
-(env)..$ audio_classes_dir = 'directory_where_training_data_is_located'
-
-(env)..$ noizeclassifier(project_name,
-                        headpath,
-                        audio_classes_dir,
-                        feature_type = 'mfcc', # default = 'fbank'
-                        target_wavfile = 'file2classify.wav', # default = None
-                        audioclass_wavfile_limit = 120, # useful for balancing classes
-                        )
-```
-This will not only train and save a classifier (if one doesn't already exist), but will also classify the `target_wavfile`. The `feature_type` concerns which features are extracted from the training data. Options: 'mfcc' or 'fbank'. The default is set to FBANK, as the architecture of the classifier is based on that used in the paper by <a href='https://ieeexplore.ieee.org/abstract/document/8278160'>Sehgal and Kehtarnavaz (2017)</a>. In general, FBANK features tend to work better in speech/ voice related tasks than MFCCs. However, it is useful to be able to see which is better, which one can explore here. The `audioclass_wavfile_limit` is to allow for a bit more control if you have many more wavfiles in one audio class than another.
-
 ## NoIze as a smart noise filter
 
-The smart noise filter uses the sound classifier. Therefore, training data is necessary for it to run.
+This requires a bit of effort because data collection is necessary for this to work. 
 
 ### Collect some data
 
 The smart filter needs data for training. 
 
-Collect wavfiles of different noise classes you would like to filter out. For this example, let's say you've collected wavfiles belonging to the audio classes 'traffic', 'cafe', and 'train'. Save them in a directory that has such a structure:
+Collect wavfiles of different noise classes you would like to filter out. 
+
+For this example, let's say you've collected wavfiles belonging to the audio classes 'traffic', 'cafe', and 'train'. Save them in a directory that has such a structure:
 
 ##### Figure 1:
 ![Imgur](https://i.imgur.com/ycCLuUN.png)
@@ -160,44 +77,91 @@ Once the sound classifier has been trained for the smart filter, the smart filte
 
 ![Imgur](https://i.imgur.com/gsSfAtD.png)
 
-## References
 
-A. Sehgal and N. Kehtarnavaz, "A Convolutional Neural Network Smartphone App for Real-Time Voice Activity Detection," in IEEE Access, vol. 6, pp. 9017-9026, 2018.
-doi: 10.1109/ACCESS.2018.2800728
+## NoIze as a simple filter
 
+```
+(env)..$ import noize
+```
 
+### Use the noisy signal's background noise for filtering:
 
+The filtered signal will be saved under the `output_file` path.
 
+```
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav')
+```
+### Use a separate noise file for filtering:
 
-### Pathway Formation
+```
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav', 
+                            noise_file = 'backgroundnoise.wav')
+```
+### Increase or decrease the scale of the filter:
 
-This step checks pathways and files. If necessary pathways don't exist yet, they are created. These pathways are created using the project name provided as well as the type of features indicated for extraction. This is done to organize newly created files in a way to avoid conflicts and overwriting data files.
+Default is 1 and can be set to just about any number except 0. 
 
-### Feature Extraction
+#### Decrease:
+```
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav', 
+                            scale = 0.5)
+```
+#### Increase:
+```
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav', 
+                            scale = 1.5)
+```
+### Apply post filter to decrease 'musical noise' / distortion:
 
-There are two kinds of features extracted:
+Default is False
+```
+(env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
+                            target_file = 'noisysignal.wav', 
+                            apply_postfilter = True)
+```
 
-1) features geared for model training
+## NoIze as a sound classifier
 
-2) features geared for noise filtering
+Data collection is necessary for this to work. You can train this classifier on the <a href='https://ai.googleblog.com/2017/08/launching-speech-commands-dataset.html'>speech commands dataset</a>, acoustic scenes, healthy vs clinical speech, speech vs non-speech (i.e. silence or noise). It is not specific to noise classification. 
 
-For both types of feature extraction, the features are orgnized accroding to their class. It expects all audiofiles belonging to one class be in the same folder. The name of that folder is used as a label for that class.
+The structure of the training data needs to be similar to Figure 1.
 
-Model Training Features:
+### Just building a classifier with defaults:
+```
+(env)..$ from noize.templates import noizeclassifier
 
-The features for the model can be either 'mfcc' or 'fbank' features. These are the features extracted from each audio file in the training dataset. These features are saved in .npy files (numpy files) to be later fed to the model.
+(env)..$ project_name = 'test_soundclassifier'
+(env)..$ headpath = 'directory_where_createdfiles_should_be_saved'
+(env)..$ audio_classes_dir = 'directory_where_training_data_is_located'
 
-Noise Filter Features:
+(env)..$ noizeclassifier(project_name,
+                        headpath,
+                        audio_classes_dir)
+```
+This will train and save a classifier in the created models directory (see Figure 2).
 
-The features for the filter are power spectrum averages. These are power averages collected from all audio files belonging to a single audio class. These power averages are used to inform the filter the appx. power spectrum of the noise it needs to reduce. 
+### Adjusting the settings:
 
-### Scene Classifier Training
+```
+(env)..$ from noize.templates import noizeclassifier
 
-The model aka scene classifier is trained on the 'mfcc' or 'fbank' features previously extracted. Once it is trained, this classifier can be used to classify brand new audio instances.
+(env)..$ project_name = 'test_soundclassifier'
+(env)..$ headpath = 'directory_where_createdfiles_should_be_saved'
+(env)..$ audio_classes_dir = 'directory_where_training_data_is_located'
 
-### Noise Filtering
-
-Noise filtering is applied to a new audiofile, which needs denoising. Once the scene classifier identifies the kind of noise evident in the signal, the filter uses the average power spectrum of the identified noise class, and reduces noise accordingly. 
+(env)..$ noizeclassifier(project_name,
+                        headpath,
+                        audio_classes_dir,
+                        feature_type = 'mfcc', # default = 'fbank'
+                        target_wavfile = 'file2classify.wav', # default = None
+                        audioclass_wavfile_limit = 120, # useful for balancing classes
+                        )
+```
+This will not only train and save a classifier (if one doesn't already exist), but will also classify the `target_wavfile`. The `feature_type` concerns which features are extracted from the training data. Options: 'mfcc' or 'fbank'. The default is set to FBANK, as the architecture of the classifier is based on that used in the paper by <a href='https://ieeexplore.ieee.org/abstract/document/8278160'>Sehgal and Kehtarnavaz (2017)</a>. In general, FBANK features tend to work better in speech/ voice related tasks than MFCCs. However, it is useful to be able to see which is better, which one can explore here. The `audioclass_wavfile_limit` is to allow for a bit more control if you have many more wavfiles in one audio class than another.
 
 ## Installation
 
@@ -214,3 +178,9 @@ Then install necessary installations via pip:
 ```
 (env)..$ pip install -r requirements.txt
 ```
+
+## References
+
+A. Sehgal and N. Kehtarnavaz, "A Convolutional Neural Network Smartphone App for Real-Time Voice Activity Detection," in IEEE Access, vol. 6, pp. 9017-9026, 2018.
+doi: 10.1109/ACCESS.2018.2800728
+ 
