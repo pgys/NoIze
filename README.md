@@ -10,7 +10,7 @@ Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@
 
 This software has functionality for noise filtering, sound classification, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
 
-## NoIze as a smart noise filter
+# NoIze as a smart noise filter
 
 This requires a bit of effort because data collection is necessary for this to work. 
 
@@ -81,13 +81,13 @@ The lower case letters refer to the major Python libraries used.
 ![Imgur](https://i.imgur.com/gsSfAtD.png)
 
 
-## NoIze as a simple filter
+# NoIze as a simple filter
 
 ```
 (env)..$ import noize
 ```
 
-### Use the noisy signal's background noise for filtering:
+## Use the noisy signal's background noise for filtering:
 
 The filtered signal will be saved under the `output_file` path.
 
@@ -95,30 +95,30 @@ The filtered signal will be saved under the `output_file` path.
 (env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
                             target_file = 'noisysignal.wav')
 ```
-### Use a separate noise file for filtering:
+## Use a separate noise file for filtering:
 
 ```
 (env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
                             target_file = 'noisysignal.wav', 
                             noise_file = 'backgroundnoise.wav')
 ```
-### Increase or decrease the scale of the filter:
+## Increase or decrease the scale of the filter:
 
 Default is 1 and can be set to just about any number except 0. 
 
-#### Decrease:
+### Decrease:
 ```
 (env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
                             target_file = 'noisysignal.wav', 
                             scale = 0.5)
 ```
-#### Increase:
+### Increase:
 ```
 (env)..$ noize.filtersignal(output_file = 'name_filteredsignal.wav, 
                             target_file = 'noisysignal.wav', 
                             scale = 1.5)
 ```
-### Apply post filter to decrease 'musical noise' / distortion:
+## Apply post filter to decrease 'musical noise' / distortion:
 
 Default is False
 ```
@@ -127,13 +127,13 @@ Default is False
                             apply_postfilter = True)
 ```
 
-## NoIze as a sound classifier
+# NoIze as a sound classifier
 
 Data collection is necessary for this to work. You can train this classifier on the <a href='https://ai.googleblog.com/2017/08/launching-speech-commands-dataset.html'>speech commands dataset</a>, acoustic scenes, healthy vs clinical speech, speech vs non-speech (i.e. silence or noise). It is not specific to noise classification. 
 
 The structure of the training data needs to be similar to Figure 1.
 
-### Just building a classifier with defaults:
+## Just building a classifier with defaults:
 ```
 (env)..$ from noize.templates import noizeclassifier
 
@@ -147,7 +147,7 @@ The structure of the training data needs to be similar to Figure 1.
 ```
 This will train and save a classifier in the created models directory (see Figure 2).
 
-### Adjusting the settings:
+## Adjusting the settings:
 
 ```
 (env)..$ from noize.templates import noizeclassifier
@@ -166,7 +166,7 @@ This will train and save a classifier in the created models directory (see Figur
 ```
 This will not only train and save a classifier (if one doesn't already exist), but will also classify the `target_wavfile`. The `feature_type` concerns which features are extracted from the training data. Options: 'mfcc' or 'fbank'. The default is set to FBANK, as the architecture of the classifier is based on that used in the paper by <a href='https://ieeexplore.ieee.org/abstract/document/8278160'>Sehgal and Kehtarnavaz (2017)</a>. In general, FBANK features tend to work better in speech/ voice related tasks than MFCCs. However, it is useful to be able to see which is better, which one can explore here. The `audioclass_wavfile_limit` is to allow for a bit more control if you have many more wavfiles in one audio class than another.
 
-## Installation
+# Installation
 
 Clone this repository. Set the working directory where you clone this repository.
 
@@ -182,7 +182,7 @@ Then install necessary installations via pip:
 (env)..$ pip install -r requirements.txt
 ```
 
-## References
+# References
 
 A. Sehgal and N. Kehtarnavaz, "A Convolutional Neural Network Smartphone App for Real-Time Voice Activity Detection," in IEEE Access, vol. 6, pp. 9017-9026, 2018.
 doi: 10.1109/ACCESS.2018.2800728
