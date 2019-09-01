@@ -2,13 +2,15 @@
 
 <a href='https://aislynrose.bitbucket.io/'>Documentation</a>
 
+![Imgur](https://i.imgur.com/YIYRHxK.png)
+
 This smart noise filter was built under the project \\NoIze//, managed by Peggy Sylopp (contact@peggy-sylopp.net).
 
 Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@gmail.com, a-n-rose.github.io)
 
 ## About
 
-This software has four main parts: 1) pathway formation, 2) feature extraction, 3) scene classifier training, and 4) noise filtering. Below covers each section briefly.
+This software has four main parts: 1) pathway formation, 2) feature extraction, 3) scene classifier training, and 4) noise filtering. 
 
 ### Pathway Formation
 
@@ -92,7 +94,7 @@ Default is 1 and can be set to just about any number except 0.
                             target_file = 'noisysignal.wav', 
                             scale = 1.5)
 ```
-### Apply post fitler to decrease 'musical noise' / distortion:
+### Apply post filter to decrease 'musical noise' / distortion:
 
 Default is False
 ```
@@ -115,7 +117,7 @@ Collect wavfiles of different noise classes you would like to filter out. For th
 
 ### Run the smart filter
 
-Once you've collected data, you can run the program. Running this line, generates a file structure, similar to that showed in the figure below.
+Once you've collected data, you can run the program. Running code like the following example generates a file structure, similar to that showed in the figure below.
 
 ### Smart filter with defaults
 ```
@@ -123,6 +125,7 @@ Once you've collected data, you can run the program. Running this line, generate
 
 (env)..$ project_name = 'test_smartfilter'
 (env)..$ headpath = 'directory_where_createdfiles_should_be_saved'
+(env)..$ audio_classes_dir = 'directory_where_training_data_is_located'
 
 (env)..$ filteredwavfile = mysmartfilter(project_name,
                                 headpath,
@@ -133,6 +136,7 @@ The `filteredwavfile` is the filename where the filtered signal is stored.
 
 ![Imgur](https://i.imgur.com/WBoZFkk.png)
 
+For more on what these files do, <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>here</a> you can find a more detailed description.
 
 ### Making smart filter adjustments
 
