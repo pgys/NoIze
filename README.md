@@ -8,7 +8,7 @@ This smart noise filter was built under the project \\ \\NoIze/ /, managed by Pe
 
 Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@gmail.com, <a href='https://a-n-rose.github.io/'>a-n-rose.github.io</a>)
 
-## About
+# About
 
 This software has functionality for <a href='https://notebooks.ai/a-n-rose/noize-filtering-tool/lab'>noise filtering</a>, <a href='https://notebooks.ai/a-n-rose/noize-sound-classification-tool/lab'>sound classification</a>, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
 
