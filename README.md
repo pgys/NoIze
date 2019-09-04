@@ -10,7 +10,23 @@ Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@
 
 ## About
 
-This software has functionality for noise filtering, sound classification, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
+This software has functionality for <a href='https://notebooks.ai/a-n-rose/noize-filtering-tool/lab'>noise filtering</a>, <a href='https://notebooks.ai/a-n-rose/noize-sound-classification-tool/lab'>sound classification</a>, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
+
+# Installation
+
+Clone this repository. Set the working directory where you clone this repository.
+
+Start a virtual environment:
+
+```
+$ python3 -m venv env
+$ source env/bin/activate
+(env)..$
+```
+Then install necessary installations via pip:
+```
+(env)..$ pip install -r requirements.txt
+```
 
 # NoIze as a smart noise filter
 
@@ -167,22 +183,6 @@ This will train and save a classifier in the created models directory (see Figur
                         )
 ```
 This will not only train and save a classifier (if one doesn't already exist), but will also classify the `target_wavfile`. The `feature_type` concerns which features are extracted from the training data. Options: 'mfcc' or 'fbank'. The default is set to FBANK, as the architecture of the classifier is based on that used in the paper by <a href='https://ieeexplore.ieee.org/abstract/document/8278160'>Sehgal and Kehtarnavaz (2017)</a>. In general, FBANK features tend to work better in speech/ voice related tasks than MFCCs. However, it is useful to be able to see which is better, which one can explore here. The `audioclass_wavfile_limit` is to allow for a bit more control if you have many more wavfiles in one audio class than another.
-
-# Installation
-
-Clone this repository. Set the working directory where you clone this repository.
-
-Start a virtual environment:
-
-```
-$ python3 -m venv env
-$ source env/bin/activate
-(env)..$
-```
-Then install necessary installations via pip:
-```
-(env)..$ pip install -r requirements.txt
-```
 
 # References
 
