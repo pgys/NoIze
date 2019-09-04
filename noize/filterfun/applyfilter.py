@@ -127,7 +127,7 @@ def filtersignal(output_file, wavfile, noise_file=None,
                 wf.gain = dsp.postfilter(target_power_frame,
                                         target_noisereduced_power,
                                         gain=wf.gain,
-                                        threshold=1,
+                                        threshold=0.9,
                                         scale=20)
                 enhanced_fft = dsp.apply_gain_fft(target_fft, wf.gain)
             enhanced_ifft = dsp.calc_ifft(enhanced_fft)
