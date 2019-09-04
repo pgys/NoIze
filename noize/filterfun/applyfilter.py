@@ -26,7 +26,7 @@ from ..mathfun import dsp, matrixfun
 
 
 def filtersignal(output_file, wavfile, noise_file=None,
-                    scale=1, apply_postfilter=False):
+                    scale=1, apply_postfilter=False, duration_ms=1000):
     """apply wiener filter to signal using noise input.
 
     Parameters 
@@ -61,7 +61,7 @@ def filtersignal(output_file, wavfile, noise_file=None,
             elif 'beg' in noise_file.stem:
                 samples_noise = paths.load_feature_data(noise_file)
     else:
-        starting_noise_len = dsp.calc_frame_length(wf.samplerate, 1000)
+        starting_noise_len = dsp.calc_frame_length(wf.samplerate, duration_ms)
         samples_noise = samples_orig[:starting_noise_len]
     # if noise samples have been collected...
     if samples_noise is not None:
