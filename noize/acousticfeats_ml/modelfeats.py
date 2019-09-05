@@ -20,13 +20,18 @@
 # along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.
 
 ###############################################################################
-import os
-import sys
 import pathlib
 import numpy as np
-from . import featorg
-from ..mathfun import dsp, matrixfun, augmentdata
-from ..file_architecture import paths as pathorg
+
+import os, sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+noizedir = os.path.dirname(parentdir)
+sys.path.insert(0, noizedir)
+
+import noize
 
 
 class PrepFeatures:
@@ -88,7 +93,7 @@ class PrepFeatures:
             self.window_shift = window_shift
         else:
             self.window_shift = window_size/2.
-        self.frame_length = dsp.calc_frame_length(self.window_size,
+        self.frame_length = noize.dsp.calc_frame_length(self.window_size,
                                                   self.sr)
         self.fft_bins = self.frame_length
         self.training_segment_ms = training_segment_ms
@@ -109,7 +114,7 @@ class PrepFeatures:
         calculates how many feature sets create a full image, given window size, 
         window shift, and desired image length in milliseconds.
         '''
-        sets = dsp.calc_num_subframes(self.training_segment_ms,
+        sets = noize.dsp.calc_num_subframes(self.training_segment_ms,
                                       self.window_size,
                                       self.window_shift)
         return sets
@@ -127,17 +132,17 @@ class PrepFeatures:
         '''
         # when applying this to new data, dont't want to augment it.
         if not augment_data and self.augment_data:
-            y_low, y_mid, y_high = augmentdata.spread_volumes(y)
+            y_low, y_mid, y_high = noize.augmentdata.spread_volumes(y)
             samples = (y_low, y_mid, y_high)
         else:
             samples = (y,)
-        feat_matrix = matrixfun.create_empty_matrix(
+        feat_matrix = noize.matrixfun.create_empty_matrix(
             (int(self.num_images_per_audiofile*len(samples)),
              self.feature_sets,
              self.num_columns))
         row = 0
         for sample_set in samples:
-            feats, frame_length, window_size_ms = dsp.collect_features(
+            feats, frame_length, window_size_ms = noize.dsp.collect_features(
                 feature_type=self.feature_type,
                 samples=y,
                 sr=self.sr,
@@ -152,10 +157,13 @@ class PrepFeatures:
         return feat_matrix
 
     def extractfeats(self, soundata, dur_sec=None, augment_data=None):
+        '''Organizes feat extraction of each audiofile according to class attributes.
+        '''
         if isinstance(soundata, str):
             soundata = pathlib.Path(soundata)
-        if isinstance(soundata, pathlib.PosixPath) and pathorg.is_audio_ext_allowed(soundata):
-            y, sr = dsp.load_signal(soundata,
+        if isinstance(soundata, pathlib.PosixPath) and \
+            noize.paths.is_audio_ext_allowed(soundata):
+            y, sr = noize.dsp.load_signal(soundata,
                                     sampling_rate=self.sr,
                                     dur_sec=dur_sec)
         else:
@@ -186,7 +194,7 @@ class PrepFeatures:
         # create empty matrix to fill features into
         # +1 is for the label column
         shape = (tot_len_matrix, self.feature_sets, self.num_columns+1)
-        feats_matrix = matrixfun.create_empty_matrix(shape, complex_vals=False)
+        feats_matrix = noize.matrixfun.create_empty_matrix(shape, complex_vals=False)
         row = 0  # keep track of where we are in filling the empty matrix
         for i, label_wave in enumerate(list_waves):
             # collect label information
@@ -214,7 +222,8 @@ class PrepFeatures:
         if row < tot_len_matrix:
             diff = tot_len_matrix - row
             print('A total of {} wavfiles were not found. \
-                  \nExpected amount: {} total waves.'.format(diff, tot_len_matrix))
+                  \nExpected amount: {} total waves.'.format(
+                      diff, tot_len_matrix))
             feats_matrix = feats_matrix[:row]
         # randomize rows
         np.random.shuffle(feats_matrix)
@@ -228,7 +237,7 @@ class PrepFeatures:
         feats = self.get_feats(
             wave_list, dur_sec=self.training_segment_ms/1000.0)
         save2file = directory4features.joinpath(filename)
-        pathorg.save_feature_data(save2file, feats)
+        noize.paths.save_feature_data(save2file, feats)
         return None
 
     def save_class_settings(self, path, replace=False):
@@ -237,7 +246,7 @@ class PrepFeatures:
         class_settings = self.__dict__
         filename = 'settings_{}.csv'.format(self.__class__.__name__)
         featuresettings_path = path.joinpath(filename)
-        pathorg.save_dict(
+        noize.paths.save_dict(
             class_settings, featuresettings_path, replace=replace)
         return None
 
@@ -277,7 +286,7 @@ def prepfeatures(filter_class, feature_type='mfcc', num_filters=40,
     '''
     # extract features
     # create namedtuple with train, val, and test wavfiles and labels
-    datasetwaves = featorg.audio2datasets(filter_class.audiodata_dir,
+    datasetwaves = noize.featorg.audio2datasets(filter_class.audiodata_dir,
                                           filter_class.labels_encoded_path,
                                           filter_class.labels_waves_path,
                                           limit=limit)
@@ -319,18 +328,18 @@ def loadfeature_settings(feature_info):
     if isinstance(feature_info, dict):
         feature_settings = feature_info
     else:
-        featuresettings_path = pathorg.load_settings_file(
+        featuresettings_path = noize.paths.load_settings_file(
             feature_info.features_dir)
-        feature_settings = pathorg.load_dict(featuresettings_path)
-    sr = featorg.make_number(feature_settings['sr'])
-    window_size = featorg.make_number(feature_settings['window_size'])
-    window_shift = featorg.make_number(feature_settings['window_shift'])
-    feature_sets = featorg.make_number(feature_settings['feature_sets'])
+        feature_settings = noize.paths.load_dict(featuresettings_path)
+    sr = noize.featorg.make_number(feature_settings['sr'])
+    window_size = noize.featorg.make_number(feature_settings['window_size'])
+    window_shift = noize.featorg.make_number(feature_settings['window_shift'])
+    feature_sets = noize.featorg.make_number(feature_settings['feature_sets'])
     feature_type = feature_settings['feature_type']
-    num_columns = featorg.make_number(feature_settings['num_columns'])
-    num_images_per_audiofile = featorg.make_number(
+    num_columns = noize.featorg.make_number(feature_settings['num_columns'])
+    num_images_per_audiofile = noize.featorg.make_number(
         feature_settings['num_images_per_audiofile'])
-    training_segment_ms = featorg.make_number(
+    training_segment_ms = noize.featorg.make_number(
         feature_settings['training_segment_ms'])
     if 'fbank' in feature_type.lower():
         feature_type = 'fbank'
