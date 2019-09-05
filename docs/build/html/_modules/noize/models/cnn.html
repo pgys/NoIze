@@ -1,0 +1,489 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>noize.models.cnn &#8212; \\NoIze// 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for noize.models.cnn</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># Copyright 2019 Peggy Sylopp und Aislyn Rose GbR</span>
+<span class="c1"># All rights reserved</span>
+<span class="c1"># This file is part of the  NoIze-framework</span>
+<span class="c1"># The NoIze-framework is free software: you can redistribute it and/or modify </span>
+<span class="c1"># it under the terms of the GNU General Public License as published by the  </span>
+<span class="c1"># Free Software Foundation, either version 3 of the License, or (at your option) </span>
+<span class="c1"># any later version.</span>
+<span class="c1">#</span>
+<span class="c1">#@author Aislyn Rose</span>
+<span class="c1">#@version 0.1</span>
+<span class="c1">#@date 31.08.2019</span>
+<span class="c1">#</span>
+<span class="c1"># The  NoIze-framework  is distributed in the hope that it will be useful, but </span>
+<span class="c1"># WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or </span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more </span>
+<span class="c1"># details. </span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU AFFERO General Public License </span>
+<span class="c1"># along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
+
+<span class="c1">###############################################################################</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="c1"># for building and training models</span>
+<span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Sequential</span><span class="p">,</span> <span class="n">load_model</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Conv2D</span><span class="p">,</span> <span class="n">Flatten</span><span class="p">,</span> <span class="n">Dropout</span>
+<span class="kn">from</span> <span class="nn">keras.callbacks</span> <span class="k">import</span> <span class="n">EarlyStopping</span><span class="p">,</span> <span class="n">CSVLogger</span><span class="p">,</span> <span class="n">ModelCheckpoint</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">normalize</span>
+
+<span class="kn">from</span> <span class="nn">..file_architecture</span> <span class="k">import</span> <span class="n">paths</span> <span class="k">as</span> <span class="n">pathorg</span>
+<span class="kn">from</span> <span class="nn">..acousticfeats_ml</span>  <span class="k">import</span> <span class="n">featorg</span><span class="p">,</span> <span class="n">modelfeats</span>
+<span class="kn">from</span> <span class="nn">..mathfun</span> <span class="k">import</span> <span class="n">matrixfun</span>
+
+
+<div class="viewcode-block" id="SoundClassifier"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier">[docs]</a><span class="k">class</span> <span class="nc">SoundClassifier</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Build a mobile compatible CNN to classify noise / acoustic scene</span>
+<span class="sd">    </span>
+<span class="sd">    Reference</span>
+<span class="sd">    ---------</span>
+<span class="sd">    A. Sehgal and N. Kehtarnavaz, &quot;A Convolutional Neural Network </span>
+<span class="sd">    Smartphone App for Real-Time Voice Activity Detection,&quot; in IEEE Access, </span>
+<span class="sd">    vol. 6, pp. 9017-9026, 2018. </span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">modelname</span><span class="p">,</span> <span class="n">models_dir</span><span class="p">,</span>
+                 <span class="n">features_dir</span><span class="p">,</span> <span class="n">encoded_labels_path</span><span class="p">,</span> <span class="n">feature_session</span><span class="p">,</span>
+                 <span class="n">modelsettings_path</span><span class="p">,</span> <span class="n">newmodel</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_model_path</span><span class="p">(</span>
+            <span class="n">models_dir</span><span class="p">,</span> <span class="n">modelname</span><span class="p">,</span> <span class="n">newmodel</span><span class="o">=</span><span class="n">newmodel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="o">.</span><span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">features_dir</span> <span class="o">=</span> <span class="n">features_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoded_labels_path</span> <span class="o">=</span> <span class="n">encoded_labels_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_session</span> <span class="o">=</span> <span class="n">feature_session</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_settings</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span>
+            <span class="n">pathorg</span><span class="o">.</span><span class="n">load_settings_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_dir</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelsettings_path</span> <span class="o">=</span> <span class="n">modelsettings_path</span>
+
+<div class="viewcode-block" id="SoundClassifier.create_model_path"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.create_model_path">[docs]</a>    <span class="k">def</span> <span class="nf">create_model_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">models_dir</span><span class="p">,</span> <span class="n">modelname</span><span class="p">,</span> <span class="n">newmodel</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">modelname</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="s1">&#39;.h5&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">modelname</span><span class="p">:</span>
+            <span class="n">modelname</span> <span class="o">+=</span> <span class="s1">&#39;.h5&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">models_dir</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">modelname</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PosixPath</span><span class="p">):</span>
+                <span class="n">modelname</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">modelname</span><span class="p">)</span>
+            <span class="n">model_path</span> <span class="o">=</span> <span class="n">modelname</span>
+            <span class="k">return</span> <span class="n">model_path</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">models_dir</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PosixPath</span><span class="p">):</span>
+            <span class="n">models_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">models_dir</span><span class="p">)</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="n">models_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">modelname</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">models_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">models_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">newmodel</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s1">&#39;A model already exists at this path:</span><span class="se">\</span>
+<span class="s1">                </span><span class="se">\n</span><span class="si">{}</span><span class="se">\n</span><span class="s1">Move or rename.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_path</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">model_path</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.load_train_val_data"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.load_train_val_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_train_val_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_model</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;loads training data and trains model </span>
+
+<span class="sd">        Expects at least train and validation data, test data optional &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_path</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">data_files</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">features_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.npy&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">data_files</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;train&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">train_path</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="k">elif</span> <span class="s1">&#39;val&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">val_path</span> <span class="o">=</span> <span class="n">filename</span>
+            <span class="k">elif</span> <span class="s1">&#39;test&#39;</span> <span class="ow">in</span> <span class="n">filename</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">test_path</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_path</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="s1">&#39;No file for </span><span class="si">{}</span><span class="s1"> data found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;train&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_path</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="s1">&#39;No file for </span><span class="si">{}</span><span class="s1"> data found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;validation&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">test_model</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_path</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                    <span class="s1">&#39;No file for </span><span class="si">{}</span><span class="s1"> data found&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.load_labels"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.load_labels">[docs]</a>    <span class="k">def</span> <span class="nf">load_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">labels_encoded</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">encoded_labels_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">labels_encoded</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.set_model_params"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.set_model_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_model_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">color_scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_layers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">feature_maps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">kernel_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">halve_feature_maps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                         <span class="n">dense_hidden_units</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">activation_layer</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span>
+                         <span class="n">activation_output</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">,</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.25</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_features</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_settings</span><span class="p">[</span><span class="s1">&#39;num_columns&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_sets</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_settings</span><span class="p">[</span><span class="s1">&#39;feature_sets&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_env_images</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_settings</span><span class="p">[</span><span class="s1">&#39;num_images_per_audiofile&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">num_layers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">=</span> <span class="n">num_layers</span>
+        <span class="k">if</span> <span class="n">feature_maps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">feature_maps</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">prev_feature_map</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">layer</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">feature_maps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_features</span><span class="p">)</span>
+                    <span class="n">prev_feature_map</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_features</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">halve_feature_maps</span><span class="p">:</span>
+                        <span class="n">curr_feature_map</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">prev_feature_map</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">halve_feature_maps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">curr_feature_map</span> <span class="o">=</span> <span class="n">prev_feature_map</span>
+                    <span class="k">elif</span> <span class="n">halve_feature_maps</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                        <span class="n">curr_feature_map</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">prev_feature_map</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">feature_maps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_feature_map</span><span class="p">)</span>
+                    <span class="n">prev_feature_map</span> <span class="o">=</span> <span class="n">curr_feature_map</span>
+        <span class="k">if</span> <span class="n">kernel_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kernel_size</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">):</span>
+                <span class="n">kernel_size</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span> <span class="o">=</span> <span class="n">kernel_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_maps</span> <span class="o">=</span> <span class="n">feature_maps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">strides</span> <span class="o">=</span> <span class="n">strides</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dense_hidden_units</span> <span class="o">=</span> <span class="n">dense_hidden_units</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_sets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_features</span><span class="p">,</span> <span class="n">color_scale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_labels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">load_labels</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation_layer</span> <span class="o">=</span> <span class="n">activation_layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activation_output</span> <span class="o">=</span> <span class="n">activation_output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="n">epochs</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.build_cnn_model"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.build_cnn_model">[docs]</a>    <span class="k">def</span> <span class="nf">build_cnn_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;set up model architecture using Keras Sequential() class</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_maps</span><span class="p">)</span> <span class="o">==</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_maps</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_maps</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_maps</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">featmap</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_maps</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">featmap</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                     <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">,</span>
+                                     <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation_layer</span><span class="p">,</span>
+                                     <span class="n">input_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_shape</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="n">featmap</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                                     <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">,</span>
+                                     <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation_layer</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Conv2D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_maps</span><span class="p">,</span>
+                             <span class="bp">self</span><span class="o">.</span><span class="n">kernel_size</span><span class="p">,</span>
+                             <span class="n">strides</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">strides</span><span class="p">,</span>
+                             <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation_layer</span><span class="p">,</span>
+                             <span class="n">input_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input_shape</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dense_hidden_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dense_hidden_units</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dropout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dropout</span><span class="p">))</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Flatten</span><span class="p">())</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_labels</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation_output</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.compile_model"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.compile_model">[docs]</a>    <span class="k">def</span> <span class="nf">compile_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span>
+                      <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;sparse_categorical_crossentropy&#39;</span><span class="p">,</span>
+                      <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">]):</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> <span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.set_up_callbacks"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.set_up_callbacks">[docs]</a>    <span class="k">def</span> <span class="nf">set_up_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">early_stop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">csv_log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">csv_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_bestmodel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">best_modelname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                         <span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">save_best_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;min&#39;</span><span class="p">):</span>
+        <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">early_stop</span><span class="p">:</span>
+            <span class="n">early_stopping_callback</span> <span class="o">=</span> <span class="n">EarlyStopping</span><span class="p">(</span>
+                <span class="n">monitor</span><span class="o">=</span><span class="n">monitor</span><span class="p">,</span>
+                <span class="n">patience</span><span class="o">=</span><span class="n">patience</span><span class="p">)</span>
+            <span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">early_stopping_callback</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">csv_log</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">csv_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">csv_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">models_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;log.csv&#39;</span><span class="p">)</span>
+            <span class="n">csv_logging</span> <span class="o">=</span> <span class="n">CSVLogger</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">csv_filename</span><span class="p">)</span>
+            <span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">csv_logging</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">save_bestmodel</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">best_modelname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># turn Path object to string object</span>
+                <span class="n">modelname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">best_modelname</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">models_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+                    <span class="s1">&#39;bestmodel_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">modelname</span><span class="p">)))</span>
+            <span class="n">checkpoint_callback</span> <span class="o">=</span> <span class="n">ModelCheckpoint</span><span class="p">(</span><span class="n">best_modelname</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="n">monitor</span><span class="p">,</span>
+                                                  <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                                  <span class="n">save_best_only</span><span class="o">=</span><span class="n">save_best_only</span><span class="p">,</span>
+                                                  <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+            <span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">checkpoint_callback</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">callbacks</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">callbacks</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.build_cnn_reduced"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.build_cnn_reduced">[docs]</a>    <span class="k">def</span> <span class="nf">build_cnn_reduced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Reduces layers of CNN until the model can be built</span>
+
+<span class="sd">        If the number of filters for &#39;mfcc&#39; or &#39;fbank&#39; is in the lower range</span>
+<span class="sd">        (i.e. 13 or so), this causes issues with the default settings of</span>
+<span class="sd">        the cnn architecture. The architecture was built with at least 40</span>
+<span class="sd">        filters being applied during feature extraction. To deal with this</span>
+<span class="sd">        problem, the number of CNN layers are reduced. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Reducing number of CNN layers from </span><span class="si">{}</span><span class="s1"> to </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_model_params</span><span class="p">(</span><span class="n">num_layers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_layers</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_cnn_model</span><span class="p">()</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Reducing number of CNN layers worked!&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Now training model..</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_build_cnn</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Model cannot be built given data and parameter settings&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.train_scene_classifier"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.train_scene_classifier">[docs]</a>    <span class="k">def</span> <span class="nf">train_scene_classifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;loads all data and trains model</span>
+
+<span class="sd">        advantage of loading all data is it is easier to scale and</span>
+<span class="sd">        normalize. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">train_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_path</span><span class="p">)</span>
+        <span class="n">val_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val_path</span><span class="p">)</span>
+        <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">scalars</span> <span class="o">=</span> <span class="n">prepdata_ml</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+        <span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">prepdata_ml</span><span class="p">(</span><span class="n">val_data</span><span class="p">,</span>
+                                       <span class="n">is_train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                       <span class="n">scalars</span><span class="o">=</span><span class="n">scalars</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_model_params</span><span class="p">(</span><span class="n">halve_feature_maps</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">callbacks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_up_callbacks</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_cnn_model</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning:&#39;</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Error building model.&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Problem likely due to a small number of feature filters extracted&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;To avoid this problem, extract features with at least 20 filters&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;i.e. mfcc or fbank features with 20+ filters&#39;</span><span class="p">)</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_cnn_reduced</span><span class="p">()</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compile_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_class_settings</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+            <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+            <span class="n">epochs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span>
+            <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">,</span>
+            <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">X_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_path</span><span class="p">:</span>
+            <span class="n">test_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_path</span><span class="p">)</span>
+            <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">prepdata_ml</span><span class="p">(</span>
+                <span class="n">test_data</span><span class="p">,</span> <span class="n">is_train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="n">scalars</span><span class="p">)</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">score</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_loss</span> <span class="o">=</span> <span class="n">loss</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_acc</span> <span class="o">=</span> <span class="n">acc</span>
+        <span class="c1"># turn Path object to string object</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_class_settings</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="SoundClassifier.save_class_settings"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier.save_class_settings">[docs]</a>    <span class="k">def</span> <span class="nf">save_class_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;saves class settings to dictionary</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">class_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="n">pathorg</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span><span class="n">class_settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelsettings_path</span><span class="p">,</span>
+                          <span class="n">replace</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="ClassifySound"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.ClassifySound">[docs]</a><span class="k">class</span> <span class="nc">ClassifySound</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soundata</span><span class="p">,</span> <span class="n">filter_class</span><span class="p">,</span> <span class="n">feature_class</span><span class="p">,</span> <span class="n">model_class</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">soundata</span> <span class="o">=</span> <span class="n">soundata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_settings</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span>
+            <span class="n">pathorg</span><span class="o">.</span><span class="n">load_settings_file</span><span class="p">(</span><span class="n">model_class</span><span class="o">.</span><span class="n">features_dir</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modelsettings</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">model_class</span><span class="o">.</span><span class="n">modelsettings_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">model_class</span><span class="o">.</span><span class="n">model_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models_dir</span> <span class="o">=</span> <span class="n">model_class</span><span class="o">.</span><span class="n">models_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decode_label</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">filter_class</span><span class="o">.</span><span class="n">labels_encoded_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_encoded</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">average_power_dir</span> <span class="o">=</span> <span class="n">filter_class</span><span class="o">.</span><span class="n">powspec_path</span>
+
+<div class="viewcode-block" id="ClassifySound.check_for_best_model"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.ClassifySound.check_for_best_model">[docs]</a>    <span class="k">def</span> <span class="nf">check_for_best_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">models_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">models_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.h5&#39;</span><span class="p">)</span>
+        <span class="n">best_model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">model_name</span> <span class="ow">in</span> <span class="n">models_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;best&#39;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="o">.</span><span class="n">stem</span><span class="p">:</span>
+                <span class="n">best_model</span> <span class="o">=</span> <span class="n">model_name</span>
+        <span class="k">return</span> <span class="n">best_model</span></div>
+
+<div class="viewcode-block" id="ClassifySound.load_modelsettings"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.ClassifySound.load_modelsettings">[docs]</a>    <span class="k">def</span> <span class="nf">load_modelsettings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">best_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_for_best_model</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">best_model</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">best_model</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">))</span>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modelsettings</span><span class="p">[</span><span class="s1">&#39;input_shape&#39;</span><span class="p">]</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="s1">&#39;()&#39;</span>
+        <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">chars</span><span class="p">:</span>
+            <span class="n">input_shape</span> <span class="o">=</span> <span class="n">input_shape</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">char</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="n">input_shape</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">input_shape</span><span class="p">):</span>
+            <span class="n">input_shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="n">input_shape_model</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span><span class="o">+</span><span class="nb">tuple</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">input_shape_model</span></div>
+
+<div class="viewcode-block" id="ClassifySound.extract_feats"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.ClassifySound.extract_feats">[docs]</a>    <span class="k">def</span> <span class="nf">extract_feats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">prev_featextraction_settings_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_settings</span>
+        <span class="n">get_feats</span> <span class="o">=</span> <span class="n">modelfeats</span><span class="o">.</span><span class="n">loadfeature_settings</span><span class="p">(</span>
+            <span class="n">prev_featextraction_settings_dict</span><span class="p">)</span>
+        <span class="n">dur_sec</span> <span class="o">=</span> <span class="n">get_feats</span><span class="o">.</span><span class="n">training_segment_ms</span><span class="o">/</span><span class="mi">1000</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">get_feats</span><span class="o">.</span><span class="n">extractfeats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soundata</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="n">dur_sec</span><span class="p">,</span>
+                                       <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">feats</span></div>
+
+<div class="viewcode-block" id="ClassifySound.get_label"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.ClassifySound.get_label">[docs]</a>    <span class="k">def</span> <span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_feats</span><span class="p">()</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">input_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_modelsettings</span><span class="p">()</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">feats</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">feats</span><span class="o">.</span><span class="n">shape</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">input_shape</span> <span class="o">==</span> <span class="n">feats</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;input shape: &#39;</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;feats shape: &#39;</span><span class="p">,</span> <span class="n">feats</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">pred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_encoded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">pred</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="c1"># load label</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode_label</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_encoded</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_encoded</span></div>
+
+<div class="viewcode-block" id="ClassifySound.load_assigned_avepower"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.ClassifySound.load_assigned_avepower">[docs]</a>    <span class="k">def</span> <span class="nf">load_assigned_avepower</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label_encoded</span><span class="p">,</span> <span class="n">raw_samples</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">ave_pow_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">average_power_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;**/*.npy&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">ave_pow_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ave_pow_list</span><span class="p">:</span>
+                <span class="n">num_digits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">label_encoded</span><span class="p">))</span>
+                <span class="n">file_stem</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">stem</span>
+                <span class="k">if</span> <span class="n">file_stem</span><span class="p">[</span><span class="o">-</span><span class="n">num_digits</span><span class="p">:]</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">label_encoded</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">item</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;no average values for this class found&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+<div class="viewcode-block" id="buildclassifier"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.buildclassifier">[docs]</a><span class="k">def</span> <span class="nf">buildclassifier</span><span class="p">(</span><span class="n">filter_class</span><span class="p">):</span>
+    <span class="n">scene</span> <span class="o">=</span> <span class="n">SoundClassifier</span><span class="p">(</span><span class="n">modelname</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">modelname</span><span class="p">,</span>
+                            <span class="n">models_dir</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">model_dir</span><span class="p">,</span>
+                            <span class="n">features_dir</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">features_dir</span><span class="p">,</span>
+                            <span class="n">encoded_labels_path</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">labels_encoded_path</span><span class="p">,</span>
+                            <span class="n">feature_session</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">features_dir</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                            <span class="n">modelsettings_path</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">model_settings_path</span><span class="p">,</span>
+                            <span class="n">newmodel</span><span class="o">=</span><span class="kc">True</span>
+                            <span class="p">)</span>
+    <span class="n">scene</span><span class="o">.</span><span class="n">load_train_val_data</span><span class="p">(</span><span class="n">test_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">scene</span><span class="o">.</span><span class="n">train_scene_classifier</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">scene</span></div>
+
+<div class="viewcode-block" id="loadclassifier"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.loadclassifier">[docs]</a><span class="k">def</span> <span class="nf">loadclassifier</span><span class="p">(</span><span class="n">filter_class</span><span class="p">):</span>
+    <span class="n">scene</span> <span class="o">=</span> <span class="n">SoundClassifier</span><span class="p">(</span><span class="n">modelname</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                            <span class="n">models_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="c1">#loaded from modelname</span>
+                            <span class="n">features_dir</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">features_dir</span><span class="p">,</span>
+                            <span class="n">encoded_labels_path</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">labels_encoded_path</span><span class="p">,</span>
+                            <span class="n">feature_session</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">feature_dirname</span><span class="p">,</span>
+                            <span class="n">modelsettings_path</span><span class="o">=</span><span class="n">filter_class</span><span class="o">.</span><span class="n">model_settings_path</span><span class="p">,</span>
+                            <span class="n">newmodel</span><span class="o">=</span><span class="kc">False</span>
+                            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">scene</span></div>
+
+<div class="viewcode-block" id="prepdata_ml"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.prepdata_ml">[docs]</a><span class="k">def</span> <span class="nf">prepdata_ml</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">is_train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scalars</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">separate_dependent_var</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_train</span><span class="p">:</span>
+        <span class="n">scalars</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">is_train</span><span class="p">:</span>
+            <span class="n">scalars</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+            <span class="n">X</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">scalars</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">j</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">scalars</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">j</span><span class="p">])</span>
+        <span class="n">X</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">j</span><span class="p">])</span>
+    <span class="c1"># Keras needs an extra dimension as a tensor / holder of data</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">add_tensor</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">add_tensor</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">scalars</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, P. Sylopp und A. Rose GbR.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

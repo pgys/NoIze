@@ -34,8 +34,127 @@
             
   <div class="section" id="models">
 <h1>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="noize-models-cnn">
-<h2>noize.models.cnn<a class="headerlink" href="#noize-models-cnn" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-noize.models.cnn">
+<span id="noize-models-cnn"></span><h2>noize.models.cnn<a class="headerlink" href="#module-noize.models.cnn" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="noize.models.cnn.ClassifySound">
+<em class="property">class </em><code class="sig-prename descclassname">noize.models.cnn.</code><code class="sig-name descname">ClassifySound</code><span class="sig-paren">(</span><em class="sig-param">soundata</em>, <em class="sig-param">filter_class</em>, <em class="sig-param">feature_class</em>, <em class="sig-param">model_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.ClassifySound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="noize.models.cnn.ClassifySound.check_for_best_model">
+<code class="sig-name descname">check_for_best_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound.check_for_best_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.ClassifySound.check_for_best_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.ClassifySound.extract_feats">
+<code class="sig-name descname">extract_feats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound.extract_feats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.ClassifySound.extract_feats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.ClassifySound.get_label">
+<code class="sig-name descname">get_label</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound.get_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.ClassifySound.get_label" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.ClassifySound.load_assigned_avepower">
+<code class="sig-name descname">load_assigned_avepower</code><span class="sig-paren">(</span><em class="sig-param">label_encoded</em>, <em class="sig-param">raw_samples=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound.load_assigned_avepower"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.ClassifySound.load_assigned_avepower" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.ClassifySound.load_modelsettings">
+<code class="sig-name descname">load_modelsettings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound.load_modelsettings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.ClassifySound.load_modelsettings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="noize.models.cnn.SoundClassifier">
+<em class="property">class </em><code class="sig-prename descclassname">noize.models.cnn.</code><code class="sig-name descname">SoundClassifier</code><span class="sig-paren">(</span><em class="sig-param">modelname</em>, <em class="sig-param">models_dir</em>, <em class="sig-param">features_dir</em>, <em class="sig-param">encoded_labels_path</em>, <em class="sig-param">feature_session</em>, <em class="sig-param">modelsettings_path</em>, <em class="sig-param">newmodel=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Build a mobile compatible CNN to classify noise / acoustic scene</p>
+<p>A. Sehgal and N. Kehtarnavaz, “A Convolutional Neural Network
+Smartphone App for Real-Time Voice Activity Detection,” in IEEE Access,
+vol. 6, pp. 9017-9026, 2018.</p>
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.build_cnn_model">
+<code class="sig-name descname">build_cnn_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.build_cnn_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.build_cnn_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>set up model architecture using Keras Sequential() class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.build_cnn_reduced">
+<code class="sig-name descname">build_cnn_reduced</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.build_cnn_reduced"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.build_cnn_reduced" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reduces layers of CNN until the model can be built</p>
+<p>If the number of filters for ‘mfcc’ or ‘fbank’ is in the lower range
+(i.e. 13 or so), this causes issues with the default settings of
+the cnn architecture. The architecture was built with at least 40
+filters being applied during feature extraction. To deal with this
+problem, the number of CNN layers are reduced.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.compile_model">
+<code class="sig-name descname">compile_model</code><span class="sig-paren">(</span><em class="sig-param">model, optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy']</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.compile_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.compile_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.create_model_path">
+<code class="sig-name descname">create_model_path</code><span class="sig-paren">(</span><em class="sig-param">models_dir</em>, <em class="sig-param">modelname</em>, <em class="sig-param">newmodel=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.create_model_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.create_model_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.load_labels">
+<code class="sig-name descname">load_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.load_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.load_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.load_train_val_data">
+<code class="sig-name descname">load_train_val_data</code><span class="sig-paren">(</span><em class="sig-param">test_model=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.load_train_val_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.load_train_val_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads training data and trains model</p>
+<p>Expects at least train and validation data, test data optional</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.save_class_settings">
+<code class="sig-name descname">save_class_settings</code><span class="sig-paren">(</span><em class="sig-param">overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.save_class_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.save_class_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves class settings to dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.set_model_params">
+<code class="sig-name descname">set_model_params</code><span class="sig-paren">(</span><em class="sig-param">color_scale=1</em>, <em class="sig-param">num_layers=None</em>, <em class="sig-param">feature_maps=None</em>, <em class="sig-param">kernel_size=None</em>, <em class="sig-param">halve_feature_maps=True</em>, <em class="sig-param">strides=2</em>, <em class="sig-param">dense_hidden_units=100</em>, <em class="sig-param">epochs=100</em>, <em class="sig-param">activation_layer='relu'</em>, <em class="sig-param">activation_output='softmax'</em>, <em class="sig-param">dropout=0.25</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.set_model_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.set_model_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.set_up_callbacks">
+<code class="sig-name descname">set_up_callbacks</code><span class="sig-paren">(</span><em class="sig-param">early_stop=True</em>, <em class="sig-param">patience=15</em>, <em class="sig-param">csv_log=True</em>, <em class="sig-param">csv_filename=None</em>, <em class="sig-param">save_bestmodel=True</em>, <em class="sig-param">best_modelname=None</em>, <em class="sig-param">monitor='val_loss'</em>, <em class="sig-param">verbose=1</em>, <em class="sig-param">save_best_only=True</em>, <em class="sig-param">mode='min'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.set_up_callbacks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.set_up_callbacks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.models.cnn.SoundClassifier.train_scene_classifier">
+<code class="sig-name descname">train_scene_classifier</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier.train_scene_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier.train_scene_classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>loads all data and trains model</p>
+<p>advantage of loading all data is it is easier to scale and
+normalize.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.models.cnn.buildclassifier">
+<code class="sig-prename descclassname">noize.models.cnn.</code><code class="sig-name descname">buildclassifier</code><span class="sig-paren">(</span><em class="sig-param">filter_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#buildclassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.buildclassifier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="noize.models.cnn.loadclassifier">
+<code class="sig-prename descclassname">noize.models.cnn.</code><code class="sig-name descname">loadclassifier</code><span class="sig-paren">(</span><em class="sig-param">filter_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#loadclassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.loadclassifier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="noize.models.cnn.prepdata_ml">
+<code class="sig-prename descclassname">noize.models.cnn.</code><code class="sig-name descname">prepdata_ml</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">is_train=True</em>, <em class="sig-param">scalars=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#prepdata_ml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.prepdata_ml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <ul class="simple">
 <li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
