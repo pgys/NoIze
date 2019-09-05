@@ -20,7 +20,7 @@
 # along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.
 
 ###############################################################################
-#import os
+
 import numpy as np
 from random import shuffle
 import collections
@@ -28,7 +28,6 @@ import math
 
 import os, sys
 import inspect
-import pathlib
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -165,7 +164,10 @@ def create_label2audio_dict(labels_set, paths_list, limit=None, seed=40):
     --------
     >>> from pathlib import Path
     >>> labels = set(['vacuum','fridge','wind'])
-    >>> paths = [Path('data/audio/vacuum/vacuum1.wav'), Path('data/audio/fridge/fridge1.wav'), Path('data/audio/vacuum/vacuum2.wav'),Path('data/audio/wind/wind1.wav')]
+    >>> paths = [Path('data/audio/vacuum/vacuum1.wav'), 
+    ...         Path('data/audio/fridge/fridge1.wav'), 
+    ...         Path('data/audio/vacuum/vacuum2.wav'),
+    ...         Path('data/audio/wind/wind1.wav')]
     >>> label_waves_dict = create_label2audio_dict(labels, paths)
     >>> label_waves_dict
     OrderedDict([('fridge', [PosixPath('data/audio/fridge/fridge1.wav')]), \
@@ -185,10 +187,12 @@ PosixPath('data/audio/vacuum/vacuum2.wav')]), \
     '''
     if not isinstance(labels_set, set) and not isinstance(labels_set, list):
         raise TypeError(
-            'Expected labels list as type set or list, not type {}'.format(type(labels_set)))
+            'Expected labels list as type set or list, not type {}'.format(type(
+                labels_set)))
     if not isinstance(paths_list, set) and not isinstance(paths_list, list):
         raise TypeError(
-            'Expected paths list as type set or list, not type {}'.format(type(paths_list)))
+            'Expected paths list as type set or list, not type {}'.format(type(
+                paths_list)))
     label_waves_dict = collections.OrderedDict()
     for label in sorted(labels_set):
         # expects name of parent directory to match label
@@ -238,7 +242,8 @@ def create_dicts_labelsencoded(labels_class):
     '''
     if not isinstance(labels_class, set) and not isinstance(labels_class, list):
         raise TypeError(
-            'Expected inputs as type set or list, not type {}'.format(type(labels_class)))
+            'Expected inputs as type set or list, not type {}'.format(type(
+                labels_class)))
     labels_sorted = sorted(set(labels_class))
     dict_label2int = {}
     dict_int2label = {}
@@ -335,7 +340,8 @@ def audio2datasets(audio_classes_dir, encoded_labels_path,
     Returns
     -------
     dataset_audio : tuple
-        Named tuple including three lists of tuples: the train, validation, and test lists, respectively. The tuples within the lists contain
+        Named tuple including three lists of tuples: the train, validation, 
+        and test lists, respectively. The tuples within the lists contain
         the encoded label integer (e.g. 0 instead of 'air_conditioner') and
         the audio paths associated to that class and dataset.
     '''
@@ -394,7 +400,8 @@ def audio2datasets(audio_classes_dir, encoded_labels_path,
         raise noize.errors.notsufficientdata_error(len(train),
                                       len(val),
                                       len(test),
-                                      math.ceil((len(train)+len(val)+len(test))*perc_train))
+                                      math.ceil(
+                                          (len(train)+len(val)+len(test))*perc_train))
     TrainingData = collections.namedtuple('TrainingData',
                                           ['train_data', 'val_data', 'test_data'])
     dataset_audio = TrainingData(
