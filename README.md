@@ -10,7 +10,7 @@ Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@
 
 # About
 
-This software has functionality for <a href='https://notebooks.ai/a-n-rose/noize-filtering-tool/lab'>noise filtering</a>, <a href='https://notebooks.ai/a-n-rose/noize-sound-classification-tool/lab'>sound classification</a>, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
+This software has functionality for <a href='https://notebooks.ai/a-n-rose/noize-filtering-tool-dfe26049'>noise filtering</a>, <a href='https://notebooks.ai/a-n-rose/noize-sound-classification-tool-0dca787e'>sound classification</a>, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
 
 # Installation
 
