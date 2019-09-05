@@ -35,15 +35,22 @@
 <span class="c1"># Copyright 2019 Peggy Sylopp und Aislyn Rose GbR</span>
 <span class="c1"># All rights reserved</span>
 <span class="c1"># This file is part of the  NoIze-framework</span>
-<span class="c1"># The NoIze-framework is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</span>
+<span class="c1"># The NoIze-framework is free software: you can redistribute it and/or modify </span>
+<span class="c1"># it under the terms of the GNU General Public License as published by the  </span>
+<span class="c1"># Free Software Foundation, either version 3 of the License, or (at your option) </span>
+<span class="c1"># any later version.</span>
 <span class="c1">#</span>
 <span class="c1">#@author Aislyn Rose</span>
 <span class="c1">#@version 0.1</span>
 <span class="c1">#@date 31.08.2019</span>
 <span class="c1">#</span>
-<span class="c1"># The  NoIze-framework  is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details. </span>
+<span class="c1"># The  NoIze-framework  is distributed in the hope that it will be useful, but </span>
+<span class="c1"># WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or </span>
+<span class="c1"># FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more </span>
+<span class="c1"># details. </span>
 <span class="c1">#</span>
-<span class="c1"># You should have received a copy of the GNU AFFERO General Public License along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
+<span class="c1"># You should have received a copy of the GNU AFFERO General Public License </span>
+<span class="c1"># along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
 
 <span class="c1">###############################################################################</span>
 <span class="kn">from</span> <span class="nn">.filters</span> <span class="k">import</span> <span class="n">WienerFilter</span>
@@ -52,7 +59,7 @@
 
 
 <div class="viewcode-block" id="filtersignal"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.applyfilter.filtersignal">[docs]</a><span class="k">def</span> <span class="nf">filtersignal</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">wavfile</span><span class="p">,</span> <span class="n">noise_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">apply_postfilter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                    <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">apply_postfilter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">duration_ms</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;apply wiener filter to signal using noise input.</span>
 
 <span class="sd">    Parameters </span>
@@ -87,7 +94,7 @@
             <span class="k">elif</span> <span class="s1">&#39;beg&#39;</span> <span class="ow">in</span> <span class="n">noise_file</span><span class="o">.</span><span class="n">stem</span><span class="p">:</span>
                 <span class="n">samples_noise</span> <span class="o">=</span> <span class="n">paths</span><span class="o">.</span><span class="n">load_feature_data</span><span class="p">(</span><span class="n">noise_file</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">starting_noise_len</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span><span class="n">wf</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+        <span class="n">starting_noise_len</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span><span class="n">wf</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span> <span class="n">duration_ms</span><span class="p">)</span>
         <span class="n">samples_noise</span> <span class="o">=</span> <span class="n">samples_orig</span><span class="p">[:</span><span class="n">starting_noise_len</span><span class="p">]</span>
     <span class="c1"># if noise samples have been collected...</span>
     <span class="k">if</span> <span class="n">samples_noise</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -153,7 +160,7 @@
                 <span class="n">wf</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">postfilter</span><span class="p">(</span><span class="n">target_power_frame</span><span class="p">,</span>
                                         <span class="n">target_noisereduced_power</span><span class="p">,</span>
                                         <span class="n">gain</span><span class="o">=</span><span class="n">wf</span><span class="o">.</span><span class="n">gain</span><span class="p">,</span>
-                                        <span class="n">threshold</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                        <span class="n">threshold</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
                                         <span class="n">scale</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
                 <span class="n">enhanced_fft</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">apply_gain_fft</span><span class="p">(</span><span class="n">target_fft</span><span class="p">,</span> <span class="n">wf</span><span class="o">.</span><span class="n">gain</span><span class="p">)</span>
             <span class="n">enhanced_ifft</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_ifft</span><span class="p">(</span><span class="n">enhanced_fft</span><span class="p">)</span>
