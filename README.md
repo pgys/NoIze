@@ -51,6 +51,7 @@ Once you've collected data, you can run the program. Running code like the follo
 
 Example code in a .py file we'll call 'example.py'
 ```
+import noize
 from noize.buildsmartfilter import mysmartfilter
 
 project_name = 'test_smartfilter'
@@ -82,6 +83,7 @@ One can increase/decrease the `scale` of the filter and apply a postfilter (`app
 
 We'll make adjustments in 'example.py'
 ```
+import noize
 from noize.buildsmartfilter import mysmartfilter
 
 project_name = 'test_smartfilter'
@@ -171,6 +173,7 @@ The structure of the training data needs to be similar to Figure 1.
 
 ## Just building a classifier with defaults:
 ```
+import noize
 from noize.templates import noizeclassifier
 
 project_name = 'test_soundclassifier'
@@ -186,6 +189,7 @@ This will train and save a classifier in the created models directory (see Figur
 ## Adjusting the settings:
 
 ```
+import noize
 from noize.templates import noizeclassifier
 
 project_name = 'test_soundclassifier'
