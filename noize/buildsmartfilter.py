@@ -38,7 +38,7 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
                   apply_postfilter=False,
                   augment_data=False,
                   limit=None,
-                  use_rand_noisefile=True,
+                  use_rand_noisefile=False,
                   force_label=None,
                   classify_noise=True):
     '''Applies feature prep, model training, and filtering to wavfile.
