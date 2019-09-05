@@ -13,7 +13,8 @@ from .acousticfeats_ml.modelfeats import loadfeature_settings as getfeatsettings
 from .filterfun import filters
 from .filterfun.applyfilter import filtersignal
 from .mathfun import dsp, matrixfun
+from . import exceptions as errors
 
 
 __all__=['paths', 'PathSetup', 'audio2datasets', 'PrepFeatures', 'run_featprep',
-         'getfeatsettings','filters', 'dsp', 'matrixfun', 'filtersignal']
+         'getfeatsettings','filters', 'dsp', 'matrixfun', 'filtersignal', 'errors']
