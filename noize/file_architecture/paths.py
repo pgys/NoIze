@@ -631,12 +631,12 @@ def string2list(list_paths_string):
     --------
     >>> input_string = "[PosixPath('data/audio/vacuum/vacuum1.wav')]"
     >>> type(input_string)
-    str
+    <class 'str'>
     >>> typelist = string2list(input_string)
     >>> typelist
     [PosixPath('data/audio/vacuum/vacuum1.wav')]
     >>> type(typelist)
-    list
+    <class 'list'>
     '''
     # remove the string brackets and separate by space and comma --> list
     list_string_red = list_paths_string[1:-1].split(', ')
