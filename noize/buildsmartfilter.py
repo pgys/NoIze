@@ -41,6 +41,8 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
                   use_rand_noisefile=True,
                   force_label=None,
                   classify_noise=True):
+    '''Applies feature prep, model training, and filtering to wavfile.
+    '''
     if scale == 0:
         raise ValueError('scale cannot be set to 0')
         sys.exit()
