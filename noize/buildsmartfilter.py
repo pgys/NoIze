@@ -20,12 +20,20 @@
 # along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.
 
 ###############################################################################
-import sys
 import pathlib
 
-from noize.file_architecture.paths import PathSetup
-from noize.acousticfeats_ml.modelfeats import loadfeature_settings, prepfeatures
-from noize.models.cnn import ClassifySound, loadclassifier, buildclassifier
+import os, sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+noizedir = os.path.dirname(currentdir)
+sys.path.insert(0, noizedir)
+
+import noize
+import noize.models as models
+
+
+
 from noize.filterfun.filters import calc_audioclass_powerspecs,\
     coll_beg_audioclass_samps
 from noize.filterfun.applyfilter import filtersignal
@@ -47,7 +55,7 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
     if scale == 0:
         raise ValueError('scale cannot be set to 0')
         sys.exit()
-    my_filter = PathSetup(name_dataset,
+    my_filter = noize.PathSetup(name_dataset,
                           headpath,
                           audio_classes_dir,
                           feature_type=feature_type,
@@ -66,10 +74,10 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
                 my_filter.features is False:
         print('\nFeatures have been extracted.')
         print('\nLoading corresponding feature settings.')
-        prep_feats = loadfeature_settings(my_filter)
+        prep_feats = noize.getfeatsettings(my_filter)
     elif audio_classes_dir:
         print('\nExtracting dataset features --> train.npy, val.npy, test.npy')
-        prep_feats, my_filter = prepfeatures(
+        prep_feats, my_filter = noize.run_featprep(
             my_filter,
             feature_type=feature_type,
             num_filters=num_filters,
@@ -88,16 +96,18 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
     if my_filter.powspec is None:
         if not use_rand_noisefile:
             print("\nConducting Welch's method on each class in dataset..")
-            calc_audioclass_powerspecs(my_filter, prep_feats, segment_length_ms,
+            noize.welch2class(my_filter, prep_feats, segment_length_ms,
                                     augment_data=augment_data)
         else:
             files_per_audioclass=1
-            print("\nSaving beg 120ms from {} files from each audioclass.".format(
+            dur_ms = 1000
+            print("\nSaving beg {}ms from {} files from each audioclass.".format(
+                dur_ms,
                 files_per_audioclass))
-            coll_beg_audioclass_samps(my_filter, 
-                                        prep_feats, 
-                                        num_each_audioclass=files_per_audioclass,
-                                        dur_ms=1000)
+            noize.save_class_noise(my_filter, 
+                            prep_feats, 
+                            num_each_audioclass=files_per_audioclass,
+                            dur_ms=dur_ms)
     else:
         print("\nNoise class data extraction already performed on this dataset.")
 
@@ -105,7 +115,7 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
     if my_filter.model is not None \
             and feat_dir in str(my_filter.model.parts[-3]):
         print('\nLoading previously trained scene classifier.')
-        scene = loadclassifier(my_filter)
+        scene = models.loadclassifier(my_filter)
     else:
         print('\nNow training scene classifier with train, val, test datasets.')
         # check for file conflicts
@@ -113,13 +123,13 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
         if no_conflicts == False:
             raise FileExistsError('Program cannot run.\
                 \nMove the conflicting files or change project name.')
-        scene = buildclassifier(my_filter)
+        scene = models.buildclassifier(my_filter)
 
     if classify_noise:
         # Smart filtering begins:
         # Work with new audiofile: classify the background noise and
         # filter it out
-        env = ClassifySound(sounddata, my_filter, prep_feats, scene)
+        env = models.ClassifySound(sounddata, my_filter, prep_feats, scene)
         if force_label and isinstance(force_label,str):
             encoded_labels = scene.load_labels()
             for key, value in encoded_labels.items():
@@ -165,7 +175,7 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
         outputname = outputname+'.wav'
 
     filtersignal(
-        output_file = my_filter.features_dir.joinpath(outputname),
+        output_filename = my_filter.features_dir.joinpath(outputname),
         wavfile = sounddata,
         noise_file = noise_powspec,
         scale = scale,
