@@ -34,8 +34,6 @@ def filtersignal(output_filename, wavfile, noise_file=None,
                     scale=1, apply_postfilter=False, duration_ms=1000,
                     max_vol = 0.4):
     """Apply Wiener filter to signal using noise. Saves at `output_filename`.
-    
-    Note: 
 
     Parameters 
     ----------
