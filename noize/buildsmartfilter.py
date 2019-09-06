@@ -40,7 +40,8 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
                   limit=None,
                   use_rand_noisefile=False,
                   force_label=None,
-                  classify_noise=True):
+                  classify_noise=True,
+                  max_vol = 0.4):
     '''Applies feature prep, model training, and filtering to wavfile.
     '''
     if scale == 0:
@@ -164,10 +165,11 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
         outputname = outputname+'.wav'
 
     filtersignal(
-        output_file=my_filter.features_dir.joinpath(outputname),
-        wavfile=sounddata,
-        noise_file=noise_powspec,
-        scale=scale,
-        apply_postfilter=apply_postfilter)
+        output_file = my_filter.features_dir.joinpath(outputname),
+        wavfile = sounddata,
+        noise_file = noise_powspec,
+        scale = scale,
+        apply_postfilter = apply_postfilter,
+        max_vol = max_vol)
     
     return my_filter.features_dir.joinpath(outputname)

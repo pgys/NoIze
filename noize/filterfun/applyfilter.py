@@ -31,7 +31,8 @@ sys.path.insert(0, noizedir)
 import noize
 
 def filtersignal(output_file, wavfile, noise_file=None,
-                    scale=1, apply_postfilter=False, duration_ms=1000):
+                    scale=1, apply_postfilter=False, duration_ms=1000,
+                    max_vol = 0.4):
     """apply wiener filter to signal using noise input.
 
     Parameters 
@@ -45,7 +46,7 @@ def filtersignal(output_file, wavfile, noise_file=None,
         path to either noise wavfile or averaged power values in .npy file
         (default None)
     """
-    wf = noize.WienerFilter()
+    wf = noize.WienerFilter(max_vol = max_vol)
 
     # load signal (to be filtered)
     samples_orig = wf.get_samples(wavfile)
