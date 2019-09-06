@@ -96,7 +96,7 @@ def mysmartfilter(name_dataset, headpath, audio_classes_dir,
     if my_filter.powspec is None:
         if not use_rand_noisefile:
             print("\nConducting Welch's method on each class in dataset..")
-            noize.welch2class(my_filter, prep_feats, segment_length_ms,
+            noize.welch2class(my_filter, segment_length_ms,
                                     augment_data=augment_data)
         else:
             files_per_audioclass=1
