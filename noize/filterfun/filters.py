@@ -41,13 +41,37 @@ import noize
 
 # what Wiener Filter and Average pow spec can inherit
 class FilterSettings:
+    """Basic settings for filter related classes to inherit from.
+
+    Attributes
+    ----------
+    frame_dur : int, float
+        Time in milliseconds of each audio frame window. (default 20)
+    sr : int 
+        Desired sampling rate of audio; audio will be resampled to match if
+        audio has other sampling rate. (default 48000)
+    frame_length : int 
+        Number of audio samples in each frame: frame_dur multiplied with
+        sampling_rate, divided by 1000. (default 960)
+    percent_overlap : float
+        Percentage of overlap between frames.
+    overlap_length : int 
+        Number of overlapping audio samples between subsequent frames: 
+        frame_length multiplied by percent_overlap, floored. (default 480)
+    window_type : str
+        Type of window applied to audio frames: hann vs hamming (default
+        'hamming')
+    num_fft_bins : int 
+        The number of frequency bins used when calculating the fft. 
+        Currently the `frame_length` is used to set `num_fft_bins`.
+    """
     def __init__(self,
                  frame_duration_ms=20,
                  percent_overlap=0.5,
                  sampling_rate=48000,
                  window_type='hamming'):
         self.frame_dur = frame_duration_ms
-        self.samplerate = sampling_rate
+        self.sr = sampling_rate
         self.frame_length = noize.dsp.calc_frame_length(
             frame_duration_ms,
             sampling_rate)
@@ -56,38 +80,46 @@ class FilterSettings:
             self.frame_length,
             percent_overlap)
         self.window_type = window_type
-        self.window = noize.dsp.create_window(window_type, self.frame_length)
         self.num_fft_bins = self.frame_length
+        
+    def get_window(self):
+        '''Returns window acc. to attributes `window_type` and `frame_length`
+        '''
+        window = noize.dsp.create_window(self.window_type, self.frame_length)
+        return window
 
 
 class WienerFilter(FilterSettings):
     """Interactive class to explore Wiener filter settings on audio signals.
 
     These class methods implement research based algorithms with low 
-    computational cost, aimed for noise reduction via mobile phone
+    computational cost, aimed for noise reduction via mobile phone.
 
     Attributes
     ----------
-    frame_dur : int, float
-        Time in milliseconds of each audio frame window (default 20)
-    sampling_rate : int 
-        Desired sampling rate of audio; audio will be resampled to match if
-        audio has other sampling rate (default 48000)
-    frame_length : int 
-        Number of audio samples in each frame: frame_dur multiplied with
-        sampling_rate, divided by 1000 (default 960)
-    overlap_length : int 
-        Number of overlapping audio samples between subsequent frames: 
-        frame_length multiplied by percent_overlap, floored (default 480)
     beta : float
-        Value applied in Wiener filter that smooths the application of gain;
-        default set according to previous research (default 0.98).
-    window_type : str
-        Type of window applied to audio frames: hann vs hamming (default
-        'hamming')
-    window : ndarray
-        The window according to indicated window_type and frame_length; this 
-        value can be applied directly to a frame of audio samples
+        Value applied in Wiener filter that smooths the application of 'gain';
+        default set according to previous research. (default 0.98)
+    first_iter : bool, optional
+        Keeps track if `first_iter` is relevant in filtering. If True, 
+        filtering has just started, and calculations made for filtering cannot
+        use information from previous frames; if False, calculations for 
+        filtering use information from previous frames; if None, no difference
+        is applied when processing the 1st vs subsequent frames. (default None)
+    target_subframes : int, None
+        The number of total subsections within the total number of samples 
+        belonging to the target signal (i.e. wavfile being filtered). Until
+        `target_subframes` is calculated, it is set to None. (default None) 
+    noise_subframes : int, None
+        The number of total subsections within the total number of samples 
+        belonging to the noise signal. If noise power spectrum is used, this
+        doesn't need to be calculated. Until `noise_subframes` is calculated, 
+        it is set to None. (default None)
+    gain : ndarray, None
+        Once calculated, the attenuation values to be applied to the fft for 
+        noise reduction. Until calculated, None. (default None)
+    max_vol : float, int 
+        The maximum volume allowed for the filtered signal. (default 0.4)
     """
 
     def __init__(self,
@@ -97,6 +129,7 @@ class WienerFilter(FilterSettings):
         FilterSettings.__init__(self)
         self.beta = smooth_factor
         self.first_iter = first_iter
+        self.target_subframes = None
         self.noise_subframes = None
         self.gain = None
         self.max_vol = max_vol
@@ -117,12 +150,12 @@ class WienerFilter(FilterSettings):
             Array containing signal amplitude values in time domain
         """
         samples, sr = noize.dsp.load_signal(
-            wavfile, self.samplerate, dur_sec=dur_sec)
+            wavfile, self.sr, dur_sec=dur_sec)
         self.set_volume(samples, max_vol = self.max_vol)
         return samples
 
     def set_volume(self, samples, max_vol = 0.4, min_vol = 0.15):
-        """Records and limits the maximum amplitude of original samples 
+        """Records and limits the maximum amplitude of original samples.
 
         This enables the output wave to be within a range of
         volume that does not go below or too far above the 
@@ -221,7 +254,7 @@ class WienerFilter(FilterSettings):
 
     def save_filtered_signal(self, output_file, samples, overwrite=False):
         saved, filename = noize.paths.save_wave(
-            output_file, samples, self.samplerate, overwrite=overwrite)
+            output_file, samples, self.sr, overwrite=overwrite)
         if saved:
             print('Wavfile saved under: {}'.format(filename))
             return True
@@ -231,10 +264,31 @@ class WienerFilter(FilterSettings):
 
 
 class WelchMethod(FilterSettings):
+    """Applies Welch's method according to filter class attributes. 
+
+    Attributes
+    ----------
+    len_noise_sec : int, float
+        The amount of time in seconds to use from signal to apply the
+        Welch's method. (default 1)
+    target_subframes : int, None
+        The number of total subsections within the total number of samples 
+        belonging to the target signal (i.e. wavfile being filtered). Until
+        `target_subframes` is calculated, it is set to None. Note: if the
+        target signal contains time sensitive information, e.g. speech, 
+        it is not advised to apply Welch's method as the time senstive 
+        data would be lost. (default None) 
+    noise_subframes : int, None
+        The number of total subsections within the total number of samples 
+        belonging to the noise signal. Until `noise_subframes` is calculated, 
+        it is set to None. (default None)
+    """
     def __init__(self,
                  len_noise_sec=1):
         FilterSettings.__init__(self)
         self.len_noise_sec = len_noise_sec
+        self.target_subframes = None
+        self.noise_subframes = None
 
     def set_num_subframes(self, len_samples, noise=True):
         '''calculate and set number of subframes required to process total samples
@@ -254,7 +308,7 @@ class WelchMethod(FilterSettings):
         for frame in range(self.noise_subframes):
             noise_sect = samples[section_start:section_start +
                                  self.frame_length]
-            noise_w_win = noize.dsp.apply_window(noise_sect, self.window)
+            noise_w_win = noize.dsp.apply_window(noise_sect, self.get_window())
             noise_fft = noize.dsp.calc_fft(noise_w_win)
             noise_power = noize.dsp.calc_power(noise_fft)
             for i, row in enumerate(noise_power):
@@ -263,7 +317,7 @@ class WelchMethod(FilterSettings):
         return matrix2store_power
 
     def coll_pow_average(self, wave_list, scale=None, augment_data=False):
-        pwspec_shape = self.window.shape+(1,)
+        pwspec_shape = self.get_window().shape+(1,)
         noise_powspec = noize.matrixfun.create_empty_matrix(
             pwspec_shape, complex_vals=False)
         for j, wav in enumerate(wave_list):
@@ -291,7 +345,7 @@ class WelchMethod(FilterSettings):
 def get_average_power(class_waves_dict, encodelabel_dict,
                       powspec_dir, duration_sec=1, augment_data=False):
     avspec = WelchMethod(len_noise_sec=duration_sec)
-    avspec.set_num_subframes(int(avspec.len_noise_sec * avspec.samplerate),
+    avspec.set_num_subframes(int(avspec.len_noise_sec * avspec.sr),
                              noise=True)
     total_classes = len(class_waves_dict)
     count = 0
@@ -332,7 +386,7 @@ def calc_audioclass_powerspecs(filter_class, feature_class, dur_ms,
     return None
 
 def coll_beg_audioclass_samps(
-    filter_class, feature_class, num_each_audioclass=1, dur_ms=500):
+    filter_class, feature_class, num_each_audioclass=1, dur_ms=1000):
     class_waves_dict = noize.paths.load_dict(filter_class.labels_waves_path)
     labels_encoded_dict = noize.paths.load_dict(filter_class.labels_encoded_path)
     encodelabel_dict = {}
@@ -357,8 +411,11 @@ def get_save_begsamps(wavlist,audioclass_int,
     numsamps = noize.dsp.calc_frame_length(dur_ms,samplerate)
     for i, wav in enumerate(wavlist):
         y, sr = noize.dsp.load_signal(wav,sampling_rate=samplerate)
-        y120 = y[:numsamps]
+        y_beg = y[:numsamps]
         filename = powspec_dir.joinpath(
-            'beg120ms{}sr_{}_audioclass{}.npy'.format(samplerate, i,audioclass_int))
-        noize.paths.save_feature_data(filename, y120)
+            'beg{}ms{}sr_{}_audioclass{}.npy'.format(dur_ms, 
+                                                     samplerate, 
+                                                     i,
+                                                     audioclass_int))
+        noize.paths.save_feature_data(filename, y_beg)
     return None

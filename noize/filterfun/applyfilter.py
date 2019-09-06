@@ -30,21 +30,41 @@ sys.path.insert(0, noizedir)
 
 import noize
 
-def filtersignal(output_file, wavfile, noise_file=None,
+def filtersignal(output_filename, wavfile, noise_file=None,
                     scale=1, apply_postfilter=False, duration_ms=1000,
                     max_vol = 0.4):
-    """apply wiener filter to signal using noise input.
+    """Apply Wiener filter to signal using noise. Saves at `output_filename`.
+    
+    Note: 
 
     Parameters 
     ----------
-    output_file : str
+    output_filename : str
         path and name the filtered signal is to be saved
     wavfile : str 
         the filename to the signal for filtering; if None, a signal will be 
         generated (default None)
     noise_file : str optional
-        path to either noise wavfile or averaged power values in .npy file
-        (default None)
+        path to either noise wavfile or .npy file containing average power 
+        spectrum values or noise samples. If None, the beginning of the
+        `wavfile` will be used for noise data. (default None)
+    scale : int or float
+        The scale at which the filter should be applied. (default 1) 
+        Note: `scale` cannot be set to 0.
+    apply_postfilter : bool
+        Whether or not the post filter should be applied. The post filter 
+        reduces musical noise (i.e. distortion) in the signal as a byproduct
+        of filtering.
+    duration_ms : int or float
+        The amount of time in milliseconds to use from noise to apply the 
+        Welch's method to. In other words, how much of the noise to use 
+        when approximating the average noise power spectrum.
+    max_vol : int or float 
+        The maximum volume level of the filtered signal.
+    
+    Returns
+    -------
+    None
     """
     wf = noize.WienerFilter(max_vol = max_vol)
 
@@ -67,7 +87,7 @@ def filtersignal(output_file, wavfile, noise_file=None,
             elif 'beg' in noise_file.stem:
                 samples_noise = noize.paths.load_feature_data(noise_file)
     else:
-        starting_noise_len = noize.dsp.calc_frame_length(wf.samplerate, 
+        starting_noise_len = noize.dsp.calc_frame_length(wf.sr, 
                                                          duration_ms)
         samples_noise = samples_orig[:starting_noise_len]
     # if noise samples have been collected...
@@ -82,7 +102,7 @@ def filtersignal(output_file, wavfile, noise_file=None,
         section = 0
         for frame in range(wf.noise_subframes):
             noise_section = samples_noise[section:section+wf.frame_length]
-            noise_w_win = noize.dsp.apply_window(noise_section, wf.window)
+            noise_w_win = noize.dsp.apply_window(noise_section, wf.get_window())
             noise_fft = noize.dsp.calc_fft(noise_w_win)
             noise_power_frame = noize.dsp.calc_power(noise_fft)
             noise_power += noise_power_frame
@@ -104,7 +124,7 @@ def filtersignal(output_file, wavfile, noise_file=None,
     try:
         for frame in range(wf.target_subframes):
             target_section = samples_orig[section:section+wf.frame_length]
-            target_w_window = noize.dsp.apply_window(target_section, wf.window)
+            target_w_window = noize.dsp.apply_window(target_section, wf.get_window())
             target_fft = noize.dsp.calc_fft(target_w_window)
             target_power_frame = noize.dsp.calc_power(target_fft)
             # now start filtering!!
@@ -160,7 +180,7 @@ def filtersignal(output_file, wavfile, noise_file=None,
     enhanced_signal = wf.check_volume(enhanced_signal)
     if len(enhanced_signal) > len(samples_orig):
         enhanced_signal = enhanced_signal[:len(samples_orig)]
-    wf.save_filtered_signal(str(output_file), 
+    wf.save_filtered_signal(str(output_filename), 
                             enhanced_signal,
                             overwrite=True)
     return None
