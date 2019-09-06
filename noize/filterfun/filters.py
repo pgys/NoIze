@@ -27,11 +27,17 @@ signal-to-noise ratio of a signal and ultimately the the actual filtering
 process.
 '''
 ###############################################################################
-import sys
 import numpy as np
 
-from ..file_architecture import paths as pathorg
-from ..mathfun import dsp, matrixfun, augmentdata
+import os, sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+noizedir = os.path.dirname(parentdir)
+sys.path.insert(0, noizedir)
+
+import noize
 
 # what Wiener Filter and Average pow spec can inherit
 class FilterSettings:
@@ -42,15 +48,15 @@ class FilterSettings:
                  window_type='hamming'):
         self.frame_dur = frame_duration_ms
         self.samplerate = sampling_rate
-        self.frame_length = dsp.calc_frame_length(
+        self.frame_length = noize.dsp.calc_frame_length(
             frame_duration_ms,
             sampling_rate)
         self.percent_overlap = percent_overlap
-        self.overlap_length = dsp.calc_num_overlap_samples(
+        self.overlap_length = noize.dsp.calc_num_overlap_samples(
             self.frame_length,
             percent_overlap)
         self.window_type = window_type
-        self.window = dsp.create_window(window_type, self.frame_length)
+        self.window = noize.dsp.create_window(window_type, self.frame_length)
         self.num_fft_bins = self.frame_length
 
 
@@ -86,12 +92,14 @@ class WienerFilter(FilterSettings):
 
     def __init__(self,
                  smooth_factor=0.98,
-                 first_iter=None):
+                 first_iter=None,
+                 max_vol = 0.4):
         FilterSettings.__init__(self)
         self.beta = smooth_factor
         self.first_iter = first_iter
         self.noise_subframes = None
         self.gain = None
+        self.max_vol = max_vol
 
     def get_samples(self, wavfile, dur_sec=None):
         """Load signal and save original volume
@@ -108,9 +116,9 @@ class WienerFilter(FilterSettings):
         samples : ndarray
             Array containing signal amplitude values in time domain
         """
-        samples, sr = dsp.load_signal(
+        samples, sr = noize.dsp.load_signal(
             wavfile, self.samplerate, dur_sec=dur_sec)
-        self.set_volume(samples)
+        self.set_volume(samples, max_vol = self.max_vol)
         return samples
 
     def set_volume(self, samples, max_vol = 0.4, min_vol = 0.15):
@@ -164,13 +172,13 @@ class WienerFilter(FilterSettings):
         None
         """
         if is_noise:
-            self.noise_subframes = dsp.calc_num_subframes(
+            self.noise_subframes = noize.dsp.calc_num_subframes(
                 tot_samples=len_samples,
                 frame_length=self.frame_length,
                 overlap_samples=self.overlap_length
             )
         else:
-            self.target_subframes = dsp.calc_num_subframes(
+            self.target_subframes = noize.dsp.calc_num_subframes(
                 tot_samples=len_samples,
                 frame_length=self.frame_length,
                 overlap_samples=self.overlap_length
@@ -190,7 +198,7 @@ class WienerFilter(FilterSettings):
         power_values : ndarray
             The power values as long as they have the shape (self.num_fft_bins, 1)
         """
-        power_values = pathorg.load_feature_data(path_npy)
+        power_values = noize.paths.load_feature_data(path_npy)
         if power_values.shape[0] != self.num_fft_bins:
             raise ValueError("Power value shape does not match settings.\
                 \nProvided power value shape: {}\
@@ -205,14 +213,14 @@ class WienerFilter(FilterSettings):
         """ensures volume of filtered signal is within the bounds of the original
         """
         max_orig = round(max(samples), 2)
-        samples = dsp.control_volume(samples, self.max_vol)
+        samples = noize.dsp.control_volume(samples, self.max_vol)
         max_adjusted = round(max(samples), 2)
         if max_orig != max_adjusted:
             print("volume adjusted from {} to {}".format(max_orig, max_adjusted))
         return samples
 
     def save_filtered_signal(self, output_file, samples, overwrite=False):
-        saved, filename = pathorg.save_wave(
+        saved, filename = noize.paths.save_wave(
             output_file, samples, self.samplerate, overwrite=overwrite)
         if saved:
             print('Wavfile saved under: {}'.format(filename))
@@ -232,11 +240,11 @@ class WelchMethod(FilterSettings):
         '''calculate and set number of subframes required to process total samples
         '''
         if noise:
-            self.noise_subframes = dsp.calc_num_subframes(tot_samples=len_samples,
+            self.noise_subframes = noize.dsp.calc_num_subframes(tot_samples=len_samples,
                                                           frame_length=self.frame_length,
                                                           overlap_samples=self.overlap_length)
         else:
-            self.target_subframes = dsp.calc_num_subframes(tot_samples=len_samples,
+            self.target_subframes = noize.dsp.calc_num_subframes(tot_samples=len_samples,
                                                            frame_length=self.frame_length,
                                                            overlap_samples=self.overlap_length)
         return None
@@ -246,9 +254,9 @@ class WelchMethod(FilterSettings):
         for frame in range(self.noise_subframes):
             noise_sect = samples[section_start:section_start +
                                  self.frame_length]
-            noise_w_win = dsp.apply_window(noise_sect, self.window)
-            noise_fft = dsp.calc_fft(noise_w_win)
-            noise_power = dsp.calc_power(noise_fft)
+            noise_w_win = noize.dsp.apply_window(noise_sect, self.window)
+            noise_fft = noize.dsp.calc_fft(noise_w_win)
+            noise_power = noize.dsp.calc_power(noise_fft)
             for i, row in enumerate(noise_power):
                 matrix2store_power[i] += row
             section_start += self.overlap_length
@@ -256,13 +264,12 @@ class WelchMethod(FilterSettings):
 
     def coll_pow_average(self, wave_list, scale=None, augment_data=False):
         pwspec_shape = self.window.shape+(1,)
-        noise_powspec = matrixfun.create_empty_matrix(
+        noise_powspec = noize.matrixfun.create_empty_matrix(
             pwspec_shape, complex_vals=False)
         for j, wav in enumerate(wave_list):
-            n, sr = dsp.load_signal(wav, dur_sec=self.len_noise_sec)
+            n, sr = noize.dsp.load_signal(wav, dur_sec=self.len_noise_sec)
             if augment_data:
-                n_low, n_mid, n_high = augmentdata.spread_volumes(n)
-                samples = (n_low, n_mid, n_high)
+                samples = noize.augmentdata.spread_volumes(n)
             else:
                 samples = (n,)
             for sampledata in samples:
@@ -277,7 +284,7 @@ class WelchMethod(FilterSettings):
         print('\nFinished\n')
         tot_powspec_collected = self.noise_subframes * \
             len(wave_list) * len(samples)
-        noise_powspec = dsp.calc_average_power(
+        noise_powspec = noize.dsp.calc_average_power(
             noise_powspec, tot_powspec_collected)
         return noise_powspec
 
@@ -291,20 +298,20 @@ def get_average_power(class_waves_dict, encodelabel_dict,
     for key, value in class_waves_dict.items():
         print('\nProcessing class {} out of {}'.format(count+1, total_classes))
         # value = str(waves list)
-        wave_list = pathorg.string2list(value)
+        wave_list = noize.paths.string2list(value)
         noise_powspec = avspec.coll_pow_average(wave_list,
                                                 augment_data=augment_data)
         path2save = powspec_dir.joinpath(
             # key is str label of class--> encoded integer
             'powspec_noise_{}.npy'.format(encodelabel_dict[key]))
-        pathorg.save_feature_data(path2save, noise_powspec)
+        noize.paths.save_feature_data(path2save, noise_powspec)
         count += 1
     return None
 
 def calc_audioclass_powerspecs(filter_class, feature_class, dur_ms,
                                augment_data=False):
-    class_waves_dict = pathorg.load_dict(filter_class.labels_waves_path)
-    labels_encoded_dict = pathorg.load_dict(filter_class.labels_encoded_path)
+    class_waves_dict = noize.paths.load_dict(filter_class.labels_waves_path)
+    labels_encoded_dict = noize.paths.load_dict(filter_class.labels_encoded_path)
     encodelabel_dict = {}
     for key, value in labels_encoded_dict.items():
         encodelabel_dict[value] = key
@@ -316,7 +323,7 @@ def calc_audioclass_powerspecs(filter_class, feature_class, dur_ms,
     powspec_settings['processing_window_sec'] = dur_ms/1000.
     powspec_settings_filename = filter_class.powspec_path.joinpath(
         filter_class._powspec_settings)
-    pathorg.save_dict(powspec_settings, powspec_settings_filename)
+    noize.paths.save_dict(powspec_settings, powspec_settings_filename)
 
     get_average_power(class_waves_dict, encodelabel_dict,
                       filter_class.powspec_path,
@@ -326,13 +333,13 @@ def calc_audioclass_powerspecs(filter_class, feature_class, dur_ms,
 
 def coll_beg_audioclass_samps(
     filter_class, feature_class, num_each_audioclass=1, dur_ms=500):
-    class_waves_dict = pathorg.load_dict(filter_class.labels_waves_path)
-    labels_encoded_dict = pathorg.load_dict(filter_class.labels_encoded_path)
+    class_waves_dict = noize.paths.load_dict(filter_class.labels_waves_path)
+    labels_encoded_dict = noize.paths.load_dict(filter_class.labels_encoded_path)
     encodelabel_dict = {}
     for key, value in labels_encoded_dict.items():
         encodelabel_dict[value] = key
     for key, value in class_waves_dict.items():
-        wavlist = pathorg.string2list(value)
+        wavlist = noize.paths.string2list(value)
         label_int = encodelabel_dict[key]
         rand_indices = np.random.randint(
             0,len(class_waves_dict),num_each_audioclass)
@@ -346,12 +353,12 @@ def coll_beg_audioclass_samps(
     return None
 
 def get_save_begsamps(wavlist,audioclass_int,
-                      powspec_dir,samplerate=48000,dur_ms=500):
-    numsamps = dsp.calc_frame_length(dur_ms,samplerate)
+                      powspec_dir,samplerate=48000,dur_ms=1000):
+    numsamps = noize.dsp.calc_frame_length(dur_ms,samplerate)
     for i, wav in enumerate(wavlist):
-        y, sr = dsp.load_signal(wav,sampling_rate=samplerate)
+        y, sr = noize.dsp.load_signal(wav,sampling_rate=samplerate)
         y120 = y[:numsamps]
         filename = powspec_dir.joinpath(
             'beg120ms{}sr_{}_audioclass{}.npy'.format(samplerate, i,audioclass_int))
-        pathorg.save_feature_data(filename, y120)
+        noize.paths.save_feature_data(filename, y120)
     return None
