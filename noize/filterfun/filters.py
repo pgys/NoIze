@@ -291,7 +291,19 @@ class WelchMethod(FilterSettings):
         self.noise_subframes = None
 
     def set_num_subframes(self, len_samples, noise=True):
-        '''calculate and set number of subframes required to process total samples
+        '''Calculate and set num subframes required to process all samples.
+        
+        Parameters
+        ----------
+        len_samples : int 
+            Number of total samples in signal.
+        noise : bool 
+            If True, the class attribute `noise_subframes` will be set; if
+            False, the class attribute `target_subframes` will be set.
+            
+        Returns
+        -------
+        None
         '''
         if noise:
             self.noise_subframes = noize.dsp.calc_num_subframes(tot_samples=len_samples,
@@ -304,6 +316,23 @@ class WelchMethod(FilterSettings):
         return None
 
     def get_power(self, samples, matrix2store_power):
+        '''Calculates and adds the power of the noise signal. 
+        
+        Parameters
+        ----------
+        samples : ndarray
+            The samples from the noise signal.
+        matrix2store_power : ndarray
+            Where the power values will be added to. Note:
+            this is to be later averaged to complete Welch's
+            method.
+            
+        Returns 
+        -------
+        matrix2store_power : ndarray 
+            `matrix2store_power` with the current frame of 
+            noise power added.
+        '''
         section_start = 0
         for frame in range(self.noise_subframes):
             noise_sect = samples[section_start:section_start +
@@ -317,6 +346,27 @@ class WelchMethod(FilterSettings):
         return matrix2store_power
 
     def coll_pow_average(self, wave_list, scale=None, augment_data=False):
+        '''Performs Welch's method on (noise) signals in `wave_list`.
+        
+        Parameters
+        ----------
+        wave_list : list
+            List of wavfiles belonging to noise class. The Welch's method
+            will be applied to entire noise class. 
+        scale : float, int, optional
+            A value to increase or decrease the noise values. This will 
+            result in a stronger or weaker filtering.
+        augment_data : bool
+            If True, the sound data will be augmented. Currently, this 
+            uses three versions of each wavefile, at three different 
+            energy levels. This is to increase representation of noise 
+            that is quiet, mid, and loud.
+            
+        Returns
+        -------
+        noise_powspec : ndarray
+            The average power spectrum of the entire `wave_list`
+        '''
         pwspec_shape = self.get_window().shape+(1,)
         noise_powspec = noize.matrixfun.create_empty_matrix(
             pwspec_shape, complex_vals=False)
@@ -344,6 +394,30 @@ class WelchMethod(FilterSettings):
 
 def get_average_power(class_waves_dict, encodelabel_dict,
                       powspec_dir, duration_sec=1, augment_data=False):
+    '''Collects ave. power spectrum from audio classes; saves in .npy files
+    
+    Parameters
+    ----------
+    class_waves_dict : dict 
+        Dictionary containing audio class labels and the wavfile paths
+        of the files belonging to each audio class. 
+    encodelabel_dict : dict
+        Dictionary with keys matching the audio class labels and the 
+        values matching the integer each audio class is encoded as.
+    powspec_dir : str, pathlib.PosixPath
+        Path to where average power spectrum files will be stored.
+    duration_sec : int, float
+        The length in seconds to be processed when calculating the 
+        average power spectrum of each wavfile. (default 1)
+    augmentdata : bool
+        If True, the samples will be augmented in their energy levels
+        so that the sounds are represented at quiet, mid, and loud 
+        levels. If False, no augmentation will take place. 
+        
+    Returns
+    -------
+    None
+    '''
     avspec = WelchMethod(len_noise_sec=duration_sec)
     avspec.set_num_subframes(int(avspec.len_noise_sec * avspec.sr),
                              noise=True)
@@ -362,10 +436,32 @@ def get_average_power(class_waves_dict, encodelabel_dict,
         count += 1
     return None
 
-def calc_audioclass_powerspecs(filter_class, feature_class, dur_ms,
+def calc_audioclass_powerspecs(path_class, dur_ms = 1000,
                                augment_data=False):
-    class_waves_dict = noize.paths.load_dict(filter_class.labels_waves_path)
-    labels_encoded_dict = noize.paths.load_dict(filter_class.labels_encoded_path)
+    '''Uses class's path settings to set up Welch's method for audio classes.
+    
+    The settings applied for average power spectrum collection are also saved
+    in a .csv file.
+    
+    Parameters
+    ----------
+    path_class : class
+        Class with attributes for necessary paths to load relevant wavfiles and 
+        save average power spectrum values.
+    dur_ms : int, float
+        Time in milliseconds for the Welch's method / average power spectrum
+        calculation to be applied for each wavfile. (default 1000)
+    augment_data : bool
+        Whether or not the sound data should be augmented. If True, the sound
+        data will be processed three times: with low energy, mid energy, and 
+        high energy. (default False)
+        
+    Returns
+    -------
+    None
+    '''
+    class_waves_dict = noize.paths.load_dict(path_class.labels_waves_path)
+    labels_encoded_dict = noize.paths.load_dict(path_class.labels_encoded_path)
     encodelabel_dict = {}
     for key, value in labels_encoded_dict.items():
         encodelabel_dict[value] = key
@@ -375,20 +471,47 @@ def calc_audioclass_powerspecs(filter_class, feature_class, dur_ms,
     # add number of classes to settings dictionary to check all classes get processed
     powspec_settings['num_audio_classes'] = total_classes
     powspec_settings['processing_window_sec'] = dur_ms/1000.
-    powspec_settings_filename = filter_class.powspec_path.joinpath(
-        filter_class._powspec_settings)
+    powspec_settings_filename = path_class.powspec_path.joinpath(
+        path_class._powspec_settings)
     noize.paths.save_dict(powspec_settings, powspec_settings_filename)
 
     get_average_power(class_waves_dict, encodelabel_dict,
-                      filter_class.powspec_path,
+                      path_class.powspec_path,
                       duration_sec=dur_ms/1000.0,
                       augment_data=augment_data)
     return None
 
-def coll_beg_audioclass_samps(
-    filter_class, feature_class, num_each_audioclass=1, dur_ms=1000):
-    class_waves_dict = noize.paths.load_dict(filter_class.labels_waves_path)
-    labels_encoded_dict = noize.paths.load_dict(filter_class.labels_encoded_path)
+def coll_beg_audioclass_samps(path_class, 
+                              feature_class, 
+                              num_each_audioclass=1, 
+                              dur_ms=1000):
+    '''Saves `dur_ms` of `num_each_audioclass` wavfiles of each audio class.
+    
+    This is an option for using noise data that comes from an audio class but is 
+    not an average of the entire class. It is raw sample data from one or more 
+    random noise wavfiles from each class. 
+    
+    Parameters
+    ----------
+    path_class : class
+        Class with attributes for necessary paths to load relevant wavfiles and 
+        save sample values.
+    feature_class : class
+        Class with attributes for sampling rate used in feature extraction and/or 
+        filtering. This is useful to maintain consistency in sampling rate
+        throughout the modules.
+    num_each_audioclass : int 
+        The number of random wavfiles from each audio class chosen for raw 
+        sample collection. (default 1)
+    dur_ms : int, float
+        Time in milliseconds of raw sample data to be saved. (default 1000)
+    
+    Returns
+    -------
+    None
+    '''
+    class_waves_dict = noize.paths.load_dict(path_class.labels_waves_path)
+    labels_encoded_dict = noize.paths.load_dict(path_class.labels_encoded_path)
     encodelabel_dict = {}
     for key, value in labels_encoded_dict.items():
         encodelabel_dict[value] = key
@@ -401,13 +524,30 @@ def coll_beg_audioclass_samps(
         for index in rand_indices:
             noisefiles.append(wavlist[index])
         get_save_begsamps(noisefiles, label_int,
-                          filter_class.powspec_path,
+                          path_class.powspec_path,
                           samplerate=feature_class.sr,
                           dur_ms=dur_ms)
     return None
 
 def get_save_begsamps(wavlist,audioclass_int,
                       powspec_dir,samplerate=48000,dur_ms=1000):
+    '''Saves the beginning raw samples from the wavfiles in `wavlist`.
+    
+    Parameters
+    ----------
+    wavlist : list
+        List containing paths of relevant wavfiles 
+    audioclass_int : int
+        The integer the audio class is encoded as.
+    powspec_dir : str, pathlib.PosixPath
+        Path to where data relevant for audio class power spectrum data
+        are to be saved.
+    samplerate : int 
+        The sampling rate of wavfiles. This is needed to calculate num 
+        samples necessary to get `dur_ms` of sound. (default 48000)
+    dur_ms : int, float
+        Time in milleseconds of the wavefiles to collect and save.
+    '''
     numsamps = noize.dsp.calc_frame_length(dur_ms,samplerate)
     for i, wav in enumerate(wavlist):
         y, sr = noize.dsp.load_signal(wav,sampling_rate=samplerate)
