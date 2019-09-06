@@ -103,7 +103,7 @@ def noizeclassifier(classifer_project_name,
         classifer_class = noize.models.buildclassifier(my_project)
     
     if target_wavfile:
-        classify = noize.models.ClassifySound(sounddata = target_wavfile, 
+        classify = noize.models.ClassifySound(target_wavfile, 
                                               my_project, 
                                               feats_class, 
                                               classifer_class)
