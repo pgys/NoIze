@@ -19,6 +19,12 @@
 # You should have received a copy of the GNU AFFERO General Public License 
 # along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.
 
+import os, sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+noizedir = os.path.dirname(currentdir)
+sys.path.insert(0, noizedir)
  
 def noizefilter(filter_project_name, headpath, target_wavfile, noise_wavfile=None, 
                 scale=1, apply_postfilter=False):
