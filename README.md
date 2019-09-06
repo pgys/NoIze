@@ -130,15 +130,19 @@ import noize
 The filtered signal will be saved under the `output_file` path.
 
 ```
-noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                   target_file = 'noisysignal.wav')
+output_file = 'name_filteredsignal.wav'
+target_file = 'noisysignal.wav'
+noize.filtersignal( output_file, 
+                    target_file)
 ```
 ## Use a separate noise file for filtering:
 
 ```
-noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                   target_file = 'noisysignal.wav', 
-                   noise_file = 'backgroundnoise.wav')
+output_file = 'name_filteredsignal.wav'
+target_file = 'noisysignal.wav'
+noize.filtersignal( output_file, 
+                    target_file,
+                    noise_file = 'backgroundnoise.wav')
 ```
 ## Increase or decrease the scale of the filter:
 
@@ -146,23 +150,29 @@ Default is 1 and can be set to just about any number except 0.
 
 ### Decrease:
 ```
-noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                   target_file = 'noisysignal.wav', 
-                   scale = 0.5)
+output_file = 'name_filteredsignal.wav'
+target_file = 'noisysignal.wav'
+noize.filtersignal( output_file, 
+                    target_file,
+                    scale = 0.5)
 ```
 ### Increase:
 ```
-noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                   target_file = 'noisysignal.wav', 
-                   scale = 1.5)
+output_file = 'name_filteredsignal.wav'
+target_file = 'noisysignal.wav'
+noize.filtersignal( output_file, 
+                    target_file,
+                    scale = 1.5)
 ```
 ## Apply post filter to decrease 'musical noise' / distortion:
 
 Default is False
 ```
-noize.filtersignal(output_file = 'name_filteredsignal.wav, 
-                   target_file = 'noisysignal.wav', 
-                   apply_postfilter = True)
+output_file = 'name_filteredsignal.wav'
+target_file = 'noisysignal.wav'
+noize.filtersignal( output_file, 
+                    target_file,
+                    apply_postfilter = True) 
 ```
 
 # NoIze as a sound classifier
