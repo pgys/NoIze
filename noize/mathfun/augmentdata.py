@@ -23,7 +23,6 @@
 
 import numpy as np
 
-
 def adjust_volume(samples, vol_range):
     samps = samples.copy()
     adjusted_volume = np.interp(samps,
@@ -31,20 +30,31 @@ def adjust_volume(samples, vol_range):
                                 (-vol_range, vol_range))
     return adjusted_volume
 
-def spread_volumes(samples):
-    '''returns samples with a range of volumes 
+def spread_volumes(samples, vol_list = [0.1,0.3,0.5]):
+    '''Returns samples with a range of volumes. 
+    
+    Parameters
+    ----------
+    samples : ndarray
+        Series belonging to acoustic signal.
+    vol_list : list 
+        List of floats or ints representing the volumes the samples
+        are to be oriented towards. (default [0.1,0.3,0.5])
+        
+    Returns
+    -------
+    volrange_dict : tuple 
+        Tuple of `volrange_dict` values containing `samples` at various vols.
     '''
     if samples is None or len(samples) == 0:
         raise ValueError('No Audio sample data recognized.')
     max_vol = max(samples)
     if round(max_vol) > 1:
         raise ValueError('Audio data not normalized.')
-    vol_range_high = adjust_volume(samples, 0.5)
-    vol_range_mid = adjust_volume(samples, 0.3)
-    vol_range_low = adjust_volume(samples, 0.1)
-    for vol_set in (vol_range_high, vol_range_mid, vol_range_low):
-        assert max(vol_set) < 1 and max(vol_set) > 0
-    return vol_range_low, vol_range_mid, vol_range_high
+    volrange_dict = {}
+    for i, vol in enumerate(vol_list):
+        volrange_dict[i] = adjust_volume(samples, vol) 
+    return tuple(volrange_dict.values())
 
 if __name__ == "__main__":
     import doctest

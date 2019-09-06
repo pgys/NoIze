@@ -132,8 +132,7 @@ class PrepFeatures:
         '''
         # when applying this to new data, dont't want to augment it.
         if not augment_data and self.augment_data:
-            y_low, y_mid, y_high = noize.augmentdata.spread_volumes(y)
-            samples = (y_low, y_mid, y_high)
+            samples = noize.augmentdata.spread_volumes(y)
         else:
             samples = (y,)
         feat_matrix = noize.matrixfun.create_empty_matrix(
