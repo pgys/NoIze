@@ -9,24 +9,21 @@ Welcome to the docs!
 ====================
 
 
-\\\\ \\\\NoIze/ / is a Python package_ for accessible smart noise filter development. It started as a Prototype Fund project_ from the 5th round: "Letting Machines learn–Technologies for our futures". Now it is open source and available as a tool for learning or development.
+NoIze is a Python package_ for accessible smart noise filter development. Interested? Here is a demo_! NoIze also offers stand-alone sound filtering_ as well as sound classifier_ tools. It all started as a Prototype Fund project_ from the 5th round: "Letting Machines learn–Technologies for our futures". Now it is open source and available as a tool for learning or development.
 
-This package is a prototype for the purpose of empowering listers' experience of their sound environment. The foundation has been laid for users to collect sounds from their surroundings and build noise filters uniquely designed not only according to their own surroundings, but also to their own perceptions of noise.
+This package is a prototype for the purpose of empowering listers' experience of their sound environment. The foundation has been laid for users to collect sounds from their surroundings and implement noise filters uniquely designed not only according to their own surroundings, but also to their own perceptions of noise.
 
-We are all familiar with this saying_, right? 
-    One man's noise is another man's muse.
-    
-To see a demonstration and to fiddle around with the package yourself, check out this demo_. 
-
-The structure of the convolutional neural network built in \\\\ \\\\NoIze/ /, used as a noise classifier, was inspired by the researchers A. Sehgal and N. Kehtarnavaz in their 2017_ paper. The filtering functionality stems from another_ paper from the same university, University of Texas at Dallas, with an additional author: A. Bhattacharya. 
+The structure of the convolutional neural network built in NoIze, used as a noise classifier, was inspired by the researchers A. Sehgal and N. Kehtarnavaz in their 2017_ paper. The filtering functionality stems from another_ paper from the same university, University of Texas at Dallas, with an additional author: A. Bhattacharya. 
 
 .. _package: https://github.com/pgys/NoIze
 
-.. _project: https://prototypefund.de/en/projects/
-
-.. _saying: https://idioms.thefreedictionary.com/one+man%27s+trash+is+another+man%27s+treasure
-
 .. _demo: https://notebooks.ai/a-n-rose/noize-demo-360a3df2
+
+.. _filtering: https://notebooks.ai/a-n-rose/noize-filtering-tool-dfe26049 
+
+.. _classifier: https://notebooks.ai/a-n-rose/noize-sound-classification-tool-0dca787e
+
+.. _project: https://prototypefund.de/en/projects/
 
 .. _2017: https://ieeexplore.ieee.org/abstract/document/8278160
 

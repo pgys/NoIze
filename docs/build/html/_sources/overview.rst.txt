@@ -112,5 +112,9 @@ Installation
 
 Installation and running of this package can be interactively explored in this Jupyter notebook_. There you can look at the file architecture this package creates, and how new directories can be created for new datasets or different types of features extracted, etc.  
 
+For Installing on your local machine, please refer to our repository_.
+
 .. _notebook: https://notebooks.ai/a-n-rose/noize-demo-360a3df2
+
+.. _repository: https://github.com/pgys/NoIze
 
