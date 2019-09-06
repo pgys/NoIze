@@ -53,7 +53,6 @@
 <span class="c1"># along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
 
 <span class="c1">###############################################################################</span>
-<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="c1"># for building and training models</span>
@@ -61,17 +60,24 @@
 <span class="kn">from</span> <span class="nn">keras.layers</span> <span class="k">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Conv2D</span><span class="p">,</span> <span class="n">Flatten</span><span class="p">,</span> <span class="n">Dropout</span>
 <span class="kn">from</span> <span class="nn">keras.callbacks</span> <span class="k">import</span> <span class="n">EarlyStopping</span><span class="p">,</span> <span class="n">CSVLogger</span><span class="p">,</span> <span class="n">ModelCheckpoint</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="k">import</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">normalize</span>
+ 
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="n">currentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+    <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
+<span class="n">noizedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">currentdir</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noizedir</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">..file_architecture</span> <span class="k">import</span> <span class="n">paths</span> <span class="k">as</span> <span class="n">pathorg</span>
-<span class="kn">from</span> <span class="nn">..acousticfeats_ml</span>  <span class="k">import</span> <span class="n">featorg</span><span class="p">,</span> <span class="n">modelfeats</span>
-<span class="kn">from</span> <span class="nn">..mathfun</span> <span class="k">import</span> <span class="n">matrixfun</span>
+<span class="kn">from</span> <span class="nn">file_architecture</span> <span class="k">import</span> <span class="n">paths</span> <span class="k">as</span> <span class="n">pathorg</span>
+<span class="kn">from</span> <span class="nn">acousticfeats_ml</span>  <span class="k">import</span> <span class="n">featorg</span><span class="p">,</span> <span class="n">modelfeats</span>
+<span class="kn">from</span> <span class="nn">mathfun</span> <span class="k">import</span> <span class="n">matrixfun</span>
 
 
 <div class="viewcode-block" id="SoundClassifier"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.SoundClassifier">[docs]</a><span class="k">class</span> <span class="nc">SoundClassifier</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;Build a mobile compatible CNN to classify noise / acoustic scene</span>
 <span class="sd">    </span>
-<span class="sd">    Reference</span>
-<span class="sd">    ---------</span>
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
 <span class="sd">    A. Sehgal and N. Kehtarnavaz, &quot;A Convolutional Neural Network </span>
 <span class="sd">    Smartphone App for Real-Time Voice Activity Detection,&quot; in IEEE Access, </span>
 <span class="sd">    vol. 6, pp. 9017-9026, 2018. </span>
@@ -334,6 +340,8 @@
 
 
 <div class="viewcode-block" id="ClassifySound"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.ClassifySound">[docs]</a><span class="k">class</span> <span class="nc">ClassifySound</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Takes new audio and classifies it with classifier.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sounddata</span><span class="p">,</span> <span class="n">filter_class</span><span class="p">,</span> <span class="n">feature_class</span><span class="p">,</span> <span class="n">model_class</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sounddata</span> <span class="o">=</span> <span class="n">sounddata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature_settings</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span>

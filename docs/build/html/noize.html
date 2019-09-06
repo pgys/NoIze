@@ -14,8 +14,8 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="noize.models package" href="noize.models.html" />
-    <link rel="prev" title="Overview" href="readme.html" />
+    <link rel="next" title="Train or Load Sound Classifier" href="noize.models.html" />
+    <link rel="prev" title="noize" href="modules.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -38,7 +38,7 @@
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="noize.models.html">noize.models package</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="noize.models.html">Train or Load Sound Classifier</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="noize.models.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="noize.models.html#module-noize.models.cnn">noize.models.cnn module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="noize.models.html#module-noize.models">Module contents</a></li>
@@ -78,8 +78,20 @@
 <dd></dd></dl>
 
 </div>
-<div class="section" id="noize-templates-module">
-<h2>noize.templates module<a class="headerlink" href="#noize-templates-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-noize.templates">
+<span id="noize-templates-module"></span><h2>noize.templates module<a class="headerlink" href="#module-noize.templates" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="noize.templates.noizeclassifier">
+<code class="sig-prename descclassname">noize.templates.</code><code class="sig-name descname">noizeclassifier</code><span class="sig-paren">(</span><em class="sig-param">classifer_project_name</em>, <em class="sig-param">headpath</em>, <em class="sig-param">target_wavfile=None</em>, <em class="sig-param">audiodir=None</em>, <em class="sig-param">feature_type='fbank'</em>, <em class="sig-param">audioclass_wavfile_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/templates.html#noizeclassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.templates.noizeclassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Example code for implementing NoIze as just a sound classifier.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.templates.noizefilter">
+<code class="sig-prename descclassname">noize.templates.</code><code class="sig-name descname">noizefilter</code><span class="sig-paren">(</span><em class="sig-param">filter_project_name</em>, <em class="sig-param">headpath</em>, <em class="sig-param">target_wavfile</em>, <em class="sig-param">noise_wavfile=None</em>, <em class="sig-param">scale=1</em>, <em class="sig-param">apply_postfilter=False</em>, <em class="sig-param">max_vol=0.4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/templates.html#noizefilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.templates.noizefilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Example code for implementing NoIze as just a noise filter.</p>
+</dd></dl>
+
 </div>
 <div class="section" id="module-noize">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-noize" title="Permalink to this headline">¶</a></h2>
@@ -683,8 +695,10 @@ when approximating the average noise power spectrum.</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="readme.html" title="previous chapter">Overview</a></li>
-      <li>Next: <a href="noize.models.html" title="next chapter">noize.models package</a></li>
+  <li><a href="modules.html">noize</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">noize</a></li>
+      <li>Next: <a href="noize.models.html" title="next chapter">Train or Load Sound Classifier</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

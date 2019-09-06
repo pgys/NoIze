@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>noize.models package &#8212; \\NoIze// 0.0.1 documentation</title>
+    <title>Train or Load Sound Classifier &#8212; \\NoIze// 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -14,6 +14,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Setup File Architecture" href="noize.file_architecture.html" />
     <link rel="prev" title="noize package" href="noize.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -31,8 +32,8 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="noize-models-package">
-<h1>noize.models package<a class="headerlink" href="#noize-models-package" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="train-or-load-sound-classifier">
+<h1>Train or Load Sound Classifier<a class="headerlink" href="#train-or-load-sound-classifier" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
@@ -42,6 +43,7 @@
 <dt id="noize.models.cnn.ClassifySound">
 <em class="property">class </em><code class="sig-prename descclassname">noize.models.cnn.</code><code class="sig-name descname">ClassifySound</code><span class="sig-paren">(</span><em class="sig-param">sounddata</em>, <em class="sig-param">filter_class</em>, <em class="sig-param">feature_class</em>, <em class="sig-param">model_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.ClassifySound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Takes new audio and classifies it with classifier.</p>
 <dl class="method">
 <dt id="noize.models.cnn.ClassifySound.check_for_best_model">
 <code class="sig-name descname">check_for_best_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound.check_for_best_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.ClassifySound.check_for_best_model" title="Permalink to this definition">¶</a></dt>
@@ -74,6 +76,7 @@
 <em class="property">class </em><code class="sig-prename descclassname">noize.models.cnn.</code><code class="sig-name descname">SoundClassifier</code><span class="sig-paren">(</span><em class="sig-param">modelname</em>, <em class="sig-param">models_dir</em>, <em class="sig-param">features_dir</em>, <em class="sig-param">encoded_labels_path</em>, <em class="sig-param">feature_session</em>, <em class="sig-param">modelsettings_path</em>, <em class="sig-param">newmodel=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.cnn.SoundClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Build a mobile compatible CNN to classify noise / acoustic scene</p>
+<p class="rubric">References</p>
 <p>A. Sehgal and N. Kehtarnavaz, “A Convolutional Neural Network
 Smartphone App for Real-Time Voice Activity Detection,” in IEEE Access,
 vol. 6, pp. 9017-9026, 2018.</p>
@@ -165,6 +168,7 @@ normalize.</p>
 <em class="property">class </em><code class="sig-prename descclassname">noize.models.</code><code class="sig-name descname">SoundClassifier</code><span class="sig-paren">(</span><em class="sig-param">modelname</em>, <em class="sig-param">models_dir</em>, <em class="sig-param">features_dir</em>, <em class="sig-param">encoded_labels_path</em>, <em class="sig-param">feature_session</em>, <em class="sig-param">modelsettings_path</em>, <em class="sig-param">newmodel=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#SoundClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.SoundClassifier" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Build a mobile compatible CNN to classify noise / acoustic scene</p>
+<p class="rubric">References</p>
 <p>A. Sehgal and N. Kehtarnavaz, “A Convolutional Neural Network
 Smartphone App for Real-Time Voice Activity Detection,” in IEEE Access,
 vol. 6, pp. 9017-9026, 2018.</p>
@@ -237,6 +241,7 @@ normalize.</p>
 <dt id="noize.models.ClassifySound">
 <em class="property">class </em><code class="sig-prename descclassname">noize.models.</code><code class="sig-name descname">ClassifySound</code><span class="sig-paren">(</span><em class="sig-param">sounddata</em>, <em class="sig-param">filter_class</em>, <em class="sig-param">feature_class</em>, <em class="sig-param">model_class</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.ClassifySound" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Takes new audio and classifies it with classifier.</p>
 <dl class="method">
 <dt id="noize.models.ClassifySound.check_for_best_model">
 <code class="sig-name descname">check_for_best_model</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/models/cnn.html#ClassifySound.check_for_best_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.models.ClassifySound.check_for_best_model" title="Permalink to this definition">¶</a></dt>
@@ -287,8 +292,11 @@ normalize.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">noize</a><ul>
   <li><a href="noize.html">noize package</a><ul>
       <li>Previous: <a href="noize.html" title="previous chapter">noize package</a></li>
+      <li>Next: <a href="noize.file_architecture.html" title="next chapter">Setup File Architecture</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>

@@ -60,9 +60,14 @@ The structure of the convolutional neural network built in \\\\ \\\\NoIze/ /, us
 
 
    readme.rst
-   noize.rst
+   modules.rst
+   noize.file_architecture.rst
+   noize.acousticfeats_ml.rst
    noize.models.rst
+   noize.filterfun.rst
+   noize.mathfun.rst
 
+   
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`

@@ -1,5 +1,6 @@
-noize.models package
-====================
+Train or Load Sound Classifier
+==============================
+
 
 Submodules
 ----------
