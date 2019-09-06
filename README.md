@@ -218,9 +218,11 @@ This will not only train and save a classifier (if one doesn't already exist), b
 
 # Credits
 
-This package was developed during the 5th round of the Prototype Fund the project \\ \\NoIze/ /, managed by Peggy Sylopp (contact@peggy-sylopp.net).
+This package was developed during the 5th round of the Prototype Fund in the project \\ \\NoIze/ /, managed by Peggy Sylopp (contact@peggy-sylopp.net).
 
 Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@gmail.com, <a href='https://a-n-rose.github.io/'>a-n-rose.github.io</a>)
+
+Copyright 2019 Peggy Sylopp und Aislyn Rose GbR
 
 # References
 
