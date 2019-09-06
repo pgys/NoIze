@@ -24,7 +24,8 @@ necessary in both digital signal processing and machine learning
 '''
 import numpy as np
 
-
+# TODO: https://github.com/biopython/biopython/issues/1496
+# Fix numpy array repr for Doctest. 
 def add_tensor(matrix):
     '''Adds tensor / dimension to input ndarray
 
@@ -58,51 +59,51 @@ def add_tensor(matrix):
     Examples
     --------
     >>> import numpy as np
-    >>> matrix = np.arange(48).reshape((2,3,4)
+    >>> matrix = np.arange(24).reshape((2,3,4))
     >>> matrix.shape
-    (2,3,4)
+    (2, 3, 4)
     >>> matrix
-    array([[[ 0,  1,  2,  3,  4,  5,  6,  7],
-            [ 8,  9, 10, 11, 12, 13, 14, 15],
-            [16, 17, 18, 19, 20, 21, 22, 23]],
-                        <BLANKLINE>
-            [[24, 25, 26, 27, 28, 29, 30, 31],
-            [32, 33, 34, 35, 36, 37, 38, 39],
-            [40, 41, 42, 43, 44, 45, 46, 47]]])
+    array([[[ 0,  1,  2,  3],
+            [ 4,  5,  6,  7],
+            [ 8,  9, 10, 11]],
+    <BLANKLINE>
+           [[12, 13, 14, 15],
+            [16, 17, 18, 19],
+            [20, 21, 22, 23]]])
     >>> matrix_2 = add_tensor(matrix)
     >>> matrix_2.shape
-    (2,3,4,1)
+    (2, 3, 4, 1)
     >>> matrix_2
     array([[[[ 0],
-            [ 1],
-            [ 2],
-            [ 3]],
-        <BLANKLINE>
+             [ 1],
+             [ 2],
+             [ 3]],
+    <BLANKLINE>
             [[ 4],
-            [ 5],
-            [ 6],
-            [ 7]],
-        <BLANKLINE>
+             [ 5],
+             [ 6],
+             [ 7]],
+    <BLANKLINE>
             [[ 8],
-            [ 9],
-            [10],
-            [11]]],
-        <BLANKLINE>
-        <BLANKLINE>
-            [[[12],
-            [13],
-            [14],
-            [15]],
-        <BLANKLINE>
+             [ 9],
+             [10],
+             [11]]],
+    <BLANKLINE>
+    <BLANKLINE>
+           [[[12],
+             [13],
+             [14],
+             [15]],
+    <BLANKLINE>
             [[16],
-            [17],
-            [18],
-            [19]],
-        <BLANKLINE>
+             [17],
+             [18],
+             [19]],
+    <BLANKLINE>
             [[20],
-            [21],
-            [22],
-            [23]]]])
+             [21],
+             [22],
+             [23]]]])
     '''
     if isinstance(matrix, np.ndarray) and len(matrix) > 0:
         matrix = matrix.reshape(matrix.shape + (1,))
@@ -113,11 +114,10 @@ def add_tensor(matrix):
         raise TypeError('Expected type numpy.ndarray, recieved {}'.format(
             type(matrix)))
 
-
 def create_empty_matrix(shape, complex_vals=False):
-    '''allows creation of a matrix filled with real or complex zeros
+    '''Allows creation of a matrix filled with real or complex zeros
 
-    in digital signal processing, complex numbers are common; it is 
+    In digital signal processing, complex numbers are common; it is 
     important to note that if complex_vals=False and complex values are
     inserted into the matrix, the imaginary part will be removed.
 
@@ -186,7 +186,7 @@ def separate_dependent_var(matrix):
     >>> separate_dependent_var(np.array([1,2,3,4]))
     (array([1, 2, 3]), 4)
     >>> #simple matrix
-    >>> matrix = np.arrange(4).reshape(2,2)
+    >>> matrix = np.arange(4).reshape(2,2)
     >>> matrix
     array([[0, 1],
            [2, 3]])
@@ -201,18 +201,18 @@ def separate_dependent_var(matrix):
     >>> matrix
     array([[[ 0,  1,  2,  3,  4],
             [ 5,  6,  7,  8,  9]],
-                <BLANKLINE>
+    <BLANKLINE>
            [[10, 11, 12, 13, 14],
             [15, 16, 17, 18, 19]]])
     >>> X, y = separate_dependent_var(matrix)
     >>> X
     array([[[ 0,  1,  2,  3],
             [ 5,  6,  7,  8]],
-                <BLANKLINE>
+    <BLANKLINE>
            [[10, 11, 12, 13],
             [15, 16, 17, 18]]])
     >>> y
-    array([4, 14]) #2 labels for 2 blocks of features
+    array([ 4, 14])
     '''
     # get last column
     y_step1 = np.take(matrix, -1, axis=-1)
@@ -222,3 +222,7 @@ def separate_dependent_var(matrix):
     # get features:
     X = np.delete(matrix, -1, axis=-1)
     return X, y
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

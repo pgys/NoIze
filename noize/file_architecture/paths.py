@@ -24,8 +24,6 @@ The module paths.py contains functionality that manages how files are
 stored. 
 '''
 ###############################################################################
-import os
-import sys
 import pathlib
 import csv
 # for saving numpy files
@@ -33,6 +31,7 @@ import numpy as np
 # for saving wavfiles
 from scipy.io import wavfile
 
+import os, sys
 import inspect
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))

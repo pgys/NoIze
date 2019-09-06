@@ -55,7 +55,7 @@ class FilterSettings:
 
 
 class WienerFilter(FilterSettings):
-    """Interactive class to explore Wiener filter settings on audio signals
+    """Interactive class to explore Wiener filter settings on audio signals.
 
     These class methods implement research based algorithms with low 
     computational cost, aimed for noise reduction via mobile phone
@@ -63,24 +63,24 @@ class WienerFilter(FilterSettings):
     Attributes
     ----------
     frame_dur : int, float
-        time in milliseconds of each audio frame window (default 20)
+        Time in milliseconds of each audio frame window (default 20)
     sampling_rate : int 
-        desired sampling rate of audio; audio will be resampled to match if
+        Desired sampling rate of audio; audio will be resampled to match if
         audio has other sampling rate (default 48000)
     frame_length : int 
-        number of audio samples in each frame: frame_dur multiplied with
+        Number of audio samples in each frame: frame_dur multiplied with
         sampling_rate, divided by 1000 (default 960)
     overlap_length : int 
-        number of overlapping audio samples between subsequent frames: 
+        Number of overlapping audio samples between subsequent frames: 
         frame_length multiplied by percent_overlap, floored (default 480)
     beta : float
-        value applied in Wiener filter that smooths the application of gain;
-        default set according to previous research (default 0.98)
+        Value applied in Wiener filter that smooths the application of gain;
+        default set according to previous research (default 0.98).
     window_type : str
-        type of window applied to audio frames: hann vs hamming (default
+        Type of window applied to audio frames: hann vs hamming (default
         'hamming')
     window : ndarray
-        the window according to indicated window_type and frame_length; this 
+        The window according to indicated window_type and frame_length; this 
         value can be applied directly to a frame of audio samples
     """
 
@@ -94,37 +94,45 @@ class WienerFilter(FilterSettings):
         self.gain = None
 
     def get_samples(self, wavfile, dur_sec=None):
-        """load signal and save original volume
+        """Load signal and save original volume
 
         Parameters
         ----------
         wavfile : str
-            path and name of wavfile to be loaded
+            Path and name of wavfile to be loaded
         dur_sec : int, float optional
-            max length of time in seconds (default None)
+            Max length of time in seconds (default None)
 
         Returns 
         ----------
         samples : ndarray
-            array containing signal amplitude values in time domain
+            Array containing signal amplitude values in time domain
         """
         samples, sr = dsp.load_signal(
             wavfile, self.samplerate, dur_sec=dur_sec)
         self.set_volume(samples)
         return samples
 
-    def set_volume(self, samples):
+    def set_volume(self, samples, max_vol = 0.4, min_vol = 0.15):
         """Records and limits the maximum amplitude of original samples 
 
         This enables the output wave to be within a range of
         volume that does not go below or too far above the 
-        orignal maximum amplitude of the signal
+        orignal maximum amplitude of the signal. 
 
         Parameters
         ----------
         samples : ndarray
-            the original samples of a signal (1 dimensional), of any length
+            The original samples of a signal (1 dimensional), of any length
+        max_vol : float
+            The maximum volume level. If a signal has values higher than this 
+            number, the signal is curtailed to remain at and below this number.
+        min_vol : float
+            The minimum volume level. If a signal has only values lower than
+            this number, the signal is amplified to be at this number and below.
+        
         Returns
+        -------
         None
         """
         if isinstance(samples, np.ndarray):
@@ -132,31 +140,27 @@ class WienerFilter(FilterSettings):
         else:
             max_amplitude = max(samples)
         self.vol_orig = max_amplitude
-        if max_amplitude < 0.15:
-            self.min_vol = 0.15
+        if max_amplitude > max_vol:
+            self.max_vol = max_vol
+        elif max_amplitude < min_vol:
+            self.max_vol = min_vol
         else:
-            self.min_vol = max_amplitude
-        if max_amplitude*1.25 > 0.4:
-            self.max_vol = 0.4
-        elif max_amplitude < self.min_vol:
-            self.max_vol = self.min_vol*1.25
-        else:
-            self.max_vol = max_amplitude*1.25
+            self.max_vol = max_amplitude
         return None
 
     def set_num_subframes(self, len_samples, is_noise=False):
-        """sets the number of target or noise subframes available for processing
+        """Sets the number of target or noise subframes available for processing
 
         Parameters
         ----------
         len_samples : int 
-            the total number of samples in a given signal
+            The total number of samples in a given signal
         is_noise : bool
-            if False, subframe number saved under self.target_subframes, otherwise 
+            If False, subframe number saved under self.target_subframes, otherwise 
             self.noise_subframes (default False)
 
         Returns
-        ----------
+        -------
         None
         """
         if is_noise:
@@ -174,17 +178,17 @@ class WienerFilter(FilterSettings):
         return None
 
     def load_power_vals(self, path_npy):
-        """loads and checks shape compatibility of averaged power values
+        """Loads and checks shape compatibility of averaged power values
 
         Parameters
         ----------
         path_npy : str, pathlib.PosixPath
-            path to .npy file containing power information. 
+            Path to .npy file containing power information. 
 
         Returns
-        ----------
+        -------
         power_values : ndarray
-            the power values as long as they have the shape (self.num_fft_bins, 1)
+            The power values as long as they have the shape (self.num_fft_bins, 1)
         """
         power_values = pathorg.load_feature_data(path_npy)
         if power_values.shape[0] != self.num_fft_bins:
@@ -201,7 +205,7 @@ class WienerFilter(FilterSettings):
         """ensures volume of filtered signal is within the bounds of the original
         """
         max_orig = round(max(samples), 2)
-        samples = dsp.control_volume(samples, self.min_vol, self.max_vol)
+        samples = dsp.control_volume(samples, self.max_vol)
         max_adjusted = round(max(samples), 2)
         if max_orig != max_adjusted:
             print("volume adjusted from {} to {}".format(max_orig, max_adjusted))

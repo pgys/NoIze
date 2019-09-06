@@ -45,3 +45,7 @@ def spread_volumes(samples):
     for vol_set in (vol_range_high, vol_range_mid, vol_range_low):
         assert max(vol_set) < 1 and max(vol_set) > 0
     return vol_range_low, vol_range_mid, vol_range_high
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

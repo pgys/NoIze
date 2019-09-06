@@ -12,6 +12,7 @@ from .acousticfeats_ml.modelfeats import PrepFeatures
 from .acousticfeats_ml.modelfeats import prepfeatures as run_featprep 
 from .acousticfeats_ml.modelfeats import loadfeature_settings as getfeatsettings
 from .filterfun import filters
+from .filterfun.filters import WienerFilter
 from .filterfun.applyfilter import filtersignal
 from .mathfun import dsp, matrixfun, augmentdata
 from . import exceptions as errors
