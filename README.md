@@ -4,13 +4,13 @@
 
 <a href='https://notebooks.ai/a-n-rose/noize-demo-360a3df2'>Demo</a>
 
-This smart noise filter was built under the project \\ \\NoIze/ /, managed by Peggy Sylopp (contact@peggy-sylopp.net).
-
-Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@gmail.com, <a href='https://a-n-rose.github.io/'>a-n-rose.github.io</a>)
-
 # About
 
+The NoIze package is a prototype for the purpose of empowering listers' experience of their sound environment. The foundation has been laid for users to collect sounds from their surroundings and implement noise filters uniquely designed not only according to their own surroundings, but also to their own perceptions of noise.
+
 This software has functionality for <a href='https://notebooks.ai/a-n-rose/noize-filtering-tool-dfe26049'>noise filtering</a>, <a href='https://notebooks.ai/a-n-rose/noize-sound-classification-tool-0dca787e'>sound classification</a>, and smart noise filtering. <a href='https://aislynrose.bitbucket.io/readme.html#a-walk-through-the-modules'>Here</a> you can access a more detailed walkthrough of the smart noise filter functionality.
+
+We would love this software to be easily used in Android phone applications; therefore during development, we pulled from research with similar aims: building filter (Bhattacharya, Sehgal, & Kehtarnavaz, 2017) and deep learning models (Sehgal & Kehtarnavaz, 2018) requiring little computation cost. 
 
 # Installation
 
@@ -206,7 +206,16 @@ noizeclassifier(project_name,
 ```
 This will not only train and save a classifier (if one doesn't already exist), but will also classify the `target_wavfile`. The `feature_type` concerns which features are extracted from the training data. Options: 'mfcc' or 'fbank'. The default is set to FBANK, as the architecture of the classifier is based on that used in the paper by <a href='https://ieeexplore.ieee.org/abstract/document/8278160'>Sehgal and Kehtarnavaz (2017)</a>. In general, FBANK features tend to work better in speech/ voice related tasks than MFCCs. However, it is useful to be able to see which is better, which one can explore here. The `audioclass_wavfile_limit` is to allow for a bit more control if you have many more wavfiles in one audio class than another.
 
+# Credits
+
+This package was developed during the 5th round of the Prototype Fund the project \\ \\NoIze/ /, managed by Peggy Sylopp (contact@peggy-sylopp.net).
+
+Author of the code/software in this repository: Aislyn Rose (rose.aislyn.noelle@gmail.com, <a href='https://a-n-rose.github.io/'>a-n-rose.github.io</a>)
+
 # References
+
+A. Bhattacharya, A. Sehgal and N. Kehtarnavaz, "Low-latency smartphone app for real-time noise reduction of noisy speech signals," 2017 IEEE 26th International Symposium on Industrial Electronics (ISIE), Edinburgh, 2017, pp. 1280-1284.
+doi: 10.1109/ISIE.2017.8001429
 
 A. Sehgal and N. Kehtarnavaz, "A Convolutional Neural Network Smartphone App for Real-Time Voice Activity Detection," in IEEE Access, vol. 6, pp. 9017-9026, 2018.
 doi: 10.1109/ACCESS.2018.2800728
