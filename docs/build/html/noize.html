@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>\ \NoIze/ / package &#8212; \\NoIze// 0.0.1 documentation</title>
+    <title>noize package &#8212; \\NoIze// 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -14,8 +14,8 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Setup File Architecture" href="noize.file_architecture.html" />
-    <link rel="prev" title="Overview" href="readme.html" />
+    <link rel="next" title="Train or Load Sound Classifier" href="noize.models.html" />
+    <link rel="prev" title="noize" href="modules.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -33,33 +33,34 @@
           <div class="body" role="main">
             
   <div class="section" id="noize-package">
-<h1>\ \NoIze/ / package<a class="headerlink" href="#noize-package" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="module-noize.templates">
-<span id="noize-templates"></span><h2>noize.templates<a class="headerlink" href="#module-noize.templates" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
-<dt id="noize.templates.noizeclassifier">
-<code class="sig-prename descclassname">noize.templates.</code><code class="sig-name descname">noizeclassifier</code><span class="sig-paren">(</span><em class="sig-param">classifer_project_name</em>, <em class="sig-param">headpath</em>, <em class="sig-param">target_wavfile=None</em>, <em class="sig-param">audiodir=None</em>, <em class="sig-param">feature_type='fbank'</em>, <em class="sig-param">audioclass_wavfile_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/templates.html#noizeclassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.templates.noizeclassifier" title="Permalink to this definition">¶</a></dt>
-<dd><p>Example code for implementing NoIze as just a sound classifier.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="noize.templates.noizefilter">
-<code class="sig-prename descclassname">noize.templates.</code><code class="sig-name descname">noizefilter</code><span class="sig-paren">(</span><em class="sig-param">filter_project_name</em>, <em class="sig-param">headpath</em>, <em class="sig-param">target_wavfile</em>, <em class="sig-param">noise_wavfile=None</em>, <em class="sig-param">scale=1</em>, <em class="sig-param">apply_postfilter=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/templates.html#noizefilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.templates.noizefilter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Example code for implementing NoIze as just a noise filter.</p>
-</dd></dl>
-
+<h1>noize package<a class="headerlink" href="#noize-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="noize.models.html">Train or Load Sound Classifier</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="noize.models.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noize.models.html#module-noize.models.cnn">noize.models.cnn module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="noize.models.html#module-noize.models">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="module-noize.buildsmartfilter">
-<span id="noize-buildsmartfilter"></span><h2>noize.buildsmartfilter<a class="headerlink" href="#module-noize.buildsmartfilter" title="Permalink to this headline">¶</a></h2>
+<span id="noize-buildsmartfilter-module"></span><h2>noize.buildsmartfilter module<a class="headerlink" href="#module-noize.buildsmartfilter" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="noize.buildsmartfilter.mysmartfilter">
-<code class="sig-prename descclassname">noize.buildsmartfilter.</code><code class="sig-name descname">mysmartfilter</code><span class="sig-paren">(</span><em class="sig-param">name_dataset</em>, <em class="sig-param">headpath</em>, <em class="sig-param">audio_classes_dir</em>, <em class="sig-param">feature_type='mfcc'</em>, <em class="sig-param">num_filters=40</em>, <em class="sig-param">sounddata=None</em>, <em class="sig-param">scale=1</em>, <em class="sig-param">segment_length_ms=1000</em>, <em class="sig-param">apply_postfilter=False</em>, <em class="sig-param">augment_data=False</em>, <em class="sig-param">limit=None</em>, <em class="sig-param">use_rand_noisefile=True</em>, <em class="sig-param">force_label=None</em>, <em class="sig-param">classify_noise=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/buildsmartfilter.html#mysmartfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.buildsmartfilter.mysmartfilter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">noize.buildsmartfilter.</code><code class="sig-name descname">mysmartfilter</code><span class="sig-paren">(</span><em class="sig-param">name_dataset</em>, <em class="sig-param">headpath</em>, <em class="sig-param">audio_classes_dir</em>, <em class="sig-param">feature_type='mfcc'</em>, <em class="sig-param">num_filters=40</em>, <em class="sig-param">sounddata=None</em>, <em class="sig-param">scale=1</em>, <em class="sig-param">segment_length_ms=1000</em>, <em class="sig-param">apply_postfilter=False</em>, <em class="sig-param">augment_data=False</em>, <em class="sig-param">limit=None</em>, <em class="sig-param">use_rand_noisefile=False</em>, <em class="sig-param">force_label=None</em>, <em class="sig-param">classify_noise=True</em>, <em class="sig-param">max_vol=0.4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/buildsmartfilter.html#mysmartfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.buildsmartfilter.mysmartfilter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies feature prep, model training, and filtering to wavfile.</p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-noize.exceptions">
-<span id="noize-exceptions"></span><h2>noize.exceptions<a class="headerlink" href="#module-noize.exceptions" title="Permalink to this headline">¶</a></h2>
+<span id="noize-exceptions-module"></span><h2>noize.exceptions module<a class="headerlink" href="#module-noize.exceptions" title="Permalink to this headline">¶</a></h2>
 <p>The <a class="reference internal" href="#module-noize.exceptions" title="noize.exceptions"><code class="xref py py-mod docutils literal notranslate"><span class="pre">noize.exceptions</span></code></a> module includes customized errors.</p>
 <dl class="function">
 <dt id="noize.exceptions.noaudiofiles_error">
@@ -76,11 +77,611 @@
 <code class="sig-prename descclassname">noize.exceptions.</code><code class="sig-name descname">pathinvalid_error</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/exceptions.html#pathinvalid_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.exceptions.pathinvalid_error" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</div>
+<div class="section" id="module-noize.templates">
+<span id="noize-templates-module"></span><h2>noize.templates module<a class="headerlink" href="#module-noize.templates" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="noize.templates.noizeclassifier">
+<code class="sig-prename descclassname">noize.templates.</code><code class="sig-name descname">noizeclassifier</code><span class="sig-paren">(</span><em class="sig-param">classifer_project_name</em>, <em class="sig-param">headpath</em>, <em class="sig-param">target_wavfile=None</em>, <em class="sig-param">audiodir=None</em>, <em class="sig-param">feature_type='fbank'</em>, <em class="sig-param">audioclass_wavfile_limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/templates.html#noizeclassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.templates.noizeclassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Example code for implementing NoIze as just a sound classifier.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.templates.noizefilter">
+<code class="sig-prename descclassname">noize.templates.</code><code class="sig-name descname">noizefilter</code><span class="sig-paren">(</span><em class="sig-param">filter_project_name</em>, <em class="sig-param">headpath</em>, <em class="sig-param">target_wavfile</em>, <em class="sig-param">noise_wavfile=None</em>, <em class="sig-param">scale=1</em>, <em class="sig-param">apply_postfilter=False</em>, <em class="sig-param">max_vol=0.4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/templates.html#noizefilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.templates.noizefilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Example code for implementing NoIze as just a noise filter.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-noize">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-noize" title="Permalink to this headline">¶</a></h2>
+<p>Framework to build a smart, low-computational noise filter.
+<code class="docutils literal notranslate"><span class="pre">noize</span></code> offers low-computational algorithms for training
+deep learning models as noise classifiers as well as for low-computational
+noise filters.</p>
+<dl class="class">
+<dt id="noize.PathSetup">
+<em class="property">class </em><code class="sig-prename descclassname">noize.</code><code class="sig-name descname">PathSetup</code><span class="sig-paren">(</span><em class="sig-param">project_name='test_data'</em>, <em class="sig-param">smartfilt_headpath='/home/airos/Desktop/testing_ground/default_model/'</em>, <em class="sig-param">audiodata_dir=None</em>, <em class="sig-param">feature_type='mfcc'</em>, <em class="sig-param">num_filters=40</em>, <em class="sig-param">segment_length_ms=1000</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Manages paths for files specific to this smart filter instance</p>
+<p>Based on the headpath and feature settings, directories and files are
+created. Data pertaining to feature extraction and model training are
+stored and accessed via paths built by this class instance.</p>
+<dl class="attribute">
+<dt id="noize.PathSetup.smartfilt_headpath">
+<code class="sig-name descname">smartfilt_headpath</code><a class="headerlink" href="#noize.PathSetup.smartfilt_headpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the project’s directory where all feature, model and
+sound files will be saved. The name of this directory is created by
+the <cite>project_name</cite> parameter when initializing this class.</p>
+<p>Hint: as both the features and models rely heavily on
+the data used, include a reference to that data here. Only features and
+models trained with the same dataset should be allowed to be here.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.PathSetup.audiodata_dir">
+<code class="sig-name descname">audiodata_dir</code><a class="headerlink" href="#noize.PathSetup.audiodata_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the directory where audio training data can be found.
+One should ensure folders exist here, titled according to the sound
+data stored inside of them.</p>
+<p>For example, to train a model on classifying sounds as either a
+dishwasher, air conditioner, or running toilet, you should have three
+folders, titled ‘dishwasher’, ‘air_conditioner’ and ‘running_toilet’,
+respectively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.PathSetup.labels_encoded_path">
+<code class="sig-name descname">labels_encoded_path</code><a class="headerlink" href="#noize.PathSetup.labels_encoded_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Once created by the program, the path to the .csv file containing
+the labels found in the <cite>àudiodata_dir</cite> and to which integer the labels
+were encoded.</p>
+<p>These pairings, label names (e.g. ‘air_conditioner’, ‘dishwasher’,
+‘toilet’) and the integers they are encoded with (0,1,2), is important
+for training the neural network - it won’t understand letters - and for
+knowing which label the network categorizes new acoustic data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.PathSetup.labels_waves_path">
+<code class="sig-name descname">labels_waves_path</code><a class="headerlink" href="#noize.PathSetup.labels_waves_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Once created by the program, the path to the .csv file that stores
+the audio file paths belonging to each audio class. None otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)">pathlib.PosixPath</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl>
+<dt>_labels_wavfile_filename<span class="classifier">str</span></dt><dd><p>The name this program expects to find when looking for the .csv
+containing audio class labels and the audiofile paths belonging to
+that class.</p>
+</dd>
+<dt>_encoded_labels_filename<span class="classifier">str</span></dt><dd><p>The name this program expects to find when looking for the .csv
+containing the audio class labels their encoded pairings.</p>
+</dd>
+<dt>features<span class="classifier">None, True</span></dt><dd><p>None if features have not yet been successfully extracted and True if
+features have been fully extracted from entire dataset and saved.</p>
+<p>These are relevant for the training of the CNN model for scene
+classification.</p>
+</dd>
+<dt>powspec<span class="classifier">None, True</span></dt><dd><p>True if audio class average audio spectrum data are collected. None
+otherwise.</p>
+<p>These are values relevant for the noise filtering of future sound data.</p>
+</dd>
+<dt>model<span class="classifier">None, pathlib.PosixPath</span></dt><dd><p>Once a model has been traind on these features and saved, the path
+and filename of that model. None otherwise.</p>
+</dd>
+<dt>feature_dirname<span class="classifier">str</span></dt><dd><p>The generated directory name to store all data from this instance of
+feature extraction.</p>
+<p>This directory is named according to the
+type of features extracted, the number of filters applied during
+extraction, as well as the number of seconds of audio data from each
+audio file used to extract features.</p>
+<p>For example, if ‘mfcc’ features with 40 filters are extracted, and a
+1.5 second segment of audio data from each audio file is used for that
+extraction, the directory name is: ‘mfcc_40_1.5’.</p>
+</dd>
+<dt>features_dir<span class="classifier">pathlib.PosixPath</span></dt><dd><p>The path to the directory titled <cite>feature_dirname</cite>, generated by
+the program.</p>
+</dd>
+<dt>_powspec_settings<span class="classifier">str</span></dt><dd><p>The name this program expects to find when looking for the .csv
+containing the settings used when calculating the average power
+spectrum of each audio class. This is relevant for applying the filter:
+the same settings are ideally used when calculating the power spectrum
+of the signal that needs filtering.</p>
+</dd>
+<dt>powspec_path<span class="classifier">pathlib.PosixPath</span></dt><dd><p>The path to where the audio class average power spectrum files will
+be or are located for the entire dataset. These values are calculated
+independent from the features extracted for machine learning.</p>
+</dd>
+<dt>modelname<span class="classifier">str</span></dt><dd><p>The name generated and applied to models trained on these features.</p>
+</dd>
+<dt>model_dir<span class="classifier">pathlib.PosixPath</span></dt><dd><p>The path to the directory where <cite>model</cite> and related data will be or
+are currently stored.</p>
+</dd>
+<dt>model_settings_path<span class="classifier">None, pathlib.PosixPath</span></dt><dd><p>If a model has been trained and saved, the path to the .csv file
+holding the settings for that specific model.</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="noize.PathSetup.cleanup_feats">
+<code class="sig-name descname">cleanup_feats</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.cleanup_feats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup.cleanup_feats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for feature extraction settings and training data files.</p>
+<p>If setting files (i.e. csv files) exist without training data files
+(i.e. npy files), and a directory for training data has been provided,
+delete csv files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PathSetup.cleanup_models">
+<code class="sig-name descname">cleanup_models</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.cleanup_models"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup.cleanup_models" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for model creation settings and model files.</p>
+<p>If setting files (i.e. csv files) exist without model file(s)
+(i.e. h5 files), delete csv files.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PathSetup.cleanup_powspec">
+<code class="sig-name descname">cleanup_powspec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.cleanup_powspec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup.cleanup_powspec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for power spectrum settings and filter data files.</p>
+<p>If setting files (i.e. csv files) exist without or with too few
+data files (should be one data file for each audio class in training
+data), the setting files and data files will be deleted.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PathSetup.get_avepowspec_path">
+<code class="sig-name descname">get_avepowspec_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.get_avepowspec_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup.get_avepowspec_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.PathSetup.get_features_path">
+<code class="sig-name descname">get_features_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.get_features_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup.get_features_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.PathSetup.get_modelpath">
+<code class="sig-name descname">get_modelpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.get_modelpath"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup.get_modelpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>expects model related information to be in same directory as the model</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PathSetup.get_modelsettings_path">
+<code class="sig-name descname">get_modelsettings_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.get_modelsettings_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup.get_modelsettings_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the path to the model settings file</p>
+<p>If the model already exists, uses that model’s parent directory. Otherwise
+sets the path to where a new model will be trained and saved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PathSetup.prep_feat_dirname">
+<code class="sig-name descname">prep_feat_dirname</code><span class="sig-paren">(</span><em class="sig-param">feature_type</em>, <em class="sig-param">num_filters</em>, <em class="sig-param">segment_length_ms</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/file_architecture/paths.html#PathSetup.prep_feat_dirname"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PathSetup.prep_feat_dirname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.audio2datasets">
+<code class="sig-prename descclassname">noize.</code><code class="sig-name descname">audio2datasets</code><span class="sig-paren">(</span><em class="sig-param">audio_classes_dir</em>, <em class="sig-param">encoded_labels_path</em>, <em class="sig-param">label_wavfiles_path</em>, <em class="sig-param">perc_train=0.8</em>, <em class="sig-param">limit=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/featorg.html#audio2datasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.audio2datasets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Organizes all audio in audio class directories into datasets.</p>
+<p>If they don’t already exist, dictionaries with the encoded labels of the
+audio classes as well as the wavfiles belonging to each class are saved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>audio_classes_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a>) – Directory path to where all audio class folders are located.</p></li>
+<li><p><strong>encoded_labels_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a>) – path to the dictionary where audio class labels and their
+encoded integers are stored or will be stored.</p></li>
+<li><p><strong>label_wavfiles_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a>) – path to the dictionary where audio class labels and the
+paths of all audio files belonging to each class are or will
+be stored.</p></li>
+<li><p><strong>perc_train</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The percentage or decimal representing the amount of training
+data compared to the test and validation data (default 0.8)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dataset_audio</strong> – Named tuple including three lists of tuples: the train, validation,
+and test lists, respectively. The tuples within the lists contain
+the encoded label integer (e.g. 0 instead of ‘air_conditioner’) and
+the audio paths associated to that class and dataset.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="noize.PrepFeatures">
+<em class="property">class </em><code class="sig-prename descclassname">noize.</code><code class="sig-name descname">PrepFeatures</code><span class="sig-paren">(</span><em class="sig-param">feature_type='fbank'</em>, <em class="sig-param">sampling_rate=48000</em>, <em class="sig-param">num_filters=40</em>, <em class="sig-param">num_mfcc=None</em>, <em class="sig-param">window_size=25</em>, <em class="sig-param">window_shift=12.5</em>, <em class="sig-param">training_segment_ms=1000</em>, <em class="sig-param">num_columns=None</em>, <em class="sig-param">num_images_per_audiofile=None</em>, <em class="sig-param">num_waves=None</em>, <em class="sig-param">feature_sets=None</em>, <em class="sig-param">window_type=None</em>, <em class="sig-param">augment_data=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PrepFeatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="noize.PrepFeatures.calc_filter_image_sets">
+<code class="sig-name descname">calc_filter_image_sets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.calc_filter_image_sets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PrepFeatures.calc_filter_image_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates how many feature sets create a full image, given window size,
+window shift, and desired image length in milliseconds.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PrepFeatures.extractfeats">
+<code class="sig-name descname">extractfeats</code><span class="sig-paren">(</span><em class="sig-param">sounddata</em>, <em class="sig-param">dur_sec=None</em>, <em class="sig-param">augment_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.extractfeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PrepFeatures.extractfeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Organizes feat extraction of each audiofile according to class attributes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PrepFeatures.get_feats">
+<code class="sig-name descname">get_feats</code><span class="sig-paren">(</span><em class="sig-param">list_waves</em>, <em class="sig-param">dur_sec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.get_feats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PrepFeatures.get_feats" title="Permalink to this definition">¶</a></dt>
+<dd><p>collects fbank or mfcc features of entire wavfile list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PrepFeatures.get_max_samps">
+<code class="sig-name descname">get_max_samps</code><span class="sig-paren">(</span><em class="sig-param">filter_features</em>, <em class="sig-param">num_sets</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.get_max_samps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PrepFeatures.get_max_samps" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates the maximum  number of samples of a particular wave’s
+features that would also create a full image</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PrepFeatures.get_save_feats">
+<code class="sig-name descname">get_save_feats</code><span class="sig-paren">(</span><em class="sig-param">wave_list</em>, <em class="sig-param">directory4features</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.get_save_feats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PrepFeatures.get_save_feats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.PrepFeatures.samps2feats">
+<code class="sig-name descname">samps2feats</code><span class="sig-paren">(</span><em class="sig-param">y</em>, <em class="sig-param">augment_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.samps2feats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PrepFeatures.samps2feats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets features from section of samples, at varying volumes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.PrepFeatures.save_class_settings">
+<code class="sig-name descname">save_class_settings</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">replace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.save_class_settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.PrepFeatures.save_class_settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>saves class settings to dictionary</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.run_featprep">
+<code class="sig-prename descclassname">noize.</code><code class="sig-name descname">run_featprep</code><span class="sig-paren">(</span><em class="sig-param">filter_class</em>, <em class="sig-param">feature_type='mfcc'</em>, <em class="sig-param">num_filters=40</em>, <em class="sig-param">segment_dur_ms=1000</em>, <em class="sig-param">limit=None</em>, <em class="sig-param">augment_data=False</em>, <em class="sig-param">sampling_rate=48000</em><span class="sig-paren">)</span><a class="headerlink" href="#noize.run_featprep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pulls info from ‘filter_class’ instance to then extract, save features</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filter_class</strong> (<em>class</em>) – The class instance holding attributes relating to path structure
+and filenames necessary for feature extraction</p></li>
+<li><p><strong>feature_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><em>optional</em>) – Acceptable inputs: ‘mfcc’ and ‘fbank’. These are the features that
+will be extracted from the audio and saved (default ‘mfcc’)</p></li>
+<li><p><strong>num_filters</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The number of mel filters used during feature extraction. This number
+ranges for ‘mfcc’ extraction between 13 and 40 and for ‘fbank’
+extraction between 20 and 128. The higher the number, the greater the
+computational load and memory requirement. (default 40)</p></li>
+<li><p><strong>segment_dur_ms</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>optional</em>) – The length in milliseconds of the acoustic data to extract features
+from. If 1000 ms, 1 second of acoustic data will be processed; 1 sec
+of feature data will be extracted. If not enough audio data is present,
+the feature data will be zero padded. (default 1000)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>feats_class</strong> (<em>class</em>) – The class instance holding attributes relating to the current
+feature extraction session</p></li>
+<li><p><strong>filter_class</strong> (<em>class</em>) – The updated class instance holding attributes relating to path
+structure</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.getfeatsettings">
+<code class="sig-prename descclassname">noize.</code><code class="sig-name descname">getfeatsettings</code><span class="sig-paren">(</span><em class="sig-param">feature_info</em><span class="sig-paren">)</span><a class="headerlink" href="#noize.getfeatsettings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads prev extracted feature settings into new feature class instance</p>
+<p>This is useful if one wants to extract new features that match the
+dimensions and settings of previously extracted features.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>feature_info</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em>, </em><em>class</em>) – Either a dictionary or a class instance that holds the path
+attribute to a dictionary.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>feats_class</strong> – Feature extraction class instance with the same settings as the
+settings dictionary</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>class</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="noize.WienerFilter">
+<em class="property">class </em><code class="sig-prename descclassname">noize.</code><code class="sig-name descname">WienerFilter</code><span class="sig-paren">(</span><em class="sig-param">smooth_factor=0.98</em>, <em class="sig-param">first_iter=None</em>, <em class="sig-param">max_vol=0.4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.WienerFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="noize.filterfun.html#noize.filterfun.filters.FilterSettings" title="noize.filterfun.filters.FilterSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">noize.filterfun.filters.FilterSettings</span></code></a></p>
+<p>Interactive class to explore Wiener filter settings on audio signals.</p>
+<p>These class methods implement research based algorithms with low
+computational cost, aimed for noise reduction via mobile phone.</p>
+<dl class="attribute">
+<dt id="noize.WienerFilter.beta">
+<code class="sig-name descname">beta</code><a class="headerlink" href="#noize.WienerFilter.beta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value applied in Wiener filter that smooths the application of ‘gain’;
+default set according to previous research. (default 0.98)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.WienerFilter.first_iter">
+<code class="sig-name descname">first_iter</code><a class="headerlink" href="#noize.WienerFilter.first_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keeps track if <cite>first_iter</cite> is relevant in filtering. If True,
+filtering has just started, and calculations made for filtering cannot
+use information from previous frames; if False, calculations for
+filtering use information from previous frames; if None, no difference
+is applied when processing the 1st vs subsequent frames. (default None)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a>, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.WienerFilter.target_subframes">
+<code class="sig-name descname">target_subframes</code><a class="headerlink" href="#noize.WienerFilter.target_subframes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of total subsections within the total number of samples
+belonging to the target signal (i.e. wavfile being filtered). Until
+<cite>target_subframes</cite> is calculated, it is set to None. (default None)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.WienerFilter.noise_subframes">
+<code class="sig-name descname">noise_subframes</code><a class="headerlink" href="#noize.WienerFilter.noise_subframes" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of total subsections within the total number of samples
+belonging to the noise signal. If noise power spectrum is used, this
+doesn’t need to be calculated. Until <cite>noise_subframes</cite> is calculated,
+it is set to None. (default None)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.WienerFilter.gain">
+<code class="sig-name descname">gain</code><a class="headerlink" href="#noize.WienerFilter.gain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Once calculated, the attenuation values to be applied to the fft for
+noise reduction. Until calculated, None. (default None)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray, <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="noize.WienerFilter.max_vol">
+<code class="sig-name descname">max_vol</code><a class="headerlink" href="#noize.WienerFilter.max_vol" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maximum volume allowed for the filtered signal. (default 0.4)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.WienerFilter.check_volume">
+<code class="sig-name descname">check_volume</code><span class="sig-paren">(</span><em class="sig-param">samples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.check_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.WienerFilter.check_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>ensures volume of filtered signal is within the bounds of the original</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.WienerFilter.get_samples">
+<code class="sig-name descname">get_samples</code><span class="sig-paren">(</span><em class="sig-param">wavfile</em>, <em class="sig-param">dur_sec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.get_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.WienerFilter.get_samples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load signal and save original volume</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>wavfile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path and name of wavfile to be loaded</p></li>
+<li><p><strong>dur_sec</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><em>float optional</em>) – Max length of time in seconds (default None)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>samples</strong> – Array containing signal amplitude values in time domain</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.WienerFilter.load_power_vals">
+<code class="sig-name descname">load_power_vals</code><span class="sig-paren">(</span><em class="sig-param">path_npy</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.load_power_vals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.WienerFilter.load_power_vals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads and checks shape compatibility of averaged power values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path_npy</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="(in Python v3.7)"><em>pathlib.PosixPath</em></a>) – Path to .npy file containing power information.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>power_values</strong> – The power values as long as they have the shape (self.num_fft_bins, 1)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.WienerFilter.save_filtered_signal">
+<code class="sig-name descname">save_filtered_signal</code><span class="sig-paren">(</span><em class="sig-param">output_file</em>, <em class="sig-param">samples</em>, <em class="sig-param">overwrite=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.save_filtered_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.WienerFilter.save_filtered_signal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="noize.WienerFilter.set_num_subframes">
+<code class="sig-name descname">set_num_subframes</code><span class="sig-paren">(</span><em class="sig-param">len_samples</em>, <em class="sig-param">is_noise=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.set_num_subframes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.WienerFilter.set_num_subframes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the number of target or noise subframes available for processing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>len_samples</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The total number of samples in a given signal</p></li>
+<li><p><strong>is_noise</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – If False, subframe number saved under self.target_subframes, otherwise
+self.noise_subframes (default False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="noize.WienerFilter.set_volume">
+<code class="sig-name descname">set_volume</code><span class="sig-paren">(</span><em class="sig-param">samples</em>, <em class="sig-param">max_vol=0.4</em>, <em class="sig-param">min_vol=0.15</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/filters.html#WienerFilter.set_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.WienerFilter.set_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Records and limits the maximum amplitude of original samples.</p>
+<p>This enables the output wave to be within a range of
+volume that does not go below or too far above the
+orignal maximum amplitude of the signal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>samples</strong> (<em>ndarray</em>) – The original samples of a signal (1 dimensional), of any length</p></li>
+<li><p><strong>max_vol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The maximum volume level. If a signal has values higher than this
+number, the signal is curtailed to remain at and below this number.</p></li>
+<li><p><strong>min_vol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The minimum volume level. If a signal has only values lower than
+this number, the signal is amplified to be at this number and below.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.welch2class">
+<code class="sig-prename descclassname">noize.</code><code class="sig-name descname">welch2class</code><span class="sig-paren">(</span><em class="sig-param">path_class</em>, <em class="sig-param">dur_ms=1000</em>, <em class="sig-param">augment_data=False</em><span class="sig-paren">)</span><a class="headerlink" href="#noize.welch2class" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses class’s path settings to set up Welch’s method for audio classes.</p>
+<p>The settings applied for average power spectrum collection are also saved
+in a .csv file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_class</strong> (<em>class</em>) – Class with attributes for necessary paths to load relevant wavfiles and
+save average power spectrum values.</p></li>
+<li><p><strong>dur_ms</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Time in milliseconds for the Welch’s method / average power spectrum
+calculation to be applied for each wavfile. (default 1000)</p></li>
+<li><p><strong>augment_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether or not the sound data should be augmented. If True, the sound
+data will be processed three times: with low energy, mid energy, and
+high energy. (default False)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.save_class_noise">
+<code class="sig-prename descclassname">noize.</code><code class="sig-name descname">save_class_noise</code><span class="sig-paren">(</span><em class="sig-param">path_class</em>, <em class="sig-param">feature_class</em>, <em class="sig-param">num_each_audioclass=1</em>, <em class="sig-param">dur_ms=1000</em><span class="sig-paren">)</span><a class="headerlink" href="#noize.save_class_noise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves <cite>dur_ms</cite> of <cite>num_each_audioclass</cite> wavfiles of each audio class.</p>
+<p>This is an option for using noise data that comes from an audio class but is
+not an average of the entire class. It is raw sample data from one or more
+random noise wavfiles from each class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_class</strong> (<em>class</em>) – Class with attributes for necessary paths to load relevant wavfiles and
+save sample values.</p></li>
+<li><p><strong>feature_class</strong> (<em>class</em>) – Class with attributes for sampling rate used in feature extraction and/or
+filtering. This is useful to maintain consistency in sampling rate
+throughout the modules.</p></li>
+<li><p><strong>num_each_audioclass</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – The number of random wavfiles from each audio class chosen for raw
+sample collection. (default 1)</p></li>
+<li><p><strong>dur_ms</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – Time in milliseconds of raw sample data to be saved. (default 1000)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="noize.filtersignal">
+<code class="sig-prename descclassname">noize.</code><code class="sig-name descname">filtersignal</code><span class="sig-paren">(</span><em class="sig-param">output_filename</em>, <em class="sig-param">wavfile</em>, <em class="sig-param">noise_file=None</em>, <em class="sig-param">scale=1</em>, <em class="sig-param">apply_postfilter=False</em>, <em class="sig-param">duration_ms=1000</em>, <em class="sig-param">max_vol=0.4</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/filterfun/applyfilter.html#filtersignal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.filtersignal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply Wiener filter to signal using noise. Saves at <cite>output_filename</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – path and name the filtered signal is to be saved</p></li>
+<li><p><strong>wavfile</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – the filename to the signal for filtering; if None, a signal will be
+generated (default None)</p></li>
+<li><p><strong>noise_file</strong> (<em>str optional</em>) – path to either noise wavfile or .npy file containing average power
+spectrum values or noise samples. If None, the beginning of the
+<cite>wavfile</cite> will be used for noise data. (default None)</p></li>
+<li><p><strong>scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The scale at which the filter should be applied. (default 1)
+Note: <cite>scale</cite> cannot be set to 0.</p></li>
+<li><p><strong>apply_postfilter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Whether or not the post filter should be applied. The post filter
+reduces musical noise (i.e. distortion) in the signal as a byproduct
+of filtering.</p></li>
+<li><p><strong>duration_ms</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The amount of time in milliseconds to use from noise to apply the
+Welch’s method to. In other words, how much of the noise to use
+when approximating the average noise power spectrum.</p></li>
+<li><p><strong>max_vol</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – The maximum volume level of the filtered signal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
@@ -94,8 +695,10 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="readme.html" title="previous chapter">Overview</a></li>
-      <li>Next: <a href="noize.file_architecture.html" title="next chapter">Setup File Architecture</a></li>
+  <li><a href="modules.html">noize</a><ul>
+      <li>Previous: <a href="modules.html" title="previous chapter">noize</a></li>
+      <li>Next: <a href="noize.models.html" title="next chapter">Train or Load Sound Classifier</a></li>
+  </ul></li>
   </ul></li>
 </ul>
 </div>

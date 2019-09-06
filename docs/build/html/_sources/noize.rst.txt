@@ -1,29 +1,45 @@
-\\\\ \\\\NoIze/ / package
-=========================
+noize package
+=============
 
-noize.templates
----------------
-.. automodule:: noize.templates
-   :members:
-   :undoc-members:
-   :show-inheritance:
+Subpackages
+-----------
 
-noize.buildsmartfilter 
-----------------------
+.. toctree::
+
+   noize.models
+
+Submodules
+----------
+
+noize.buildsmartfilter module
+-----------------------------
 
 .. automodule:: noize.buildsmartfilter
    :members:
    :undoc-members:
    :show-inheritance:
 
-noize.exceptions
-----------------
+noize.exceptions module
+-----------------------
 
 .. automodule:: noize.exceptions
    :members:
    :undoc-members:
    :show-inheritance:
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+noize.templates module
+----------------------
+
+.. automodule:: noize.templates
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: noize
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -24,8 +24,6 @@ The module paths.py contains functionality that manages how files are
 stored. 
 '''
 ###############################################################################
-import os
-import sys
 import pathlib
 import csv
 # for saving numpy files
@@ -33,7 +31,15 @@ import numpy as np
 # for saving wavfiles
 from scipy.io import wavfile
 
-from ..exceptions import pathinvalid_error, noaudiofiles_error
+import os, sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+noizedir = os.path.dirname(parentdir)
+sys.path.insert(0, noizedir)
+
+import noize
 
 
 class PathSetup:
@@ -594,11 +600,11 @@ def collect_audio_and_labels(data_path):
     '''
     p = pathlib.Path(data_path)
     if not os.path.exists(p):
-        raise pathinvalid_error(p)
+        raise noize.errors.pathinvalid_error(p)
     all_files = p.glob('**/*')
     audiofiles = [f for f in all_files if is_audio_ext_allowed(f)]
     if not audiofiles:
-        raise noaudiofiles_error(p)
+        raise noize.errors.noaudiofiles_error(p)
     # remove directories with "_" at the beginning
     paths = [p for p in audiofiles if p.parent.parts[-1][0] != "_"]
     labels = [j.parts[-2] for j in paths]
@@ -624,12 +630,12 @@ def string2list(list_paths_string):
     --------
     >>> input_string = "[PosixPath('data/audio/vacuum/vacuum1.wav')]"
     >>> type(input_string)
-    str
+    <class 'str'>
     >>> typelist = string2list(input_string)
     >>> typelist
     [PosixPath('data/audio/vacuum/vacuum1.wav')]
     >>> type(typelist)
-    list
+    <class 'list'>
     '''
     # remove the string brackets and separate by space and comma --> list
     list_string_red = list_paths_string[1:-1].split(', ')
@@ -702,3 +708,7 @@ def save_wave(wavfile_name, signal_values, sampling_rate, overwrite=False):
     except Exception as e:
         print(e)
     return False, wavfile_name
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

@@ -231,4 +231,3 @@ doi: 10.1109/ISIE.2017.8001429
 
 A. Sehgal and N. Kehtarnavaz, "A Convolutional Neural Network Smartphone App for Real-Time Voice Activity Detection," in IEEE Access, vol. 6, pp. 9017-9026, 2018.
 doi: 10.1109/ACCESS.2018.2800728
- 

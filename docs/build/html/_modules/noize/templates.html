@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>noize.templates &#8212; \\NoIze// 0.0.1 documentation</title>
+    <title>noize.templates &#8212; \\NoIze// 0.1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -52,28 +52,49 @@
 <span class="c1"># You should have received a copy of the GNU AFFERO General Public License </span>
 <span class="c1"># along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
 
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="n">currentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+    <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
+<span class="n">noizedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">currentdir</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noizedir</span><span class="p">)</span>
  
-<div class="viewcode-block" id="noizefilter"><a class="viewcode-back" href="../../noize.html#noize.templates.noizefilter">[docs]</a><span class="k">def</span> <span class="nf">noizefilter</span><span class="p">(</span><span class="n">filter_project_name</span><span class="p">,</span> <span class="n">headpath</span><span class="p">,</span> <span class="n">target_wavfile</span><span class="p">,</span> <span class="n">noise_wavfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
-                <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">apply_postfilter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="noizefilter"><a class="viewcode-back" href="../../noize.html#noize.templates.noizefilter">[docs]</a><span class="k">def</span> <span class="nf">noizefilter</span><span class="p">(</span><span class="n">filter_project_name</span><span class="p">,</span> 
+                <span class="n">headpath</span><span class="p">,</span> 
+                <span class="n">target_wavfile</span><span class="p">,</span> 
+                <span class="n">noise_wavfile</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                <span class="n">scale</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+                <span class="n">apply_postfilter</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="n">max_vol</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Example code for implementing NoIze as just a noise filter.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="kn">import</span> <span class="nn">noize</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">noise_wavfile</span><span class="p">:</span>
         <span class="c1">#use background noise to filter out local noise</span>
-        <span class="n">output_file</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/background_noise.wav&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">headpath</span><span class="o">+</span><span class="n">filter_project_name</span><span class="p">)</span>
-        <span class="n">noize</span><span class="o">.</span><span class="n">filtersignal</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span><span class="n">target_wavfile</span><span class="p">,</span>
-                           <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span><span class="n">apply_postfilter</span><span class="o">=</span><span class="n">apply_postfilter</span><span class="p">)</span>
+        <span class="n">output_filename</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/background_noise.wav&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">headpath</span><span class="o">+</span><span class="n">filter_project_name</span><span class="p">)</span>
+        <span class="n">noize</span><span class="o">.</span><span class="n">filtersignal</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span>
+                           <span class="n">target_wavfile</span><span class="p">,</span>
+                           <span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span><span class="p">,</span>
+                           <span class="n">apply_postfilter</span> <span class="o">=</span> <span class="n">apply_postfilter</span><span class="p">,</span>
+                           <span class="n">max_vol</span> <span class="o">=</span> <span class="n">max_vol</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1">#use a separate noise file to reduce noise</span>
-        <span class="n">output_file</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/separate_noise.wav&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">headpath</span><span class="o">+</span><span class="n">filter_project_name</span><span class="p">)</span>
-        <span class="n">noize</span><span class="o">.</span><span class="n">filtersignal</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span><span class="n">target_wavfile</span><span class="p">,</span><span class="n">noise_file</span><span class="o">=</span><span class="n">noise_wavfile</span><span class="p">,</span>
-                        <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span><span class="n">apply_postfilter</span><span class="o">=</span><span class="n">apply_postfilter</span><span class="p">)</span>
+        <span class="n">output_filename</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/separate_noise.wav&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">headpath</span><span class="o">+</span><span class="n">filter_project_name</span><span class="p">)</span>
+        <span class="n">noize</span><span class="o">.</span><span class="n">filtersignal</span><span class="p">(</span><span class="n">output_filename</span><span class="p">,</span>
+                           <span class="n">target_wavfile</span><span class="p">,</span>
+                           <span class="n">noise_file</span> <span class="o">=</span> <span class="n">noise_wavfile</span><span class="p">,</span>
+                           <span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span><span class="p">,</span>
+                           <span class="n">apply_postfilter</span> <span class="o">=</span> <span class="n">apply_postfilter</span><span class="p">,</span>
+                           <span class="n">max_vol</span> <span class="o">=</span> <span class="n">max_vol</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="noizeclassifier"><a class="viewcode-back" href="../../noize.html#noize.templates.noizeclassifier">[docs]</a><span class="k">def</span> <span class="nf">noizeclassifier</span><span class="p">(</span><span class="n">classifer_project_name</span><span class="p">,</span> <span class="n">headpath</span><span class="p">,</span>
-                    <span class="n">target_wavfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">audiodir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                    <span class="n">feature_type</span><span class="o">=</span><span class="s1">&#39;fbank&#39;</span><span class="p">,</span><span class="n">audioclass_wavfile_limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="noizeclassifier"><a class="viewcode-back" href="../../noize.html#noize.templates.noizeclassifier">[docs]</a><span class="k">def</span> <span class="nf">noizeclassifier</span><span class="p">(</span><span class="n">classifer_project_name</span><span class="p">,</span> 
+                    <span class="n">headpath</span><span class="p">,</span>
+                    <span class="n">target_wavfile</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
+                    <span class="n">audiodir</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">feature_type</span> <span class="o">=</span> <span class="s1">&#39;fbank&#39;</span><span class="p">,</span>
+                    <span class="n">audioclass_wavfile_limit</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Example code for implementing NoIze as just a sound classifier.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="kn">import</span> <span class="nn">noize</span>
@@ -81,7 +102,7 @@
     <span class="n">my_project</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">PathSetup</span><span class="p">(</span><span class="n">classifer_project_name</span><span class="p">,</span>
                             <span class="n">headpath</span><span class="p">,</span>
                             <span class="n">audiodir</span><span class="p">,</span>
-                            <span class="n">feature_type</span><span class="o">=</span><span class="n">feature_type</span><span class="p">)</span>
+                            <span class="n">feature_type</span> <span class="o">=</span> <span class="n">feature_type</span><span class="p">)</span>
     
     <span class="n">no_conflicts_feats</span> <span class="o">=</span> <span class="n">my_project</span><span class="o">.</span><span class="n">cleanup_feats</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">no_conflicts_feats</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
@@ -115,7 +136,10 @@
         <span class="n">classifer_class</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">buildclassifier</span><span class="p">(</span><span class="n">my_project</span><span class="p">)</span>
     
     <span class="k">if</span> <span class="n">target_wavfile</span><span class="p">:</span>
-        <span class="n">classify</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ClassifySound</span><span class="p">(</span><span class="n">target_wavfile</span><span class="p">,</span> <span class="n">my_project</span><span class="p">,</span> <span class="n">feats_class</span><span class="p">,</span> <span class="n">classifer_class</span><span class="p">)</span>
+        <span class="n">classify</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">ClassifySound</span><span class="p">(</span><span class="n">target_wavfile</span><span class="p">,</span> 
+                                              <span class="n">my_project</span><span class="p">,</span> 
+                                              <span class="n">feats_class</span><span class="p">,</span> 
+                                              <span class="n">classifer_class</span><span class="p">)</span>
         <span class="n">label</span><span class="p">,</span> <span class="n">label_encoded</span> <span class="o">=</span> <span class="n">classify</span><span class="o">.</span><span class="n">get_label</span><span class="p">()</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Label classified: &#39;</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span></div>
 </pre></div>

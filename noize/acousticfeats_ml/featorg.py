@@ -20,14 +20,21 @@
 # along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.
 
 ###############################################################################
-import os
+
 import numpy as np
 from random import shuffle
 import collections
-import math
+import math 
 
-from ..file_architecture import paths as pathorg
-from ..exceptions import notsufficientdata_error
+import os, sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+noizedir = os.path.dirname(parentdir)
+sys.path.insert(0, noizedir)
+
+import noize
 
 
 def make_number(value):
@@ -53,23 +60,23 @@ def make_number(value):
     ----------
     >>> type_int = make_number('5')
     >>> type(type_int) 
-    int
+    <class 'int'>
     >>> type_int 
     5
     >>> type_float = make_number('0.45')
     >>> type(type_float) 
-    float
+    <class 'float'>
     >>> type_float 
     0.45
     >>> type_none = make_number('')
     >>> type(type_none) 
-    NoneType
+    <class 'NoneType'>
     >>> type_none 
     >>>
     >>> type_str = make_number('53d')
-    'Value cannot be converted to a number.'
+    Value cannot be converted to a number.
     >>> type(type_str) 
-    str
+    <class 'str'>
     '''
     try:
         if isinstance(value, str) and value == '':
@@ -116,12 +123,12 @@ def setup_audioclass_dicts(audio_classes_dir, encoded_labels_path, label_waves_p
         Dictionary containing the string labels as keys and encoded 
         integers as values.
     '''
-    paths, labels = pathorg.collect_audio_and_labels(audio_classes_dir)
+    paths, labels = noize.paths.collect_audio_and_labels(audio_classes_dir)
     label2int_dict, int2label_dict = create_dicts_labelsencoded(set(labels))
-    __ = pathorg.save_dict(int2label_dict, encoded_labels_path)
+    __ = noize.paths.save_dict(int2label_dict, encoded_labels_path)
     label2audiofiles_dict = create_label2audio_dict(
         set(labels), paths, limit=limit)
-    __ = pathorg.save_dict(label2audiofiles_dict, label_waves_path)
+    __ = noize.paths.save_dict(label2audiofiles_dict, label_waves_path)
     return label2int_dict
 
 def create_label2audio_dict(labels_set, paths_list, limit=None, seed=40):
@@ -149,7 +156,7 @@ def create_label2audio_dict(labels_set, paths_list, limit=None, seed=40):
 
     Returns
     -------
-    label_waves_dict : dict
+    label_waves_dict : OrderedDict
         A dictionary with audio labels as keys with values being the audio files 
         corresponding to that label
 
@@ -157,32 +164,37 @@ def create_label2audio_dict(labels_set, paths_list, limit=None, seed=40):
     --------
     >>> from pathlib import Path
     >>> labels = set(['vacuum','fridge','wind'])
-    >>> paths = [Path('data/audio/vacuum/vacuum1.wav'), Path('data/audio/fridge/fridge1.wav'), Path('data/audio/vacuum/vacuum2.wav'),Path('data/audio/wind/wind1.wav')]
+    >>> paths = [Path('data/audio/vacuum/vacuum1.wav'), 
+    ...         Path('data/audio/fridge/fridge1.wav'), 
+    ...         Path('data/audio/vacuum/vacuum2.wav'),
+    ...         Path('data/audio/wind/wind1.wav')]
     >>> label_waves_dict = create_label2audio_dict(labels, paths)
     >>> label_waves_dict
-    {'fridge': [PosixPath('data/audio/fridge/fridge1.wav')],
-     'wind': [PosixPath('data/audio/wind/wind1.wav')],
-     'vacuum': [PosixPath('data/audio/vacuum/vacuum1.wav'),
-      PosixPath('data/audio/vacuum/vacuum2.wav')]}
+    OrderedDict([('fridge', [PosixPath('data/audio/fridge/fridge1.wav')]), \
+('vacuum', [PosixPath('data/audio/vacuum/vacuum1.wav'), \
+PosixPath('data/audio/vacuum/vacuum2.wav')]), \
+('wind', [PosixPath('data/audio/wind/wind1.wav')])])
     >>> #to set a limit on number of audiofiles per class:
-    >>> create_label2audio_dict(labels,path, limit=1, seed=40)
-    {'fridge': [PosixPath('data/audio/fridge/fridge1.wav')],
-     'wind': [PosixPath('data/audio/wind/wind1.wav')],
-     'vacuum': [PosixPath('data/audio/vacuum/vacuum2.wav')]}
-     >>> #change the limited pathways chosen:
-    >>> create_label2audio_dict(labels,path, limit=1, seed=10)
-    {'fridge': [PosixPath('data/audio/fridge/fridge1.wav')],
-     'wind': [PosixPath('data/audio/wind/wind1.wav')],
-     'vacuum': [PosixPath('data/audio/vacuum/vacuum1.wav')]}
+    >>> create_label2audio_dict(labels, paths, limit=1, seed=40)
+    OrderedDict([('fridge', [PosixPath('data/audio/fridge/fridge1.wav')]), \
+('vacuum', [PosixPath('data/audio/vacuum/vacuum2.wav')]), \
+('wind', [PosixPath('data/audio/wind/wind1.wav')])])
+    >>> #change the limited pathways chosen:
+    >>> create_label2audio_dict(labels, paths, limit=1, seed=10)
+    OrderedDict([('fridge', [PosixPath('data/audio/fridge/fridge1.wav')]), \
+('vacuum', [PosixPath('data/audio/vacuum/vacuum1.wav')]), \
+('wind', [PosixPath('data/audio/wind/wind1.wav')])])
     '''
     if not isinstance(labels_set, set) and not isinstance(labels_set, list):
         raise TypeError(
-            'Expected labels list as type set or list, not type {}'.format(type(labels_set)))
+            'Expected labels list as type set or list, not type {}'.format(type(
+                labels_set)))
     if not isinstance(paths_list, set) and not isinstance(paths_list, list):
         raise TypeError(
-            'Expected paths list as type set or list, not type {}'.format(type(paths_list)))
-    label_waves_dict = {}
-    for label in labels_set:
+            'Expected paths list as type set or list, not type {}'.format(type(
+                paths_list)))
+    label_waves_dict = collections.OrderedDict()
+    for label in sorted(labels_set):
         # expects name of parent directory to match label
         label_paths = [path for path in paths_list if
                        label == path.parent.name]
@@ -230,7 +242,8 @@ def create_dicts_labelsencoded(labels_class):
     '''
     if not isinstance(labels_class, set) and not isinstance(labels_class, list):
         raise TypeError(
-            'Expected inputs as type set or list, not type {}'.format(type(labels_class)))
+            'Expected inputs as type set or list, not type {}'.format(type(
+                labels_class)))
     labels_sorted = sorted(set(labels_class))
     dict_label2int = {}
     dict_int2label = {}
@@ -327,7 +340,8 @@ def audio2datasets(audio_classes_dir, encoded_labels_path,
     Returns
     -------
     dataset_audio : tuple
-        Named tuple including three lists of tuples: the train, validation, and test lists, respectively. The tuples within the lists contain
+        Named tuple including three lists of tuples: the train, validation, 
+        and test lists, respectively. The tuples within the lists contain
         the encoded label integer (e.g. 0 instead of 'air_conditioner') and
         the audio paths associated to that class and dataset.
     '''
@@ -347,11 +361,11 @@ def audio2datasets(audio_classes_dir, encoded_labels_path,
             encoded_labels_path))
         print('Loading preexisting label and wavfiles file: {}'.format(
             label_wavfiles_path))
-        encodelabels_dict_inverted = pathorg.load_dict(encoded_labels_path)
+        encodelabels_dict_inverted = noize.paths.load_dict(encoded_labels_path)
         label2int = {}
         for key, value in encodelabels_dict_inverted.items():
             label2int[value] = key
-        class_waves_dict = pathorg.load_dict(label_wavfiles_path)
+        class_waves_dict = noize.paths.load_dict(label_wavfiles_path)
     else:
         kwargs = {'audio_classes_dir': audio_classes_dir,
                   'encoded_labels_path': encoded_labels_path,
@@ -359,14 +373,14 @@ def audio2datasets(audio_classes_dir, encoded_labels_path,
                   'limit': limit}
         label2int = setup_audioclass_dicts(**kwargs)
         # load the just created label to wavfiles dictionary
-        class_waves_dict = pathorg.load_dict(label_wavfiles_path)
+        class_waves_dict = noize.paths.load_dict(label_wavfiles_path)
     count = 0
     row = 0
     train = []
     val = []
     test = []
     for key, value in class_waves_dict.items():
-        audiolist = pathorg.string2list(value)
+        audiolist = noize.paths.string2list(value)
         train_waves, val_waves, test_waves = waves2dataset(audiolist)
 
         for i, wave in enumerate(train_waves):
@@ -383,12 +397,17 @@ def audio2datasets(audio_classes_dir, encoded_labels_path,
     shuffle(test)
     # esure the number of training data is 80% of all available audiodata:
     if len(train) < math.ceil((len(train)+len(val)+len(test))*perc_train):
-        raise notsufficientdata_error(len(train),
+        raise noize.errors.notsufficientdata_error(len(train),
                                       len(val),
                                       len(test),
-                                      math.ceil((len(train)+len(val)+len(test))*perc_train))
+                                      math.ceil(
+                                          (len(train)+len(val)+len(test))*perc_train))
     TrainingData = collections.namedtuple('TrainingData',
                                           ['train_data', 'val_data', 'test_data'])
     dataset_audio = TrainingData(
         train_data=train, val_data=val, test_data=test)
     return dataset_audio
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()

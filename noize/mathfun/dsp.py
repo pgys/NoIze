@@ -30,6 +30,8 @@ from python_speech_features import logfbank, mfcc
 
 
 def load_signal(wav, sampling_rate=48000, dur_sec=None):
+    '''Loads wavfile, resamples if necessary, and normalizes signal.
+    '''
     sr, samps = read(wav)
     num_channels = len(samps.shape)
     if num_channels > 1:
@@ -56,13 +58,15 @@ def load_signal(wav, sampling_rate=48000, dur_sec=None):
     return samps, sr
 
 def resample_audio(samples, sr_original, sr_desired):
+    '''Allows audio samples to be resampled to desired sample rate.
+    '''
     time_sec = len(samples)/sr_original 
     num_samples = int(time_sec * sr_desired)
     resampled = resample(samples, num_samples)
     return resampled, sr_desired
 
 def calc_frame_length(dur_frame_millisec, sampling_rate):
-    """calculates the number of samples necessary for each frame
+    """Calculates the number of samples necessary for each frame
 
     Parameters
     ----------
@@ -83,13 +87,13 @@ def calc_frame_length(dur_frame_millisec, sampling_rate):
     >>> calc_frame_length(dur_frame_millisec=20, sampling_rate=48000)
     960
     >>> calc_frame_length(dur_frame_millisec=25.5, sampling_rate=22500)
-    506
+    573
     """
     frame_length = int(dur_frame_millisec * sampling_rate // 1000)
     return frame_length
 
 def calc_num_overlap_samples(samples_per_frame, percent_overlap):
-    """calculate the number of samples that constitute the overlap of frames
+    """Calculate the number of samples that constitute the overlap of frames
 
     Parameters
     ----------
@@ -153,7 +157,7 @@ def calc_num_subframes(tot_samples, frame_length, overlap_samples):
     return subframes
 
 def create_window(window_type, frame_length):
-    """creates window according to set window type and frame length
+    """Creates window according to set window type and frame length
 
     the Hamming window tapers edges to around 0.08 while the Hann window
     tapers edges to 0.0. Both are commonly used in noise filtering.
@@ -186,7 +190,7 @@ def create_window(window_type, frame_length):
     return window
 
 def apply_window(samples, window):
-    """applies predefined window to a section of samples
+    """Applies predefined window to a section of samples
 
     The length of the samples must be the same length as the window. 
 
@@ -208,21 +212,21 @@ def apply_window(samples, window):
     >>> input_signal = np.array([ 0.        ,  0.36371897, -0.302721,
     ...                         -0.1117662 ,  0.3957433 ])
     >>> window_hamming = np.array([0.08, 0.54, 1.  , 0.54, 0.08])
-    apply_window(input_signal, window_hamming)
+    >>> apply_window(input_signal, window_hamming)
     array([ 0.        ,  0.19640824, -0.302721  , -0.06035375,  0.03165946])
     >>> window_hann = np.array([0. , 0.5, 1. , 0.5, 0. ])
-    apply_window(input_signal, window_hann)
+    >>> apply_window(input_signal, window_hann)
     array([ 0.        ,  0.18185948, -0.302721  , -0.0558831 ,  0.        ])
     """
     samples_win = samples * window
     return samples_win
 
 def calc_fft(signal_section, norm=False):
-    """calculates the fast Fourier transform of a 1D time series
+    """Calculates the fast Fourier transform of a 1D time series
 
     The length of the signal_section determines the number of frequency
     bins analyzed. Therefore, if there are higher frequencies in the 
-    signal, the length of the signal_section should be long enough to 
+    signal, the length of the `signal_section` should be long enough to 
     accommodate those frequencies. 
 
     The frequency bins with energy levels at around zero denote frequencies 
@@ -252,8 +256,10 @@ def calc_fft(signal_section, norm=False):
     fft_vals = fft(signal_section, norm=norm)
     return fft_vals
 
+# TODO: https://github.com/biopython/biopython/issues/1496
+# Fix numpy array repr for Doctest. 
 def calc_power(fft_vals):
-    '''calculates the power of fft values
+    '''Calculates the power of fft values
 
     Parameters
     ----------
@@ -279,11 +285,11 @@ def calc_power(fft_vals):
     return power_spec
 
 def calc_average_power(matrix, num_iters):
-    '''divides matrix values by the number of times power values were added 
+    '''Divides matrix values by the number of times power values were added. 
 
     This function assumes the power values of n-number of series were 
     calculated and added. It divides the values in the input matrix by n, 
-    i.e. 'num_iters'
+    i.e. 'num_iters'. 
 
     Parameters
     ----------
@@ -315,7 +321,7 @@ def calc_average_power(matrix, num_iters):
     return matrix
 
 def calc_posteri_snr(target_power_spec, noise_power_spec):
-    """calculates and updates signal to noise ratio of current frame
+    """Calculates and updates signal to noise ratio of current frame
 
     Parameters
     ----------
@@ -369,8 +375,10 @@ def calc_posteri_prime(posteri_snr):
 def calc_prior_snr(snr, snr_prime, smooth_factor=0.98, first_iter=None, gain=None):
     """Estimates the signal-to-noise ratio of the previous frame
 
-    Depending on the 'first_iter' argument, the prior snr is calculated 
-    according to different algorithms.
+    Depending on the `first_iter` argument, the prior snr is calculated 
+    according to different algorithms. If `first_iter` is None, prior snr is 
+    calculated according to Scalart and Filho (1996); if `first_iter` 
+    is True or False, snr prior is calculated according to Loizou (2013).
 
     Parameters
     ----------
@@ -424,7 +432,7 @@ def calc_prior_snr(snr, snr_prime, smooth_factor=0.98, first_iter=None, gain=Non
 
 
 def calc_gain(prior_snr):
-    '''Calculates the attenuation value to reduce noise
+    '''Calculates the gain (i.e. attenuation) values to reduce noise.
 
     Parameters
     ----------
@@ -469,7 +477,7 @@ def apply_gain_fft(fft_vals, gain):
     return enhanced_fft
 
 def calc_ifft(signal_section, norm=False):
-    """calculates the inverse fft of a series of fft values
+    """Calculates the inverse fft of a series of fft values
 
     The real values of the ifft can be used to be saved as an audiofile
 
@@ -493,50 +501,38 @@ def calc_ifft(signal_section, norm=False):
     ifft_vals = ifft(signal_section, norm=norm)
     return ifft_vals
 
-def control_volume(samples, min_limit, max_limit):
-    """keeps max volume of samples to within a specified range.
-
-    If the max volume is above or below, the audio samples are 
-    divided or multiplied with 1.25, respectively. 
+def control_volume(samples, max_limit):
+    """Keeps max volume of samples to within a specified range.
 
     Parameters
     ----------
     samples : ndarray
         series of audio samples
-    min_limit : float
-        minumum boundary of the maximum value of the audio samples
     max_limit: float
         maximum boundary of the maximum value of the audio samples
 
     Returns
     -------
-        samples with volume adjusted (if need be)
+        samples with volume adjusted (if need be).
 
     Examples
     --------
     >>> import numpy as np
     >>> #low volume example: increase volume to desired window
-    >>> x = np.array([0.03, 0.04, 0.05, 0.02])
-    >>> x = control_volume(x, min_limit=0.13, max_limit=0.25)
+    >>> x = np.array([-0.03, 0.04, -0.05, 0.02])
+    >>> x = control_volume(x, max_limit=0.25)
     >>> x
-    array([0.09155273, 0.12207031, 0.15258789, 0.06103516])
+    array([-0.13888889,  0.25      , -0.25      ,  0.13888889])
     >>> #high volume example: decrease volume to desired window
-    >>> y = np.array([0.3, 0.4, 0.5, 0.2])
-    >>> y = control_volume(y, min_limit=0.13, max_limit=0.25)
+    >>> y = np.array([-0.3, 0.4, -0.5, 0.2])
+    >>> y = control_volume(y, max_limit=0.15)
     >>> y
-    array([0.12288, 0.16384, 0.2048 , 0.08192])
+    array([-0.08333333,  0.15      , -0.15      ,  0.08333333])
     """
-    if max(samples) > max_limit:
-        while max(samples) > max_limit:
-            samples /= 1.25
-            if max(samples) < max_limit:
-                return samples
-    elif max(samples) < min_limit:
-        while max(samples) < max_limit:
-            samples *= 1.25
-            if max(samples) > max_limit:
-                samples /= 1.25
-                return samples
+    if max(samples) != max_limit:
+        samples = np.interp(samples,
+                            (samples.min(), samples.max()),
+                            (-max_limit, max_limit))
     return samples
 
 def collect_features(samples, feature_type='mfcc', sr=48000, window_size_ms=20,
@@ -578,14 +574,16 @@ def collect_features(samples, feature_type='mfcc', sr=48000, window_size_ms=20,
 ######### Functions related to postfilter###############
 
 def calc_power_ratio(original_powerspec, noisereduced_powerspec):
+    '''Calc. the ratio of original vs noise reduced power spectrum.
+    '''
     power_ratio = sum(noisereduced_powerspec) / \
         sum(original_powerspec)/len(noisereduced_powerspec)
     return power_ratio
 
 def calc_noise_frame_len(SNR_decision, threshold, scale):
-    '''window for calculating moving average 
+    '''Calc. window length for calculating moving average. 
     
-    Note: lower SNRs require larger window
+    Note: lower SNRs require larger window.
     '''
     if SNR_decision < 1:
         soft_decision = 1 - (SNR_decision/threshold)
@@ -596,6 +594,8 @@ def calc_noise_frame_len(SNR_decision, threshold, scale):
     return noise_frame_len
 
 def calc_linear_impulse(noise_frame_len, num_freq_bins):
+    '''Calc. the post filter coefficients to be applied to gain values.
+    '''
     linear_filter_impulse = np.zeros((num_freq_bins,))
     for i in range(num_freq_bins):
         if i < noise_frame_len:
@@ -606,10 +606,13 @@ def calc_linear_impulse(noise_frame_len, num_freq_bins):
 
 def postfilter(original_powerspec, noisereduced_powerspec, gain,
                threshold=0.4, scale=10):
-    '''Apply filter that reduces musical noise resulting from other filter
+    '''Apply filter that reduces musical noise resulting from other filter.
+    
+    If it is estimated that speech (or target signal) is present, reduced
+    filtering is applied.
 
-    Reference 
-    ---------
+    References 
+    ----------
     
     T. Esch and P. Vary, "Efficient musical noise suppression for speech enhancement 
     system," Proceedings of IEEE International Conference on Acoustics, Speech and 

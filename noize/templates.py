@@ -19,28 +19,49 @@
 # You should have received a copy of the GNU AFFERO General Public License 
 # along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.
 
+import os, sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+noizedir = os.path.dirname(currentdir)
+sys.path.insert(0, noizedir)
  
-def noizefilter(filter_project_name, headpath, target_wavfile, noise_wavfile=None, 
-                scale=1, apply_postfilter=False):
+def noizefilter(filter_project_name, 
+                headpath, 
+                target_wavfile, 
+                noise_wavfile = None, 
+                scale = 1, 
+                apply_postfilter = False,
+                max_vol = 0.4):
     '''Example code for implementing NoIze as just a noise filter.
     '''
     import noize
     if not noise_wavfile:
         #use background noise to filter out local noise
-        output_file = '{}/background_noise.wav'.format(headpath+filter_project_name)
-        noize.filtersignal(output_file,target_wavfile,
-                           scale=scale,apply_postfilter=apply_postfilter)
+        output_filename = '{}/background_noise.wav'.format(headpath+filter_project_name)
+        noize.filtersignal(output_filename,
+                           target_wavfile,
+                           scale = scale,
+                           apply_postfilter = apply_postfilter,
+                           max_vol = max_vol)
         return None
     else:
         #use a separate noise file to reduce noise
-        output_file = '{}/separate_noise.wav'.format(headpath+filter_project_name)
-        noize.filtersignal(output_file,target_wavfile,noise_file=noise_wavfile,
-                        scale=scale,apply_postfilter=apply_postfilter)
+        output_filename = '{}/separate_noise.wav'.format(headpath+filter_project_name)
+        noize.filtersignal(output_filename,
+                           target_wavfile,
+                           noise_file = noise_wavfile,
+                           scale = scale,
+                           apply_postfilter = apply_postfilter,
+                           max_vol = max_vol)
         return None
 
-def noizeclassifier(classifer_project_name, headpath,
-                    target_wavfile=None, audiodir=None,
-                    feature_type='fbank',audioclass_wavfile_limit=None):
+def noizeclassifier(classifer_project_name, 
+                    headpath,
+                    target_wavfile = None, 
+                    audiodir = None,
+                    feature_type = 'fbank',
+                    audioclass_wavfile_limit = None):
     '''Example code for implementing NoIze as just a sound classifier.
     '''
     import noize
@@ -48,7 +69,7 @@ def noizeclassifier(classifer_project_name, headpath,
     my_project = noize.PathSetup(classifer_project_name,
                             headpath,
                             audiodir,
-                            feature_type=feature_type)
+                            feature_type = feature_type)
     
     no_conflicts_feats = my_project.cleanup_feats()
     if no_conflicts_feats == False:
@@ -82,6 +103,9 @@ def noizeclassifier(classifer_project_name, headpath,
         classifer_class = noize.models.buildclassifier(my_project)
     
     if target_wavfile:
-        classify = noize.models.ClassifySound(target_wavfile, my_project, feats_class, classifer_class)
+        classify = noize.models.ClassifySound(target_wavfile, 
+                                              my_project, 
+                                              feats_class, 
+                                              classifer_class)
         label, label_encoded = classify.get_label()
         print('\nLabel classified: ', label)

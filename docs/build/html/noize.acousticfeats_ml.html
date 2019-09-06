@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Acoustic Features for Machine Learning &#8212; \\NoIze// 0.0.1 documentation</title>
+    <title>Acoustic Features for Machine Learning &#8212; \\NoIze// 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -14,7 +14,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Models" href="noize.models.html" />
+    <link rel="next" title="Filters and their Features" href="noize.filterfun.html" />
     <link rel="prev" title="Setup File Architecture" href="noize.file_architecture.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -56,7 +56,8 @@ data compared to the test and validation data (default 0.8)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>dataset_audio</strong> – Named tuple including three lists of tuples: the train, validation, and test lists, respectively. The tuples within the lists contain
+<dd class="field-even"><p><strong>dataset_audio</strong> – Named tuple including three lists of tuples: the train, validation,
+and test lists, respectively. The tuples within the lists contain
 the encoded label integer (e.g. 0 instead of ‘air_conditioner’) and
 the audio paths associated to that class and dataset.</p>
 </dd>
@@ -122,29 +123,25 @@ be repeated. (default 40)</p></li>
 corresponding to that label</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+<dd class="field-odd"><p>OrderedDict</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;vacuum&#39;</span><span class="p">,</span><span class="s1">&#39;fridge&#39;</span><span class="p">,</span><span class="s1">&#39;wind&#39;</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/audio/vacuum/vacuum1.wav&#39;</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/audio/fridge/fridge1.wav&#39;</span><span class="p">),</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/audio/vacuum/vacuum2.wav&#39;</span><span class="p">),</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/audio/wind/wind1.wav&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/audio/vacuum/vacuum1.wav&#39;</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/audio/fridge/fridge1.wav&#39;</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/audio/vacuum/vacuum2.wav&#39;</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/audio/wind/wind1.wav&#39;</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">label_waves_dict</span> <span class="o">=</span> <span class="n">create_label2audio_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">paths</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">label_waves_dict</span>
-<span class="go">{&#39;fridge&#39;: [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)],</span>
-<span class="go"> &#39;wind&#39;: [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)],</span>
-<span class="go"> &#39;vacuum&#39;: [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;),</span>
-<span class="go">  PosixPath(&#39;data/audio/vacuum/vacuum2.wav&#39;)]}</span>
+<span class="go">OrderedDict([(&#39;fridge&#39;, [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)]), (&#39;vacuum&#39;, [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;), PosixPath(&#39;data/audio/vacuum/vacuum2.wav&#39;)]), (&#39;wind&#39;, [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)])])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#to set a limit on number of audiofiles per class:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">create_label2audio_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">path</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
-<span class="go">{&#39;fridge&#39;: [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)],</span>
-<span class="go"> &#39;wind&#39;: [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)],</span>
-<span class="go"> &#39;vacuum&#39;: [PosixPath(&#39;data/audio/vacuum/vacuum2.wav&#39;)]}</span>
-<span class="go"> &gt;&gt;&gt; #change the limited pathways chosen:</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">create_label2audio_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">path</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="go">{&#39;fridge&#39;: [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)],</span>
-<span class="go"> &#39;wind&#39;: [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)],</span>
-<span class="go"> &#39;vacuum&#39;: [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;)]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">create_label2audio_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+<span class="go">OrderedDict([(&#39;fridge&#39;, [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)]), (&#39;vacuum&#39;, [PosixPath(&#39;data/audio/vacuum/vacuum2.wav&#39;)]), (&#39;wind&#39;, [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)])])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#change the limited pathways chosen:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">create_label2audio_dict</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="go">OrderedDict([(&#39;fridge&#39;, [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)]), (&#39;vacuum&#39;, [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;)]), (&#39;wind&#39;, [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)])])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -172,23 +169,23 @@ Otherwise, <cite>value</cite> is returned unaltered.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">type_int</span> <span class="o">=</span> <span class="n">make_number</span><span class="p">(</span><span class="s1">&#39;5&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">type_int</span><span class="p">)</span>
-<span class="go">int</span>
+<span class="go">&lt;class &#39;int&#39;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">type_int</span>
 <span class="go">5</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">type_float</span> <span class="o">=</span> <span class="n">make_number</span><span class="p">(</span><span class="s1">&#39;0.45&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">type_float</span><span class="p">)</span>
-<span class="go">float</span>
+<span class="go">&lt;class &#39;float&#39;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">type_float</span>
 <span class="go">0.45</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">type_none</span> <span class="o">=</span> <span class="n">make_number</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">type_none</span><span class="p">)</span>
-<span class="go">NoneType</span>
+<span class="go">&lt;class &#39;NoneType&#39;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">type_none</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">type_str</span> <span class="o">=</span> <span class="n">make_number</span><span class="p">(</span><span class="s1">&#39;53d&#39;</span><span class="p">)</span>
-<span class="go">&#39;Value cannot be converted to a number.&#39;</span>
+<span class="go">Value cannot be converted to a number.</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">type_str</span><span class="p">)</span>
-<span class="go">str</span>
+<span class="go">&lt;class &#39;str&#39;&gt;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -274,8 +271,9 @@ window shift, and desired image length in milliseconds.</p>
 
 <dl class="method">
 <dt id="noize.acousticfeats_ml.modelfeats.PrepFeatures.extractfeats">
-<code class="sig-name descname">extractfeats</code><span class="sig-paren">(</span><em class="sig-param">soundata</em>, <em class="sig-param">dur_sec=None</em>, <em class="sig-param">augment_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.extractfeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.acousticfeats_ml.modelfeats.PrepFeatures.extractfeats" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname">extractfeats</code><span class="sig-paren">(</span><em class="sig-param">sounddata</em>, <em class="sig-param">dur_sec=None</em>, <em class="sig-param">augment_data=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/acousticfeats_ml/modelfeats.html#PrepFeatures.extractfeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.acousticfeats_ml.modelfeats.PrepFeatures.extractfeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Organizes feat extraction of each audiofile according to class attributes.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="noize.acousticfeats_ml.modelfeats.PrepFeatures.get_feats">
@@ -382,7 +380,7 @@ structure</p></li>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="noize.file_architecture.html" title="previous chapter">Setup File Architecture</a></li>
-      <li>Next: <a href="noize.models.html" title="next chapter">Models</a></li>
+      <li>Next: <a href="noize.filterfun.html" title="next chapter">Filters and their Features</a></li>
   </ul></li>
 </ul>
 </div>

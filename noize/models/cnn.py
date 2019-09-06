@@ -20,7 +20,6 @@
 # along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.
 
 ###############################################################################
-import os
 import pathlib
 import numpy as np
 # for building and training models
@@ -28,17 +27,24 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Conv2D, Flatten, Dropout
 from keras.callbacks import EarlyStopping, CSVLogger, ModelCheckpoint
 from sklearn.preprocessing import StandardScaler, normalize
+ 
+import os, sys
+import inspect
+currentdir = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
+noizedir = os.path.dirname(currentdir)
+sys.path.insert(0, noizedir)
 
-from ..file_architecture import paths as pathorg
-from ..acousticfeats_ml  import featorg, modelfeats
-from ..mathfun import matrixfun
+from file_architecture import paths as pathorg
+from acousticfeats_ml  import featorg, modelfeats
+from mathfun import matrixfun
 
 
 class SoundClassifier:
     '''Build a mobile compatible CNN to classify noise / acoustic scene
     
-    Reference
-    ---------
+    References
+    ----------
     A. Sehgal and N. Kehtarnavaz, "A Convolutional Neural Network 
     Smartphone App for Real-Time Voice Activity Detection," in IEEE Access, 
     vol. 6, pp. 9017-9026, 2018. 
@@ -301,8 +307,10 @@ class SoundClassifier:
 
 
 class ClassifySound:
-    def __init__(self, soundata, filter_class, feature_class, model_class):
-        self.soundata = soundata
+    '''Takes new audio and classifies it with classifier.
+    '''
+    def __init__(self, sounddata, filter_class, feature_class, model_class):
+        self.sounddata = sounddata
         self.feature_settings = pathorg.load_dict(
             pathorg.load_settings_file(model_class.features_dir))
         self.modelsettings = pathorg.load_dict(model_class.modelsettings_path)
@@ -341,7 +349,7 @@ class ClassifySound:
         get_feats = modelfeats.loadfeature_settings(
             prev_featextraction_settings_dict)
         dur_sec = get_feats.training_segment_ms/1000
-        feats = get_feats.extractfeats(self.soundata, dur_sec=dur_sec,
+        feats = get_feats.extractfeats(self.sounddata, dur_sec=dur_sec,
                                        augment_data=False)
         return feats
 
