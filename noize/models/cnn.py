@@ -301,8 +301,8 @@ class SoundClassifier:
 
 
 class ClassifySound:
-    def __init__(self, soundata, filter_class, feature_class, model_class):
-        self.soundata = soundata
+    def __init__(self, sounddata, filter_class, feature_class, model_class):
+        self.sounddata = sounddata
         self.feature_settings = pathorg.load_dict(
             pathorg.load_settings_file(model_class.features_dir))
         self.modelsettings = pathorg.load_dict(model_class.modelsettings_path)
@@ -341,7 +341,7 @@ class ClassifySound:
         get_feats = modelfeats.loadfeature_settings(
             prev_featextraction_settings_dict)
         dur_sec = get_feats.training_segment_ms/1000
-        feats = get_feats.extractfeats(self.soundata, dur_sec=dur_sec,
+        feats = get_feats.extractfeats(self.sounddata, dur_sec=dur_sec,
                                        augment_data=False)
         return feats
 

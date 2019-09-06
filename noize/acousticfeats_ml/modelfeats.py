@@ -155,20 +155,20 @@ class PrepFeatures:
             row += len(feats)
         return feat_matrix
 
-    def extractfeats(self, soundata, dur_sec=None, augment_data=None):
+    def extractfeats(self, sounddata, dur_sec=None, augment_data=None):
         '''Organizes feat extraction of each audiofile according to class attributes.
         '''
-        if isinstance(soundata, str):
-            soundata = pathlib.Path(soundata)
-        if isinstance(soundata, pathlib.PosixPath) and \
-            noize.paths.is_audio_ext_allowed(soundata):
-            y, sr = noize.dsp.load_signal(soundata,
+        if isinstance(sounddata, str):
+            sounddata = pathlib.Path(sounddata)
+        if isinstance(sounddata, pathlib.PosixPath) and \
+            noize.paths.is_audio_ext_allowed(sounddata):
+            y, sr = noize.dsp.load_signal(sounddata,
                                     sampling_rate=self.sr,
                                     dur_sec=dur_sec)
         else:
             print('The following datatype for sounddata is not understood:')
-            print(type(soundata))
-            print('Data presented: ', soundata)
+            print(type(sounddata))
+            print('Data presented: ', sounddata)
             sys.exit()
         if augment_data is not None and augment_data != self.augment_data:
             feats = self.samps2feats(y, augment_data=augment_data)
