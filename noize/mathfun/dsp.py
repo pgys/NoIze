@@ -611,8 +611,8 @@ def postfilter(original_powerspec, noisereduced_powerspec, gain,
     If it is estimated that speech (or target signal) is present, reduced
     filtering is applied.
 
-    Reference 
-    ---------
+    References 
+    ----------
     
     T. Esch and P. Vary, "Efficient musical noise suppression for speech enhancement 
     system," Proceedings of IEEE International Conference on Acoustics, Speech and 
