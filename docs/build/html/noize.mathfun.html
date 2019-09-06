@@ -14,7 +14,6 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Filters and their Features" href="noize.filterfun.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -60,7 +59,7 @@ target signal</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.apply_window">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">apply_window</code><span class="sig-paren">(</span><em class="sig-param">samples</em>, <em class="sig-param">window</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#apply_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.apply_window" title="Permalink to this definition">¶</a></dt>
-<dd><p>applies predefined window to a section of samples</p>
+<dd><p>Applies predefined window to a section of samples</p>
 <p>The length of the samples must be the same length as the window.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -81,10 +80,10 @@ target signal</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">input_signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span> <span class="mf">0.</span>        <span class="p">,</span>  <span class="mf">0.36371897</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.302721</span><span class="p">,</span>
 <span class="gp">... </span>                        <span class="o">-</span><span class="mf">0.1117662</span> <span class="p">,</span>  <span class="mf">0.3957433</span> <span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">window_hamming</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.08</span><span class="p">,</span> <span class="mf">0.54</span><span class="p">,</span> <span class="mf">1.</span>  <span class="p">,</span> <span class="mf">0.54</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">])</span>
-<span class="go">apply_window(input_signal, window_hamming)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">apply_window</span><span class="p">(</span><span class="n">input_signal</span><span class="p">,</span> <span class="n">window_hamming</span><span class="p">)</span>
 <span class="go">array([ 0.        ,  0.19640824, -0.302721  , -0.06035375,  0.03165946])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">window_hann</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.</span> <span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span> <span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.</span> <span class="p">])</span>
-<span class="go">apply_window(input_signal, window_hann)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">apply_window</span><span class="p">(</span><span class="n">input_signal</span><span class="p">,</span> <span class="n">window_hann</span><span class="p">)</span>
 <span class="go">array([ 0.        ,  0.18185948, -0.302721  , -0.0558831 ,  0.        ])</span>
 </pre></div>
 </div>
@@ -93,10 +92,10 @@ target signal</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_average_power">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_average_power</code><span class="sig-paren">(</span><em class="sig-param">matrix</em>, <em class="sig-param">num_iters</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_average_power"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_average_power" title="Permalink to this definition">¶</a></dt>
-<dd><p>divides matrix values by the number of times power values were added</p>
+<dd><p>Divides matrix values by the number of times power values were added.</p>
 <p>This function assumes the power values of n-number of series were
 calculated and added. It divides the values in the input matrix by n,
-i.e. ‘num_iters’</p>
+i.e. ‘num_iters’.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -127,10 +126,10 @@ the input matrix</p></li>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_fft">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_fft</code><span class="sig-paren">(</span><em class="sig-param">signal_section</em>, <em class="sig-param">norm=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_fft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_fft" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculates the fast Fourier transform of a 1D time series</p>
+<dd><p>Calculates the fast Fourier transform of a 1D time series</p>
 <p>The length of the signal_section determines the number of frequency
 bins analyzed. Therefore, if there are higher frequencies in the
-signal, the length of the signal_section should be long enough to
+signal, the length of the <cite>signal_section</cite> should be long enough to
 accommodate those frequencies.</p>
 <p>The frequency bins with energy levels at around zero denote frequencies
 not prevelant in the signal;the frequency bins with prevalent energy
@@ -156,7 +155,7 @@ shape as the input series</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_frame_length">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_frame_length</code><span class="sig-paren">(</span><em class="sig-param">dur_frame_millisec</em>, <em class="sig-param">sampling_rate</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_frame_length"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_frame_length" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculates the number of samples necessary for each frame</p>
+<dd><p>Calculates the number of samples necessary for each frame</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -177,7 +176,7 @@ shape as the input series</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">calc_frame_length</span><span class="p">(</span><span class="n">dur_frame_millisec</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">48000</span><span class="p">)</span>
 <span class="go">960</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">calc_frame_length</span><span class="p">(</span><span class="n">dur_frame_millisec</span><span class="o">=</span><span class="mf">25.5</span><span class="p">,</span> <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">22500</span><span class="p">)</span>
-<span class="go">506</span>
+<span class="go">573</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -185,7 +184,7 @@ shape as the input series</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_gain">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_gain</code><span class="sig-paren">(</span><em class="sig-param">prior_snr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_gain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_gain" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculates the attenuation value to reduce noise</p>
+<dd><p>Calculates the gain (i.e. attenuation) values to reduce noise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>prior_snr</strong> (<em>ndarray</em>) – The prior signal-to-noise ratio estimation</p>
@@ -208,7 +207,7 @@ Speech, Signal Processing, 629-632.</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_ifft">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_ifft</code><span class="sig-paren">(</span><em class="sig-param">signal_section</em>, <em class="sig-param">norm=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_ifft"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_ifft" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculates the inverse fft of a series of fft values</p>
+<dd><p>Calculates the inverse fft of a series of fft values</p>
 <p>The real values of the ifft can be used to be saved as an audiofile</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -230,19 +229,20 @@ Speech, Signal Processing, 629-632.</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_linear_impulse">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_linear_impulse</code><span class="sig-paren">(</span><em class="sig-param">noise_frame_len</em>, <em class="sig-param">num_freq_bins</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_linear_impulse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_linear_impulse" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calc. the post filter coefficients to be applied to gain values.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_noise_frame_len">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_noise_frame_len</code><span class="sig-paren">(</span><em class="sig-param">SNR_decision</em>, <em class="sig-param">threshold</em>, <em class="sig-param">scale</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_noise_frame_len"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_noise_frame_len" title="Permalink to this definition">¶</a></dt>
-<dd><p>window for calculating moving average</p>
-<p>Note: lower SNRs require larger window</p>
+<dd><p>Calc. window length for calculating moving average.</p>
+<p>Note: lower SNRs require larger window.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_num_overlap_samples">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_num_overlap_samples</code><span class="sig-paren">(</span><em class="sig-param">samples_per_frame</em>, <em class="sig-param">percent_overlap</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_num_overlap_samples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_num_overlap_samples" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculate the number of samples that constitute the overlap of frames</p>
+<dd><p>Calculate the number of samples that constitute the overlap of frames</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -326,7 +326,7 @@ Processing, 629-632.</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_posteri_snr">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_posteri_snr</code><span class="sig-paren">(</span><em class="sig-param">target_power_spec</em>, <em class="sig-param">noise_power_spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_posteri_snr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_posteri_snr" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculates and updates signal to noise ratio of current frame</p>
+<dd><p>Calculates and updates signal to noise ratio of current frame</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -355,7 +355,7 @@ signal</p></li>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_power">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_power</code><span class="sig-paren">(</span><em class="sig-param">fft_vals</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_power"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_power" title="Permalink to this definition">¶</a></dt>
-<dd><p>calculates the power of fft values</p>
+<dd><p>Calculates the power of fft values</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>fft_vals</strong> (<em>ndarray</em><em> (</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.7)"><em>complex</em></a><em> or </em><em>floats</em><em>)</em>) – the fft values of a windowed section of a series</p>
@@ -382,14 +382,17 @@ signal</p></li>
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_power_ratio">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_power_ratio</code><span class="sig-paren">(</span><em class="sig-param">original_powerspec</em>, <em class="sig-param">noisereduced_powerspec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_power_ratio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_power_ratio" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calc. the ratio of original vs noise reduced power spectrum.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="noize.mathfun.dsp.calc_prior_snr">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">calc_prior_snr</code><span class="sig-paren">(</span><em class="sig-param">snr</em>, <em class="sig-param">snr_prime</em>, <em class="sig-param">smooth_factor=0.98</em>, <em class="sig-param">first_iter=None</em>, <em class="sig-param">gain=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#calc_prior_snr"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.calc_prior_snr" title="Permalink to this definition">¶</a></dt>
 <dd><p>Estimates the signal-to-noise ratio of the previous frame</p>
-<p>Depending on the ‘first_iter’ argument, the prior snr is calculated
-according to different algorithms.</p>
+<p>Depending on the <cite>first_iter</cite> argument, the prior snr is calculated
+according to different algorithms. If <cite>first_iter</cite> is None, prior snr is
+calculated according to Scalart and Filho (1996); if <cite>first_iter</cite>
+is True or False, snr prior is calculated according to Loizou (2013).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -427,15 +430,12 @@ Speech, Signal Processing, 629-632.</p>
 
 <dl class="function">
 <dt id="noize.mathfun.dsp.control_volume">
-<code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">control_volume</code><span class="sig-paren">(</span><em class="sig-param">samples</em>, <em class="sig-param">min_limit</em>, <em class="sig-param">max_limit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#control_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.control_volume" title="Permalink to this definition">¶</a></dt>
-<dd><p>keeps max volume of samples to within a specified range.</p>
-<p>If the max volume is above or below, the audio samples are
-divided or multiplied with 1.25, respectively.</p>
+<code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">control_volume</code><span class="sig-paren">(</span><em class="sig-param">samples</em>, <em class="sig-param">max_limit</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#control_volume"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.control_volume" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keeps max volume of samples to within a specified range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>samples</strong> (<em>ndarray</em>) – series of audio samples</p></li>
-<li><p><strong>min_limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – minumum boundary of the maximum value of the audio samples</p></li>
 <li><p><strong>max_limit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a>) – maximum boundary of the maximum value of the audio samples</p></li>
 </ul>
 </dd>
@@ -449,15 +449,15 @@ divided or multiplied with 1.25, respectively.</p>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#low volume example: increase volume to desired window</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">control_volume</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">min_limit</span><span class="o">=</span><span class="mf">0.13</span><span class="p">,</span> <span class="n">max_limit</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.04</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">control_volume</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">max_limit</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
-<span class="go">array([0.09155273, 0.12207031, 0.15258789, 0.06103516])</span>
+<span class="go">array([-0.13888889,  0.25      , -0.25      ,  0.13888889])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#high volume example: decrease volume to desired window</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">control_volume</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">min_limit</span><span class="o">=</span><span class="mf">0.13</span><span class="p">,</span> <span class="n">max_limit</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">control_volume</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">max_limit</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
-<span class="go">array([0.12288, 0.16384, 0.2048 , 0.08192])</span>
+<span class="go">array([-0.08333333,  0.15      , -0.15      ,  0.08333333])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -465,7 +465,7 @@ divided or multiplied with 1.25, respectively.</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.create_window">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">create_window</code><span class="sig-paren">(</span><em class="sig-param">window_type</em>, <em class="sig-param">frame_length</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#create_window"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.create_window" title="Permalink to this definition">¶</a></dt>
-<dd><p>creates window according to set window type and frame length</p>
+<dd><p>Creates window according to set window type and frame length</p>
 <p>the Hamming window tapers edges to around 0.08 while the Hann window
 tapers edges to 0.0. Both are commonly used in noise filtering.</p>
 <dl class="field-list simple">
@@ -495,12 +495,15 @@ tapers edges to 0.0. Both are commonly used in noise filtering.</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.load_signal">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">load_signal</code><span class="sig-paren">(</span><em class="sig-param">wav</em>, <em class="sig-param">sampling_rate=48000</em>, <em class="sig-param">dur_sec=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#load_signal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.load_signal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Loads wavfile, resamples if necessary, and normalizes signal.</p>
+</dd></dl>
 
 <dl class="function">
 <dt id="noize.mathfun.dsp.postfilter">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">postfilter</code><span class="sig-paren">(</span><em class="sig-param">original_powerspec</em>, <em class="sig-param">noisereduced_powerspec</em>, <em class="sig-param">gain</em>, <em class="sig-param">threshold=0.4</em>, <em class="sig-param">scale=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#postfilter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.postfilter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply filter that reduces musical noise resulting from other filter</p>
+<dd><p>Apply filter that reduces musical noise resulting from other filter.</p>
+<p>If it is estimated that speech (or target signal) is present, reduced
+filtering is applied.</p>
 <p>T. Esch and P. Vary, “Efficient musical noise suppression for speech enhancement
 system,” Proceedings of IEEE International Conference on Acoustics, Speech and
 Signal Processing, Taipei, 2009.</p>
@@ -509,7 +512,8 @@ Signal Processing, Taipei, 2009.</p>
 <dl class="function">
 <dt id="noize.mathfun.dsp.resample_audio">
 <code class="sig-prename descclassname">noize.mathfun.dsp.</code><code class="sig-name descname">resample_audio</code><span class="sig-paren">(</span><em class="sig-param">samples</em>, <em class="sig-param">sr_original</em>, <em class="sig-param">sr_desired</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/dsp.html#resample_audio"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.dsp.resample_audio" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Allows audio samples to be resampled to desired sample rate.</p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-noize.mathfun.augmentdata">
@@ -522,8 +526,23 @@ Signal Processing, Taipei, 2009.</p>
 
 <dl class="function">
 <dt id="noize.mathfun.augmentdata.spread_volumes">
-<code class="sig-prename descclassname">noize.mathfun.augmentdata.</code><code class="sig-name descname">spread_volumes</code><span class="sig-paren">(</span><em class="sig-param">samples</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/augmentdata.html#spread_volumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.augmentdata.spread_volumes" title="Permalink to this definition">¶</a></dt>
-<dd><p>returns samples with a range of volumes</p>
+<code class="sig-prename descclassname">noize.mathfun.augmentdata.</code><code class="sig-name descname">spread_volumes</code><span class="sig-paren">(</span><em class="sig-param">samples, vol_list=[0.1, 0.3, 0.5]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/augmentdata.html#spread_volumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.augmentdata.spread_volumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns samples with a range of volumes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>samples</strong> (<em>ndarray</em>) – Series belonging to acoustic signal.</p></li>
+<li><p><strong>vol_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – List of floats or ints representing the volumes the samples
+are to be oriented towards. (default [0.1,0.3,0.5])</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>volrange_dict</strong> – Tuple of <cite>volrange_dict</cite> values containing <cite>samples</cite> at various vols.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -534,7 +553,7 @@ necessary in both digital signal processing and machine learning</p>
 <dl class="function">
 <dt id="noize.mathfun.matrixfun.add_tensor">
 <code class="sig-prename descclassname">noize.mathfun.matrixfun.</code><code class="sig-name descname">add_tensor</code><span class="sig-paren">(</span><em class="sig-param">matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/matrixfun.html#add_tensor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.matrixfun.add_tensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds tensor / dimension to input ndarray</p>
+<dd><p>Adds tensor / dimension to input ndarray.</p>
 <p>Keras requires an extra dimension at some layers, which represents
 the ‘tensor’ encapsulating the data.</p>
 <p>Further clarification taking the example below. The input matrix has
@@ -551,7 +570,7 @@ from the same city, BUT they occur at different times. Or it’s
 just how Keras set up the code :P</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>matrix</strong> (<em>numpy.ndarray</em>) – The <cite>matrix</cite> holds the numerical data to add a dimension to</p>
+<dd class="field-odd"><p><strong>matrix</strong> (<em>numpy.ndarray</em>) – The <cite>matrix</cite> holds the numerical data to add a dimension to.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><strong>matrix</strong> – The <cite>matrix</cite> with an additional dimension.</p>
@@ -562,51 +581,51 @@ just how Keras set up the code :P</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">48</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span><span class="o">.</span><span class="n">shape</span>
-<span class="go">(2,3,4)</span>
+<span class="go">(2, 3, 4)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span>
-<span class="go">array([[[ 0,  1,  2,  3,  4,  5,  6,  7],</span>
-<span class="go">        [ 8,  9, 10, 11, 12, 13, 14, 15],</span>
-<span class="go">        [16, 17, 18, 19, 20, 21, 22, 23]],</span>
+<span class="go">array([[[ 0,  1,  2,  3],</span>
+<span class="go">        [ 4,  5,  6,  7],</span>
+<span class="go">        [ 8,  9, 10, 11]],</span>
 
-<span class="go">        [[24, 25, 26, 27, 28, 29, 30, 31],</span>
-<span class="go">        [32, 33, 34, 35, 36, 37, 38, 39],</span>
-<span class="go">        [40, 41, 42, 43, 44, 45, 46, 47]]])</span>
+<span class="go">       [[12, 13, 14, 15],</span>
+<span class="go">        [16, 17, 18, 19],</span>
+<span class="go">        [20, 21, 22, 23]]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">matrix_2</span> <span class="o">=</span> <span class="n">add_tensor</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">matrix_2</span><span class="o">.</span><span class="n">shape</span>
-<span class="go">(2,3,4,1)</span>
+<span class="go">(2, 3, 4, 1)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">matrix_2</span>
 <span class="go">array([[[[ 0],</span>
-<span class="go">        [ 1],</span>
-<span class="go">        [ 2],</span>
-<span class="go">        [ 3]],</span>
+<span class="go">         [ 1],</span>
+<span class="go">         [ 2],</span>
+<span class="go">         [ 3]],</span>
 
 <span class="go">        [[ 4],</span>
-<span class="go">        [ 5],</span>
-<span class="go">        [ 6],</span>
-<span class="go">        [ 7]],</span>
+<span class="go">         [ 5],</span>
+<span class="go">         [ 6],</span>
+<span class="go">         [ 7]],</span>
 
 <span class="go">        [[ 8],</span>
-<span class="go">        [ 9],</span>
-<span class="go">        [10],</span>
-<span class="go">        [11]]],</span>
+<span class="go">         [ 9],</span>
+<span class="go">         [10],</span>
+<span class="go">         [11]]],</span>
 
 
-<span class="go">        [[[12],</span>
-<span class="go">        [13],</span>
-<span class="go">        [14],</span>
-<span class="go">        [15]],</span>
+<span class="go">       [[[12],</span>
+<span class="go">         [13],</span>
+<span class="go">         [14],</span>
+<span class="go">         [15]],</span>
 
 <span class="go">        [[16],</span>
-<span class="go">        [17],</span>
-<span class="go">        [18],</span>
-<span class="go">        [19]],</span>
+<span class="go">         [17],</span>
+<span class="go">         [18],</span>
+<span class="go">         [19]],</span>
 
 <span class="go">        [[20],</span>
-<span class="go">        [21],</span>
-<span class="go">        [22],</span>
-<span class="go">        [23]]]])</span>
+<span class="go">         [21],</span>
+<span class="go">         [22],</span>
+<span class="go">         [23]]]])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -614,8 +633,8 @@ just how Keras set up the code :P</p>
 <dl class="function">
 <dt id="noize.mathfun.matrixfun.create_empty_matrix">
 <code class="sig-prename descclassname">noize.mathfun.matrixfun.</code><code class="sig-name descname">create_empty_matrix</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">complex_vals=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/matrixfun.html#create_empty_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.matrixfun.create_empty_matrix" title="Permalink to this definition">¶</a></dt>
-<dd><p>allows creation of a matrix filled with real or complex zeros</p>
-<p>in digital signal processing, complex numbers are common; it is
+<dd><p>Allows creation of a matrix filled with real or complex zeros.</p>
+<p>In digital signal processing, complex numbers are common; it is
 important to note that if complex_vals=False and complex values are
 inserted into the matrix, the imaginary part will be removed.</p>
 <dl class="field-list simple">
@@ -655,7 +674,7 @@ values (default False)</p></li>
 <dl class="function">
 <dt id="noize.mathfun.matrixfun.separate_dependent_var">
 <code class="sig-prename descclassname">noize.mathfun.matrixfun.</code><code class="sig-name descname">separate_dependent_var</code><span class="sig-paren">(</span><em class="sig-param">matrix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/noize/mathfun/matrixfun.html#separate_dependent_var"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#noize.mathfun.matrixfun.separate_dependent_var" title="Permalink to this definition">¶</a></dt>
-<dd><p>Separates matrix into features and labels</p>
+<dd><p>Separates matrix into features and labels.</p>
 <p>Assumes the last column of the last dimension of the matrix constitutes
 the dependent variable (labels), and all other columns the indpendent variables
 (features). Additionally, it is assumed that for each block of data,
@@ -680,7 +699,7 @@ If only one value in array, just the value inside is returned</p></li>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">separate_dependent_var</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]))</span>
 <span class="go">(array([1, 2, 3]), 4)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1">#simple matrix</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arrange</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">matrix</span>
 <span class="go">array([[0, 1],</span>
 <span class="go">       [2, 3]])</span>
@@ -706,7 +725,7 @@ If only one value in array, just the value inside is returned</p></li>
 <span class="go">       [[10, 11, 12, 13],</span>
 <span class="go">        [15, 16, 17, 18]]])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
-<span class="go">array([4, 14]) #2 labels for 2 blocks of features</span>
+<span class="go">array([ 4, 14])</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -729,7 +748,6 @@ If only one value in array, just the value inside is returned</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="noize.filterfun.html" title="previous chapter">Filters and their Features</a></li>
   </ul></li>
 </ul>
 </div>

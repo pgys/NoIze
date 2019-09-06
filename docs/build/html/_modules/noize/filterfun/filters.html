@@ -60,104 +60,153 @@
 <span class="sd">process.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="c1">###############################################################################</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">..file_architecture</span> <span class="k">import</span> <span class="n">paths</span> <span class="k">as</span> <span class="n">pathorg</span>
-<span class="kn">from</span> <span class="nn">..mathfun</span> <span class="k">import</span> <span class="n">dsp</span><span class="p">,</span> <span class="n">matrixfun</span><span class="p">,</span> <span class="n">augmentdata</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="n">currentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+    <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
+<span class="n">parentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">currentdir</span><span class="p">)</span>
+<span class="n">noizedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">parentdir</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noizedir</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">noize</span>
 
 <span class="c1"># what Wiener Filter and Average pow spec can inherit</span>
-<div class="viewcode-block" id="FilterSettings"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.FilterSettings">[docs]</a><span class="k">class</span> <span class="nc">FilterSettings</span><span class="p">:</span>
+<div class="viewcode-block" id="FilterSettings"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.FilterSettings">[docs]</a><span class="k">class</span> <span class="nc">FilterSettings</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Basic settings for filter related classes to inherit from.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frame_dur : int, float</span>
+<span class="sd">        Time in milliseconds of each audio frame window. (default 20)</span>
+<span class="sd">    sr : int </span>
+<span class="sd">        Desired sampling rate of audio; audio will be resampled to match if</span>
+<span class="sd">        audio has other sampling rate. (default 48000)</span>
+<span class="sd">    frame_length : int </span>
+<span class="sd">        Number of audio samples in each frame: frame_dur multiplied with</span>
+<span class="sd">        sampling_rate, divided by 1000. (default 960)</span>
+<span class="sd">    percent_overlap : float</span>
+<span class="sd">        Percentage of overlap between frames.</span>
+<span class="sd">    overlap_length : int </span>
+<span class="sd">        Number of overlapping audio samples between subsequent frames: </span>
+<span class="sd">        frame_length multiplied by percent_overlap, floored. (default 480)</span>
+<span class="sd">    window_type : str</span>
+<span class="sd">        Type of window applied to audio frames: hann vs hamming (default</span>
+<span class="sd">        &#39;hamming&#39;)</span>
+<span class="sd">    num_fft_bins : int </span>
+<span class="sd">        The number of frequency bins used when calculating the fft. </span>
+<span class="sd">        Currently the `frame_length` is used to set `num_fft_bins`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">frame_duration_ms</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
                  <span class="n">percent_overlap</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
                  <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">48000</span><span class="p">,</span>
                  <span class="n">window_type</span><span class="o">=</span><span class="s1">&#39;hamming&#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frame_dur</span> <span class="o">=</span> <span class="n">frame_duration_ms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">samplerate</span> <span class="o">=</span> <span class="n">sampling_rate</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sr</span> <span class="o">=</span> <span class="n">sampling_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span>
             <span class="n">frame_duration_ms</span><span class="p">,</span>
             <span class="n">sampling_rate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">percent_overlap</span> <span class="o">=</span> <span class="n">percent_overlap</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">overlap_length</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_overlap_samples</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overlap_length</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_overlap_samples</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span><span class="p">,</span>
             <span class="n">percent_overlap</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span> <span class="o">=</span> <span class="n">window_type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">create_window</span><span class="p">(</span><span class="n">window_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_fft_bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_fft_bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span>
+        
+<div class="viewcode-block" id="FilterSettings.get_window"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.FilterSettings.get_window">[docs]</a>    <span class="k">def</span> <span class="nf">get_window</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Returns window acc. to attributes `window_type` and `frame_length`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">window</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">create_window</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">window</span></div></div>
 
 
-<div class="viewcode-block" id="WienerFilter"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WienerFilter">[docs]</a><span class="k">class</span> <span class="nc">WienerFilter</span><span class="p">(</span><span class="n">FilterSettings</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Interactive class to explore Wiener filter settings on audio signals</span>
+<div class="viewcode-block" id="WienerFilter"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WienerFilter">[docs]</a><span class="k">class</span> <span class="nc">WienerFilter</span><span class="p">(</span><span class="n">FilterSettings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Interactive class to explore Wiener filter settings on audio signals.</span>
 
 <span class="sd">    These class methods implement research based algorithms with low </span>
-<span class="sd">    computational cost, aimed for noise reduction via mobile phone</span>
+<span class="sd">    computational cost, aimed for noise reduction via mobile phone.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    frame_dur : int, float</span>
-<span class="sd">        time in milliseconds of each audio frame window (default 20)</span>
-<span class="sd">    sampling_rate : int </span>
-<span class="sd">        desired sampling rate of audio; audio will be resampled to match if</span>
-<span class="sd">        audio has other sampling rate (default 48000)</span>
-<span class="sd">    frame_length : int </span>
-<span class="sd">        number of audio samples in each frame: frame_dur multiplied with</span>
-<span class="sd">        sampling_rate, divided by 1000 (default 960)</span>
-<span class="sd">    overlap_length : int </span>
-<span class="sd">        number of overlapping audio samples between subsequent frames: </span>
-<span class="sd">        frame_length multiplied by percent_overlap, floored (default 480)</span>
 <span class="sd">    beta : float</span>
-<span class="sd">        value applied in Wiener filter that smooths the application of gain;</span>
-<span class="sd">        default set according to previous research (default 0.98)</span>
-<span class="sd">    window_type : str</span>
-<span class="sd">        type of window applied to audio frames: hann vs hamming (default</span>
-<span class="sd">        &#39;hamming&#39;)</span>
-<span class="sd">    window : ndarray</span>
-<span class="sd">        the window according to indicated window_type and frame_length; this </span>
-<span class="sd">        value can be applied directly to a frame of audio samples</span>
+<span class="sd">        Value applied in Wiener filter that smooths the application of &#39;gain&#39;;</span>
+<span class="sd">        default set according to previous research. (default 0.98)</span>
+<span class="sd">    first_iter : bool, optional</span>
+<span class="sd">        Keeps track if `first_iter` is relevant in filtering. If True, </span>
+<span class="sd">        filtering has just started, and calculations made for filtering cannot</span>
+<span class="sd">        use information from previous frames; if False, calculations for </span>
+<span class="sd">        filtering use information from previous frames; if None, no difference</span>
+<span class="sd">        is applied when processing the 1st vs subsequent frames. (default None)</span>
+<span class="sd">    target_subframes : int, None</span>
+<span class="sd">        The number of total subsections within the total number of samples </span>
+<span class="sd">        belonging to the target signal (i.e. wavfile being filtered). Until</span>
+<span class="sd">        `target_subframes` is calculated, it is set to None. (default None) </span>
+<span class="sd">    noise_subframes : int, None</span>
+<span class="sd">        The number of total subsections within the total number of samples </span>
+<span class="sd">        belonging to the noise signal. If noise power spectrum is used, this</span>
+<span class="sd">        doesn&#39;t need to be calculated. Until `noise_subframes` is calculated, </span>
+<span class="sd">        it is set to None. (default None)</span>
+<span class="sd">    gain : ndarray, None</span>
+<span class="sd">        Once calculated, the attenuation values to be applied to the fft for </span>
+<span class="sd">        noise reduction. Until calculated, None. (default None)</span>
+<span class="sd">    max_vol : float, int </span>
+<span class="sd">        The maximum volume allowed for the filtered signal. (default 0.4)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">smooth_factor</span><span class="o">=</span><span class="mf">0.98</span><span class="p">,</span>
-                 <span class="n">first_iter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">first_iter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_vol</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">):</span>
         <span class="n">FilterSettings</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">smooth_factor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">first_iter</span> <span class="o">=</span> <span class="n">first_iter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_subframes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">noise_subframes</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gain</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span> <span class="o">=</span> <span class="n">max_vol</span>
 
-<div class="viewcode-block" id="WienerFilter.get_samples"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WienerFilter.get_samples">[docs]</a>    <span class="k">def</span> <span class="nf">get_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavfile</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;load signal and save original volume</span>
+<div class="viewcode-block" id="WienerFilter.get_samples"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WienerFilter.get_samples">[docs]</a>    <span class="k">def</span> <span class="nf">get_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wavfile</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load signal and save original volume</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        wavfile : str</span>
-<span class="sd">            path and name of wavfile to be loaded</span>
+<span class="sd">            Path and name of wavfile to be loaded</span>
 <span class="sd">        dur_sec : int, float optional</span>
-<span class="sd">            max length of time in seconds (default None)</span>
+<span class="sd">            Max length of time in seconds (default None)</span>
 
 <span class="sd">        Returns </span>
 <span class="sd">        ----------</span>
 <span class="sd">        samples : ndarray</span>
-<span class="sd">            array containing signal amplitude values in time domain</span>
+<span class="sd">            Array containing signal amplitude values in time domain</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">samples</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">load_signal</span><span class="p">(</span>
-            <span class="n">wavfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="n">dur_sec</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_volume</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+        <span class="n">samples</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">load_signal</span><span class="p">(</span>
+            <span class="n">wavfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sr</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="n">dur_sec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_volume</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">max_vol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">samples</span></div>
 
-<div class="viewcode-block" id="WienerFilter.set_volume"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WienerFilter.set_volume">[docs]</a>    <span class="k">def</span> <span class="nf">set_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Records and limits the maximum amplitude of original samples </span>
+<div class="viewcode-block" id="WienerFilter.set_volume"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WienerFilter.set_volume">[docs]</a>    <span class="k">def</span> <span class="nf">set_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">max_vol</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">min_vol</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Records and limits the maximum amplitude of original samples.</span>
 
 <span class="sd">        This enables the output wave to be within a range of</span>
 <span class="sd">        volume that does not go below or too far above the </span>
-<span class="sd">        orignal maximum amplitude of the signal</span>
+<span class="sd">        orignal maximum amplitude of the signal. </span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        samples : ndarray</span>
-<span class="sd">            the original samples of a signal (1 dimensional), of any length</span>
+<span class="sd">            The original samples of a signal (1 dimensional), of any length</span>
+<span class="sd">        max_vol : float</span>
+<span class="sd">            The maximum volume level. If a signal has values higher than this </span>
+<span class="sd">            number, the signal is curtailed to remain at and below this number.</span>
+<span class="sd">        min_vol : float</span>
+<span class="sd">            The minimum volume level. If a signal has only values lower than</span>
+<span class="sd">            this number, the signal is amplified to be at this number and below.</span>
+<span class="sd">        </span>
 <span class="sd">        Returns</span>
+<span class="sd">        -------</span>
 <span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
@@ -165,61 +214,57 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">max_amplitude</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vol_orig</span> <span class="o">=</span> <span class="n">max_amplitude</span>
-        <span class="k">if</span> <span class="n">max_amplitude</span> <span class="o">&lt;</span> <span class="mf">0.15</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">min_vol</span> <span class="o">=</span> <span class="mf">0.15</span>
+        <span class="k">if</span> <span class="n">max_amplitude</span> <span class="o">&gt;</span> <span class="n">max_vol</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span> <span class="o">=</span> <span class="n">max_vol</span>
+        <span class="k">elif</span> <span class="n">max_amplitude</span> <span class="o">&lt;</span> <span class="n">min_vol</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span> <span class="o">=</span> <span class="n">min_vol</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">min_vol</span> <span class="o">=</span> <span class="n">max_amplitude</span>
-        <span class="k">if</span> <span class="n">max_amplitude</span><span class="o">*</span><span class="mf">1.25</span> <span class="o">&gt;</span> <span class="mf">0.4</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span> <span class="o">=</span> <span class="mf">0.4</span>
-        <span class="k">elif</span> <span class="n">max_amplitude</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_vol</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_vol</span><span class="o">*</span><span class="mf">1.25</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span> <span class="o">=</span> <span class="n">max_amplitude</span><span class="o">*</span><span class="mf">1.25</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span> <span class="o">=</span> <span class="n">max_amplitude</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="WienerFilter.set_num_subframes"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WienerFilter.set_num_subframes">[docs]</a>    <span class="k">def</span> <span class="nf">set_num_subframes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">len_samples</span><span class="p">,</span> <span class="n">is_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;sets the number of target or noise subframes available for processing</span>
+<div class="viewcode-block" id="WienerFilter.set_num_subframes"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WienerFilter.set_num_subframes">[docs]</a>    <span class="k">def</span> <span class="nf">set_num_subframes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">len_samples</span><span class="p">,</span> <span class="n">is_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the number of target or noise subframes available for processing</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        len_samples : int </span>
-<span class="sd">            the total number of samples in a given signal</span>
+<span class="sd">            The total number of samples in a given signal</span>
 <span class="sd">        is_noise : bool</span>
-<span class="sd">            if False, subframe number saved under self.target_subframes, otherwise </span>
+<span class="sd">            If False, subframe number saved under self.target_subframes, otherwise </span>
 <span class="sd">            self.noise_subframes (default False)</span>
 
 <span class="sd">        Returns</span>
-<span class="sd">        ----------</span>
+<span class="sd">        -------</span>
 <span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">is_noise</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">noise_subframes</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">noise_subframes</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span>
                 <span class="n">tot_samples</span><span class="o">=</span><span class="n">len_samples</span><span class="p">,</span>
                 <span class="n">frame_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span><span class="p">,</span>
                 <span class="n">overlap_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">overlap_length</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">target_subframes</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_subframes</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span>
                 <span class="n">tot_samples</span><span class="o">=</span><span class="n">len_samples</span><span class="p">,</span>
                 <span class="n">frame_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span><span class="p">,</span>
                 <span class="n">overlap_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">overlap_length</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="WienerFilter.load_power_vals"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WienerFilter.load_power_vals">[docs]</a>    <span class="k">def</span> <span class="nf">load_power_vals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_npy</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;loads and checks shape compatibility of averaged power values</span>
+<div class="viewcode-block" id="WienerFilter.load_power_vals"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WienerFilter.load_power_vals">[docs]</a>    <span class="k">def</span> <span class="nf">load_power_vals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path_npy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads and checks shape compatibility of averaged power values</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        path_npy : str, pathlib.PosixPath</span>
-<span class="sd">            path to .npy file containing power information. </span>
+<span class="sd">            Path to .npy file containing power information. </span>
 
 <span class="sd">        Returns</span>
-<span class="sd">        ----------</span>
+<span class="sd">        -------</span>
 <span class="sd">        power_values : ndarray</span>
-<span class="sd">            the power values as long as they have the shape (self.num_fft_bins, 1)</span>
+<span class="sd">            The power values as long as they have the shape (self.num_fft_bins, 1)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">power_values</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_feature_data</span><span class="p">(</span><span class="n">path_npy</span><span class="p">)</span>
+        <span class="n">power_values</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_feature_data</span><span class="p">(</span><span class="n">path_npy</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">power_values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_fft_bins</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Power value shape does not match settings.</span><span class="se">\</span>
 <span class="s2">                </span><span class="se">\n</span><span class="s2">Provided power value shape: </span><span class="si">{}</span><span class="se">\</span>
@@ -230,19 +275,19 @@
             <span class="n">power_values</span> <span class="o">=</span> <span class="n">power_values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_fft_bins</span><span class="p">,)</span>
         <span class="k">return</span> <span class="n">power_values</span></div>
 
-<div class="viewcode-block" id="WienerFilter.check_volume"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WienerFilter.check_volume">[docs]</a>    <span class="k">def</span> <span class="nf">check_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
+<div class="viewcode-block" id="WienerFilter.check_volume"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WienerFilter.check_volume">[docs]</a>    <span class="k">def</span> <span class="nf">check_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;ensures volume of filtered signal is within the bounds of the original</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">max_orig</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">samples</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">control_volume</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_vol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span><span class="p">)</span>
+        <span class="n">samples</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">control_volume</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_vol</span><span class="p">)</span>
         <span class="n">max_adjusted</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">samples</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">max_orig</span> <span class="o">!=</span> <span class="n">max_adjusted</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;volume adjusted from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">max_orig</span><span class="p">,</span> <span class="n">max_adjusted</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">samples</span></div>
 
-<div class="viewcode-block" id="WienerFilter.save_filtered_signal"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WienerFilter.save_filtered_signal">[docs]</a>    <span class="k">def</span> <span class="nf">save_filtered_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="n">saved</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">save_wave</span><span class="p">(</span>
-            <span class="n">output_file</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplerate</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
+<div class="viewcode-block" id="WienerFilter.save_filtered_signal"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WienerFilter.save_filtered_signal">[docs]</a>    <span class="k">def</span> <span class="nf">save_filtered_signal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_file</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">saved</span><span class="p">,</span> <span class="n">filename</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">save_wave</span><span class="p">(</span>
+            <span class="n">output_file</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sr</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="n">overwrite</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">saved</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Wavfile saved under: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -251,47 +296,117 @@
             <span class="k">return</span> <span class="kc">False</span></div></div>
 
 
-<div class="viewcode-block" id="WelchMethod"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WelchMethod">[docs]</a><span class="k">class</span> <span class="nc">WelchMethod</span><span class="p">(</span><span class="n">FilterSettings</span><span class="p">):</span>
+<div class="viewcode-block" id="WelchMethod"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WelchMethod">[docs]</a><span class="k">class</span> <span class="nc">WelchMethod</span><span class="p">(</span><span class="n">FilterSettings</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Applies Welch&#39;s method according to filter class attributes. </span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    len_noise_sec : int, float</span>
+<span class="sd">        The amount of time in seconds to use from signal to apply the</span>
+<span class="sd">        Welch&#39;s method. (default 1)</span>
+<span class="sd">    target_subframes : int, None</span>
+<span class="sd">        The number of total subsections within the total number of samples </span>
+<span class="sd">        belonging to the target signal (i.e. wavfile being filtered). Until</span>
+<span class="sd">        `target_subframes` is calculated, it is set to None. Note: if the</span>
+<span class="sd">        target signal contains time sensitive information, e.g. speech, </span>
+<span class="sd">        it is not advised to apply Welch&#39;s method as the time senstive </span>
+<span class="sd">        data would be lost. (default None) </span>
+<span class="sd">    noise_subframes : int, None</span>
+<span class="sd">        The number of total subsections within the total number of samples </span>
+<span class="sd">        belonging to the noise signal. Until `noise_subframes` is calculated, </span>
+<span class="sd">        it is set to None. (default None)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">len_noise_sec</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="n">FilterSettings</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">len_noise_sec</span> <span class="o">=</span> <span class="n">len_noise_sec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_subframes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_subframes</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="WelchMethod.set_num_subframes"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WelchMethod.set_num_subframes">[docs]</a>    <span class="k">def</span> <span class="nf">set_num_subframes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">len_samples</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;calculate and set number of subframes required to process total samples</span>
+<div class="viewcode-block" id="WelchMethod.set_num_subframes"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WelchMethod.set_num_subframes">[docs]</a>    <span class="k">def</span> <span class="nf">set_num_subframes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">len_samples</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculate and set num subframes required to process all samples.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        len_samples : int </span>
+<span class="sd">            Number of total samples in signal.</span>
+<span class="sd">        noise : bool </span>
+<span class="sd">            If True, the class attribute `noise_subframes` will be set; if</span>
+<span class="sd">            False, the class attribute `target_subframes` will be set.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">noise</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">noise_subframes</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span><span class="n">tot_samples</span><span class="o">=</span><span class="n">len_samples</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">noise_subframes</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span><span class="n">tot_samples</span><span class="o">=</span><span class="n">len_samples</span><span class="p">,</span>
                                                           <span class="n">frame_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span><span class="p">,</span>
                                                           <span class="n">overlap_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">overlap_length</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">target_subframes</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span><span class="n">tot_samples</span><span class="o">=</span><span class="n">len_samples</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">target_subframes</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span><span class="n">tot_samples</span><span class="o">=</span><span class="n">len_samples</span><span class="p">,</span>
                                                            <span class="n">frame_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span><span class="p">,</span>
                                                            <span class="n">overlap_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">overlap_length</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="WelchMethod.get_power"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WelchMethod.get_power">[docs]</a>    <span class="k">def</span> <span class="nf">get_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">matrix2store_power</span><span class="p">):</span>
+<div class="viewcode-block" id="WelchMethod.get_power"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WelchMethod.get_power">[docs]</a>    <span class="k">def</span> <span class="nf">get_power</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="n">matrix2store_power</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Calculates and adds the power of the noise signal. </span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        samples : ndarray</span>
+<span class="sd">            The samples from the noise signal.</span>
+<span class="sd">        matrix2store_power : ndarray</span>
+<span class="sd">            Where the power values will be added to. Note:</span>
+<span class="sd">            this is to be later averaged to complete Welch&#39;s</span>
+<span class="sd">            method.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns </span>
+<span class="sd">        -------</span>
+<span class="sd">        matrix2store_power : ndarray </span>
+<span class="sd">            `matrix2store_power` with the current frame of </span>
+<span class="sd">            noise power added.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">section_start</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">noise_subframes</span><span class="p">):</span>
             <span class="n">noise_sect</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[</span><span class="n">section_start</span><span class="p">:</span><span class="n">section_start</span> <span class="o">+</span>
                                  <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span><span class="p">]</span>
-            <span class="n">noise_w_win</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">apply_window</span><span class="p">(</span><span class="n">noise_sect</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">)</span>
-            <span class="n">noise_fft</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_fft</span><span class="p">(</span><span class="n">noise_w_win</span><span class="p">)</span>
-            <span class="n">noise_power</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_power</span><span class="p">(</span><span class="n">noise_fft</span><span class="p">)</span>
+            <span class="n">noise_w_win</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">apply_window</span><span class="p">(</span><span class="n">noise_sect</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window</span><span class="p">())</span>
+            <span class="n">noise_fft</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_fft</span><span class="p">(</span><span class="n">noise_w_win</span><span class="p">)</span>
+            <span class="n">noise_power</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_power</span><span class="p">(</span><span class="n">noise_fft</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">noise_power</span><span class="p">):</span>
                 <span class="n">matrix2store_power</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">row</span>
             <span class="n">section_start</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlap_length</span>
         <span class="k">return</span> <span class="n">matrix2store_power</span></div>
 
-<div class="viewcode-block" id="WelchMethod.coll_pow_average"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.WelchMethod.coll_pow_average">[docs]</a>    <span class="k">def</span> <span class="nf">coll_pow_average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wave_list</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="n">pwspec_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
-        <span class="n">noise_powspec</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">(</span>
+<div class="viewcode-block" id="WelchMethod.coll_pow_average"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.WelchMethod.coll_pow_average">[docs]</a>    <span class="k">def</span> <span class="nf">coll_pow_average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wave_list</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Performs Welch&#39;s method on (noise) signals in `wave_list`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        wave_list : list</span>
+<span class="sd">            List of wavfiles belonging to noise class. The Welch&#39;s method</span>
+<span class="sd">            will be applied to entire noise class. </span>
+<span class="sd">        scale : float, int, optional</span>
+<span class="sd">            A value to increase or decrease the noise values. This will </span>
+<span class="sd">            result in a stronger or weaker filtering.</span>
+<span class="sd">        augment_data : bool</span>
+<span class="sd">            If True, the sound data will be augmented. Currently, this </span>
+<span class="sd">            uses three versions of each wavefile, at three different </span>
+<span class="sd">            energy levels. This is to increase representation of noise </span>
+<span class="sd">            that is quiet, mid, and loud.</span>
+<span class="sd">            </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        noise_powspec : ndarray</span>
+<span class="sd">            The average power spectrum of the entire `wave_list`</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">pwspec_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_window</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="o">+</span><span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+        <span class="n">noise_powspec</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">(</span>
             <span class="n">pwspec_shape</span><span class="p">,</span> <span class="n">complex_vals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">wav</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wave_list</span><span class="p">):</span>
-            <span class="n">n</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">load_signal</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">len_noise_sec</span><span class="p">)</span>
+            <span class="n">n</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">load_signal</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">len_noise_sec</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">augment_data</span><span class="p">:</span>
-                <span class="n">n_low</span><span class="p">,</span> <span class="n">n_mid</span><span class="p">,</span> <span class="n">n_high</span> <span class="o">=</span> <span class="n">augmentdata</span><span class="o">.</span><span class="n">spread_volumes</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
-                <span class="n">samples</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_low</span><span class="p">,</span> <span class="n">n_mid</span><span class="p">,</span> <span class="n">n_high</span><span class="p">)</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">augmentdata</span><span class="o">.</span><span class="n">spread_volumes</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">samples</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span><span class="p">,)</span>
             <span class="k">for</span> <span class="n">sampledata</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
@@ -306,34 +421,80 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Finished</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="n">tot_powspec_collected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_subframes</span> <span class="o">*</span> \
             <span class="nb">len</span><span class="p">(</span><span class="n">wave_list</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
-        <span class="n">noise_powspec</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_average_power</span><span class="p">(</span>
+        <span class="n">noise_powspec</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_average_power</span><span class="p">(</span>
             <span class="n">noise_powspec</span><span class="p">,</span> <span class="n">tot_powspec_collected</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">noise_powspec</span></div></div>
 
-<div class="viewcode-block" id="get_average_power"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.get_average_power">[docs]</a><span class="k">def</span> <span class="nf">get_average_power</span><span class="p">(</span><span class="n">class_waves_dict</span><span class="p">,</span> <span class="n">encodelabel_dict</span><span class="p">,</span>
+<div class="viewcode-block" id="get_average_power"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.get_average_power">[docs]</a><span class="k">def</span> <span class="nf">get_average_power</span><span class="p">(</span><span class="n">class_waves_dict</span><span class="p">,</span> <span class="n">encodelabel_dict</span><span class="p">,</span>
                       <span class="n">powspec_dir</span><span class="p">,</span> <span class="n">duration_sec</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Collects ave. power spectrum from audio classes; saves in .npy files</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    class_waves_dict : dict </span>
+<span class="sd">        Dictionary containing audio class labels and the wavfile paths</span>
+<span class="sd">        of the files belonging to each audio class. </span>
+<span class="sd">    encodelabel_dict : dict</span>
+<span class="sd">        Dictionary with keys matching the audio class labels and the </span>
+<span class="sd">        values matching the integer each audio class is encoded as.</span>
+<span class="sd">    powspec_dir : str, pathlib.PosixPath</span>
+<span class="sd">        Path to where average power spectrum files will be stored.</span>
+<span class="sd">    duration_sec : int, float</span>
+<span class="sd">        The length in seconds to be processed when calculating the </span>
+<span class="sd">        average power spectrum of each wavfile. (default 1)</span>
+<span class="sd">    augmentdata : bool</span>
+<span class="sd">        If True, the samples will be augmented in their energy levels</span>
+<span class="sd">        so that the sounds are represented at quiet, mid, and loud </span>
+<span class="sd">        levels. If False, no augmentation will take place. </span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">avspec</span> <span class="o">=</span> <span class="n">WelchMethod</span><span class="p">(</span><span class="n">len_noise_sec</span><span class="o">=</span><span class="n">duration_sec</span><span class="p">)</span>
-    <span class="n">avspec</span><span class="o">.</span><span class="n">set_num_subframes</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">avspec</span><span class="o">.</span><span class="n">len_noise_sec</span> <span class="o">*</span> <span class="n">avspec</span><span class="o">.</span><span class="n">samplerate</span><span class="p">),</span>
+    <span class="n">avspec</span><span class="o">.</span><span class="n">set_num_subframes</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">avspec</span><span class="o">.</span><span class="n">len_noise_sec</span> <span class="o">*</span> <span class="n">avspec</span><span class="o">.</span><span class="n">sr</span><span class="p">),</span>
                              <span class="n">noise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">total_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">class_waves_dict</span><span class="p">)</span>
     <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">class_waves_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Processing class </span><span class="si">{}</span><span class="s1"> out of </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">count</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_classes</span><span class="p">))</span>
         <span class="c1"># value = str(waves list)</span>
-        <span class="n">wave_list</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">string2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">wave_list</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">string2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">noise_powspec</span> <span class="o">=</span> <span class="n">avspec</span><span class="o">.</span><span class="n">coll_pow_average</span><span class="p">(</span><span class="n">wave_list</span><span class="p">,</span>
                                                 <span class="n">augment_data</span><span class="o">=</span><span class="n">augment_data</span><span class="p">)</span>
         <span class="n">path2save</span> <span class="o">=</span> <span class="n">powspec_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
             <span class="c1"># key is str label of class--&gt; encoded integer</span>
             <span class="s1">&#39;powspec_noise_</span><span class="si">{}</span><span class="s1">.npy&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">encodelabel_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
-        <span class="n">pathorg</span><span class="o">.</span><span class="n">save_feature_data</span><span class="p">(</span><span class="n">path2save</span><span class="p">,</span> <span class="n">noise_powspec</span><span class="p">)</span>
+        <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">save_feature_data</span><span class="p">(</span><span class="n">path2save</span><span class="p">,</span> <span class="n">noise_powspec</span><span class="p">)</span>
         <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="calc_audioclass_powerspecs"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.calc_audioclass_powerspecs">[docs]</a><span class="k">def</span> <span class="nf">calc_audioclass_powerspecs</span><span class="p">(</span><span class="n">filter_class</span><span class="p">,</span> <span class="n">feature_class</span><span class="p">,</span> <span class="n">dur_ms</span><span class="p">,</span>
+<div class="viewcode-block" id="calc_audioclass_powerspecs"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.calc_audioclass_powerspecs">[docs]</a><span class="k">def</span> <span class="nf">calc_audioclass_powerspecs</span><span class="p">(</span><span class="n">path_class</span><span class="p">,</span> <span class="n">dur_ms</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
                                <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="n">class_waves_dict</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">filter_class</span><span class="o">.</span><span class="n">labels_waves_path</span><span class="p">)</span>
-    <span class="n">labels_encoded_dict</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">filter_class</span><span class="o">.</span><span class="n">labels_encoded_path</span><span class="p">)</span>
+    <span class="sd">&#39;&#39;&#39;Uses class&#39;s path settings to set up Welch&#39;s method for audio classes.</span>
+<span class="sd">    </span>
+<span class="sd">    The settings applied for average power spectrum collection are also saved</span>
+<span class="sd">    in a .csv file.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_class : class</span>
+<span class="sd">        Class with attributes for necessary paths to load relevant wavfiles and </span>
+<span class="sd">        save average power spectrum values.</span>
+<span class="sd">    dur_ms : int, float</span>
+<span class="sd">        Time in milliseconds for the Welch&#39;s method / average power spectrum</span>
+<span class="sd">        calculation to be applied for each wavfile. (default 1000)</span>
+<span class="sd">    augment_data : bool</span>
+<span class="sd">        Whether or not the sound data should be augmented. If True, the sound</span>
+<span class="sd">        data will be processed three times: with low energy, mid energy, and </span>
+<span class="sd">        high energy. (default False)</span>
+<span class="sd">        </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">class_waves_dict</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">path_class</span><span class="o">.</span><span class="n">labels_waves_path</span><span class="p">)</span>
+    <span class="n">labels_encoded_dict</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">path_class</span><span class="o">.</span><span class="n">labels_encoded_path</span><span class="p">)</span>
     <span class="n">encodelabel_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">labels_encoded_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">encodelabel_dict</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
@@ -343,25 +504,52 @@
     <span class="c1"># add number of classes to settings dictionary to check all classes get processed</span>
     <span class="n">powspec_settings</span><span class="p">[</span><span class="s1">&#39;num_audio_classes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_classes</span>
     <span class="n">powspec_settings</span><span class="p">[</span><span class="s1">&#39;processing_window_sec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dur_ms</span><span class="o">/</span><span class="mf">1000.</span>
-    <span class="n">powspec_settings_filename</span> <span class="o">=</span> <span class="n">filter_class</span><span class="o">.</span><span class="n">powspec_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-        <span class="n">filter_class</span><span class="o">.</span><span class="n">_powspec_settings</span><span class="p">)</span>
-    <span class="n">pathorg</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span><span class="n">powspec_settings</span><span class="p">,</span> <span class="n">powspec_settings_filename</span><span class="p">)</span>
+    <span class="n">powspec_settings_filename</span> <span class="o">=</span> <span class="n">path_class</span><span class="o">.</span><span class="n">powspec_path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
+        <span class="n">path_class</span><span class="o">.</span><span class="n">_powspec_settings</span><span class="p">)</span>
+    <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span><span class="n">powspec_settings</span><span class="p">,</span> <span class="n">powspec_settings_filename</span><span class="p">)</span>
 
     <span class="n">get_average_power</span><span class="p">(</span><span class="n">class_waves_dict</span><span class="p">,</span> <span class="n">encodelabel_dict</span><span class="p">,</span>
-                      <span class="n">filter_class</span><span class="o">.</span><span class="n">powspec_path</span><span class="p">,</span>
+                      <span class="n">path_class</span><span class="o">.</span><span class="n">powspec_path</span><span class="p">,</span>
                       <span class="n">duration_sec</span><span class="o">=</span><span class="n">dur_ms</span><span class="o">/</span><span class="mf">1000.0</span><span class="p">,</span>
                       <span class="n">augment_data</span><span class="o">=</span><span class="n">augment_data</span><span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="coll_beg_audioclass_samps"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.coll_beg_audioclass_samps">[docs]</a><span class="k">def</span> <span class="nf">coll_beg_audioclass_samps</span><span class="p">(</span>
-    <span class="n">filter_class</span><span class="p">,</span> <span class="n">feature_class</span><span class="p">,</span> <span class="n">num_each_audioclass</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dur_ms</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
-    <span class="n">class_waves_dict</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">filter_class</span><span class="o">.</span><span class="n">labels_waves_path</span><span class="p">)</span>
-    <span class="n">labels_encoded_dict</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">filter_class</span><span class="o">.</span><span class="n">labels_encoded_path</span><span class="p">)</span>
+<div class="viewcode-block" id="coll_beg_audioclass_samps"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.coll_beg_audioclass_samps">[docs]</a><span class="k">def</span> <span class="nf">coll_beg_audioclass_samps</span><span class="p">(</span><span class="n">path_class</span><span class="p">,</span> 
+                              <span class="n">feature_class</span><span class="p">,</span> 
+                              <span class="n">num_each_audioclass</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
+                              <span class="n">dur_ms</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Saves `dur_ms` of `num_each_audioclass` wavfiles of each audio class.</span>
+<span class="sd">    </span>
+<span class="sd">    This is an option for using noise data that comes from an audio class but is </span>
+<span class="sd">    not an average of the entire class. It is raw sample data from one or more </span>
+<span class="sd">    random noise wavfiles from each class. </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    path_class : class</span>
+<span class="sd">        Class with attributes for necessary paths to load relevant wavfiles and </span>
+<span class="sd">        save sample values.</span>
+<span class="sd">    feature_class : class</span>
+<span class="sd">        Class with attributes for sampling rate used in feature extraction and/or </span>
+<span class="sd">        filtering. This is useful to maintain consistency in sampling rate</span>
+<span class="sd">        throughout the modules.</span>
+<span class="sd">    num_each_audioclass : int </span>
+<span class="sd">        The number of random wavfiles from each audio class chosen for raw </span>
+<span class="sd">        sample collection. (default 1)</span>
+<span class="sd">    dur_ms : int, float</span>
+<span class="sd">        Time in milliseconds of raw sample data to be saved. (default 1000)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">class_waves_dict</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">path_class</span><span class="o">.</span><span class="n">labels_waves_path</span><span class="p">)</span>
+    <span class="n">labels_encoded_dict</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">path_class</span><span class="o">.</span><span class="n">labels_encoded_path</span><span class="p">)</span>
     <span class="n">encodelabel_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">labels_encoded_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">encodelabel_dict</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">class_waves_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">wavlist</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">string2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">wavlist</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">string2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">label_int</span> <span class="o">=</span> <span class="n">encodelabel_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
         <span class="n">rand_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
             <span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">class_waves_dict</span><span class="p">),</span><span class="n">num_each_audioclass</span><span class="p">)</span>
@@ -369,20 +557,40 @@
         <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">rand_indices</span><span class="p">:</span>
             <span class="n">noisefiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wavlist</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
         <span class="n">get_save_begsamps</span><span class="p">(</span><span class="n">noisefiles</span><span class="p">,</span> <span class="n">label_int</span><span class="p">,</span>
-                          <span class="n">filter_class</span><span class="o">.</span><span class="n">powspec_path</span><span class="p">,</span>
+                          <span class="n">path_class</span><span class="o">.</span><span class="n">powspec_path</span><span class="p">,</span>
                           <span class="n">samplerate</span><span class="o">=</span><span class="n">feature_class</span><span class="o">.</span><span class="n">sr</span><span class="p">,</span>
                           <span class="n">dur_ms</span><span class="o">=</span><span class="n">dur_ms</span><span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="get_save_begsamps"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.filterfun.filters.get_save_begsamps">[docs]</a><span class="k">def</span> <span class="nf">get_save_begsamps</span><span class="p">(</span><span class="n">wavlist</span><span class="p">,</span><span class="n">audioclass_int</span><span class="p">,</span>
-                      <span class="n">powspec_dir</span><span class="p">,</span><span class="n">samplerate</span><span class="o">=</span><span class="mi">48000</span><span class="p">,</span><span class="n">dur_ms</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
-    <span class="n">numsamps</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span><span class="n">dur_ms</span><span class="p">,</span><span class="n">samplerate</span><span class="p">)</span>
+<div class="viewcode-block" id="get_save_begsamps"><a class="viewcode-back" href="../../../noize.filterfun.html#noize.get_save_begsamps">[docs]</a><span class="k">def</span> <span class="nf">get_save_begsamps</span><span class="p">(</span><span class="n">wavlist</span><span class="p">,</span><span class="n">audioclass_int</span><span class="p">,</span>
+                      <span class="n">powspec_dir</span><span class="p">,</span><span class="n">samplerate</span><span class="o">=</span><span class="mi">48000</span><span class="p">,</span><span class="n">dur_ms</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Saves the beginning raw samples from the wavfiles in `wavlist`.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wavlist : list</span>
+<span class="sd">        List containing paths of relevant wavfiles </span>
+<span class="sd">    audioclass_int : int</span>
+<span class="sd">        The integer the audio class is encoded as.</span>
+<span class="sd">    powspec_dir : str, pathlib.PosixPath</span>
+<span class="sd">        Path to where data relevant for audio class power spectrum data</span>
+<span class="sd">        are to be saved.</span>
+<span class="sd">    samplerate : int </span>
+<span class="sd">        The sampling rate of wavfiles. This is needed to calculate num </span>
+<span class="sd">        samples necessary to get `dur_ms` of sound. (default 48000)</span>
+<span class="sd">    dur_ms : int, float</span>
+<span class="sd">        Time in milleseconds of the wavefiles to collect and save.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">numsamps</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span><span class="n">dur_ms</span><span class="p">,</span><span class="n">samplerate</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">wav</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">wavlist</span><span class="p">):</span>
-        <span class="n">y</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">load_signal</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span><span class="n">sampling_rate</span><span class="o">=</span><span class="n">samplerate</span><span class="p">)</span>
-        <span class="n">y120</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="n">numsamps</span><span class="p">]</span>
+        <span class="n">y</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">load_signal</span><span class="p">(</span><span class="n">wav</span><span class="p">,</span><span class="n">sampling_rate</span><span class="o">=</span><span class="n">samplerate</span><span class="p">)</span>
+        <span class="n">y_beg</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:</span><span class="n">numsamps</span><span class="p">]</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">powspec_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span>
-            <span class="s1">&#39;beg120ms</span><span class="si">{}</span><span class="s1">sr_</span><span class="si">{}</span><span class="s1">_audioclass</span><span class="si">{}</span><span class="s1">.npy&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">samplerate</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span><span class="n">audioclass_int</span><span class="p">))</span>
-        <span class="n">pathorg</span><span class="o">.</span><span class="n">save_feature_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">y120</span><span class="p">)</span>
+            <span class="s1">&#39;beg</span><span class="si">{}</span><span class="s1">ms</span><span class="si">{}</span><span class="s1">sr_</span><span class="si">{}</span><span class="s1">_audioclass</span><span class="si">{}</span><span class="s1">.npy&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dur_ms</span><span class="p">,</span> 
+                                                     <span class="n">samplerate</span><span class="p">,</span> 
+                                                     <span class="n">i</span><span class="p">,</span>
+                                                     <span class="n">audioclass_int</span><span class="p">))</span>
+        <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">save_feature_data</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">y_beg</span><span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 </pre></div>
 

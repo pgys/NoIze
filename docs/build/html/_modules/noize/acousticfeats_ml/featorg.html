@@ -53,17 +53,24 @@
 <span class="c1"># along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
 
 <span class="c1">###############################################################################</span>
-<span class="kn">import</span> <span class="nn">os</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">random</span> <span class="k">import</span> <span class="n">shuffle</span>
 <span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">math</span> 
 
-<span class="kn">from</span> <span class="nn">..file_architecture</span> <span class="k">import</span> <span class="n">paths</span> <span class="k">as</span> <span class="n">pathorg</span>
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="k">import</span> <span class="n">notsufficientdata_error</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="n">currentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+    <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
+<span class="n">parentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">currentdir</span><span class="p">)</span>
+<span class="n">noizedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">parentdir</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noizedir</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">noize</span>
 
 
-<div class="viewcode-block" id="make_number"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.featorg.make_number">[docs]</a><span class="k">def</span> <span class="nf">make_number</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="make_number"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.make_number">[docs]</a><span class="k">def</span> <span class="nf">make_number</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;If possibe, turns a string into an int, float, or None value.</span>
 
 <span class="sd">    This is useful when loading values from a dictionary that are </span>
@@ -86,23 +93,23 @@
 <span class="sd">    ----------</span>
 <span class="sd">    &gt;&gt;&gt; type_int = make_number(&#39;5&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; type(type_int) </span>
-<span class="sd">    int</span>
+<span class="sd">    &lt;class &#39;int&#39;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; type_int </span>
 <span class="sd">    5</span>
 <span class="sd">    &gt;&gt;&gt; type_float = make_number(&#39;0.45&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; type(type_float) </span>
-<span class="sd">    float</span>
+<span class="sd">    &lt;class &#39;float&#39;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; type_float </span>
 <span class="sd">    0.45</span>
 <span class="sd">    &gt;&gt;&gt; type_none = make_number(&#39;&#39;)</span>
 <span class="sd">    &gt;&gt;&gt; type(type_none) </span>
-<span class="sd">    NoneType</span>
+<span class="sd">    &lt;class &#39;NoneType&#39;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; type_none </span>
 <span class="sd">    &gt;&gt;&gt;</span>
 <span class="sd">    &gt;&gt;&gt; type_str = make_number(&#39;53d&#39;)</span>
-<span class="sd">    &#39;Value cannot be converted to a number.&#39;</span>
+<span class="sd">    Value cannot be converted to a number.</span>
 <span class="sd">    &gt;&gt;&gt; type(type_str) </span>
-<span class="sd">    str</span>
+<span class="sd">    &lt;class &#39;str&#39;&gt;</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
@@ -124,7 +131,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="setup_audioclass_dicts"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.featorg.setup_audioclass_dicts">[docs]</a><span class="k">def</span> <span class="nf">setup_audioclass_dicts</span><span class="p">(</span><span class="n">audio_classes_dir</span><span class="p">,</span> <span class="n">encoded_labels_path</span><span class="p">,</span> <span class="n">label_waves_path</span><span class="p">,</span>
+<div class="viewcode-block" id="setup_audioclass_dicts"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.setup_audioclass_dicts">[docs]</a><span class="k">def</span> <span class="nf">setup_audioclass_dicts</span><span class="p">(</span><span class="n">audio_classes_dir</span><span class="p">,</span> <span class="n">encoded_labels_path</span><span class="p">,</span> <span class="n">label_waves_path</span><span class="p">,</span>
                            <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Saves dictionaries containing encoded label and audio class wavfiles.</span>
 
@@ -149,15 +156,15 @@
 <span class="sd">        Dictionary containing the string labels as keys and encoded </span>
 <span class="sd">        integers as values.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">paths</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">collect_audio_and_labels</span><span class="p">(</span><span class="n">audio_classes_dir</span><span class="p">)</span>
+    <span class="n">paths</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">collect_audio_and_labels</span><span class="p">(</span><span class="n">audio_classes_dir</span><span class="p">)</span>
     <span class="n">label2int_dict</span><span class="p">,</span> <span class="n">int2label_dict</span> <span class="o">=</span> <span class="n">create_dicts_labelsencoded</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
-    <span class="n">__</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span><span class="n">int2label_dict</span><span class="p">,</span> <span class="n">encoded_labels_path</span><span class="p">)</span>
+    <span class="n">__</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span><span class="n">int2label_dict</span><span class="p">,</span> <span class="n">encoded_labels_path</span><span class="p">)</span>
     <span class="n">label2audiofiles_dict</span> <span class="o">=</span> <span class="n">create_label2audio_dict</span><span class="p">(</span>
         <span class="nb">set</span><span class="p">(</span><span class="n">labels</span><span class="p">),</span> <span class="n">paths</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span>
-    <span class="n">__</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span><span class="n">label2audiofiles_dict</span><span class="p">,</span> <span class="n">label_waves_path</span><span class="p">)</span>
+    <span class="n">__</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span><span class="n">label2audiofiles_dict</span><span class="p">,</span> <span class="n">label_waves_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">label2int_dict</span></div>
 
-<div class="viewcode-block" id="create_label2audio_dict"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.featorg.create_label2audio_dict">[docs]</a><span class="k">def</span> <span class="nf">create_label2audio_dict</span><span class="p">(</span><span class="n">labels_set</span><span class="p">,</span> <span class="n">paths_list</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
+<div class="viewcode-block" id="create_label2audio_dict"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.create_label2audio_dict">[docs]</a><span class="k">def</span> <span class="nf">create_label2audio_dict</span><span class="p">(</span><span class="n">labels_set</span><span class="p">,</span> <span class="n">paths_list</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Creates dictionary with audio labels as keys and filename lists as values.</span>
 
 <span class="sd">    If no label is found in the filename path, the label is not included</span>
@@ -182,7 +189,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    label_waves_dict : dict</span>
+<span class="sd">    label_waves_dict : OrderedDict</span>
 <span class="sd">        A dictionary with audio labels as keys with values being the audio files </span>
 <span class="sd">        corresponding to that label</span>
 
@@ -190,32 +197,37 @@
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from pathlib import Path</span>
 <span class="sd">    &gt;&gt;&gt; labels = set([&#39;vacuum&#39;,&#39;fridge&#39;,&#39;wind&#39;])</span>
-<span class="sd">    &gt;&gt;&gt; paths = [Path(&#39;data/audio/vacuum/vacuum1.wav&#39;), Path(&#39;data/audio/fridge/fridge1.wav&#39;), Path(&#39;data/audio/vacuum/vacuum2.wav&#39;),Path(&#39;data/audio/wind/wind1.wav&#39;)]</span>
+<span class="sd">    &gt;&gt;&gt; paths = [Path(&#39;data/audio/vacuum/vacuum1.wav&#39;), </span>
+<span class="sd">    ...         Path(&#39;data/audio/fridge/fridge1.wav&#39;), </span>
+<span class="sd">    ...         Path(&#39;data/audio/vacuum/vacuum2.wav&#39;),</span>
+<span class="sd">    ...         Path(&#39;data/audio/wind/wind1.wav&#39;)]</span>
 <span class="sd">    &gt;&gt;&gt; label_waves_dict = create_label2audio_dict(labels, paths)</span>
 <span class="sd">    &gt;&gt;&gt; label_waves_dict</span>
-<span class="sd">    {&#39;fridge&#39;: [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)],</span>
-<span class="sd">     &#39;wind&#39;: [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)],</span>
-<span class="sd">     &#39;vacuum&#39;: [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;),</span>
-<span class="sd">      PosixPath(&#39;data/audio/vacuum/vacuum2.wav&#39;)]}</span>
+<span class="sd">    OrderedDict([(&#39;fridge&#39;, [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)]), \</span>
+<span class="sd">(&#39;vacuum&#39;, [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;), \</span>
+<span class="sd">PosixPath(&#39;data/audio/vacuum/vacuum2.wav&#39;)]), \</span>
+<span class="sd">(&#39;wind&#39;, [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)])])</span>
 <span class="sd">    &gt;&gt;&gt; #to set a limit on number of audiofiles per class:</span>
-<span class="sd">    &gt;&gt;&gt; create_label2audio_dict(labels,path, limit=1, seed=40)</span>
-<span class="sd">    {&#39;fridge&#39;: [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)],</span>
-<span class="sd">     &#39;wind&#39;: [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)],</span>
-<span class="sd">     &#39;vacuum&#39;: [PosixPath(&#39;data/audio/vacuum/vacuum2.wav&#39;)]}</span>
-<span class="sd">     &gt;&gt;&gt; #change the limited pathways chosen:</span>
-<span class="sd">    &gt;&gt;&gt; create_label2audio_dict(labels,path, limit=1, seed=10)</span>
-<span class="sd">    {&#39;fridge&#39;: [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)],</span>
-<span class="sd">     &#39;wind&#39;: [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)],</span>
-<span class="sd">     &#39;vacuum&#39;: [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;)]}</span>
+<span class="sd">    &gt;&gt;&gt; create_label2audio_dict(labels, paths, limit=1, seed=40)</span>
+<span class="sd">    OrderedDict([(&#39;fridge&#39;, [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)]), \</span>
+<span class="sd">(&#39;vacuum&#39;, [PosixPath(&#39;data/audio/vacuum/vacuum2.wav&#39;)]), \</span>
+<span class="sd">(&#39;wind&#39;, [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)])])</span>
+<span class="sd">    &gt;&gt;&gt; #change the limited pathways chosen:</span>
+<span class="sd">    &gt;&gt;&gt; create_label2audio_dict(labels, paths, limit=1, seed=10)</span>
+<span class="sd">    OrderedDict([(&#39;fridge&#39;, [PosixPath(&#39;data/audio/fridge/fridge1.wav&#39;)]), \</span>
+<span class="sd">(&#39;vacuum&#39;, [PosixPath(&#39;data/audio/vacuum/vacuum1.wav&#39;)]), \</span>
+<span class="sd">(&#39;wind&#39;, [PosixPath(&#39;data/audio/wind/wind1.wav&#39;)])])</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labels_set</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labels_set</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="s1">&#39;Expected labels list as type set or list, not type </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">labels_set</span><span class="p">)))</span>
+            <span class="s1">&#39;Expected labels list as type set or list, not type </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span>
+                <span class="n">labels_set</span><span class="p">)))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">paths_list</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">paths_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="s1">&#39;Expected paths list as type set or list, not type </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">paths_list</span><span class="p">)))</span>
-    <span class="n">label_waves_dict</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels_set</span><span class="p">:</span>
+            <span class="s1">&#39;Expected paths list as type set or list, not type </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span>
+                <span class="n">paths_list</span><span class="p">)))</span>
+    <span class="n">label_waves_dict</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels_set</span><span class="p">):</span>
         <span class="c1"># expects name of parent directory to match label</span>
         <span class="n">label_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths_list</span> <span class="k">if</span>
                        <span class="n">label</span> <span class="o">==</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
@@ -233,7 +245,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;No matching labels found in paths list.&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">label_waves_dict</span></div>
 
-<div class="viewcode-block" id="create_dicts_labelsencoded"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.featorg.create_dicts_labelsencoded">[docs]</a><span class="k">def</span> <span class="nf">create_dicts_labelsencoded</span><span class="p">(</span><span class="n">labels_class</span><span class="p">):</span>
+<div class="viewcode-block" id="create_dicts_labelsencoded"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.create_dicts_labelsencoded">[docs]</a><span class="k">def</span> <span class="nf">create_dicts_labelsencoded</span><span class="p">(</span><span class="n">labels_class</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Encodes audio class labels and saves in dictionaries.</span>
 
 <span class="sd">    The labels are alphabetized and encoded under their index.</span>
@@ -263,7 +275,8 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labels_class</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">labels_class</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="s1">&#39;Expected inputs as type set or list, not type </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">labels_class</span><span class="p">)))</span>
+            <span class="s1">&#39;Expected inputs as type set or list, not type </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span>
+                <span class="n">labels_class</span><span class="p">)))</span>
     <span class="n">labels_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">labels_class</span><span class="p">))</span>
     <span class="n">dict_label2int</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">dict_int2label</span> <span class="o">=</span> <span class="p">{}</span>
@@ -272,7 +285,7 @@
         <span class="n">dict_int2label</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
     <span class="k">return</span> <span class="n">dict_label2int</span><span class="p">,</span> <span class="n">dict_int2label</span></div>
 
-<div class="viewcode-block" id="waves2dataset"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.featorg.waves2dataset">[docs]</a><span class="k">def</span> <span class="nf">waves2dataset</span><span class="p">(</span><span class="n">audiolist</span><span class="p">,</span> <span class="n">train_perc</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
+<div class="viewcode-block" id="waves2dataset"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.waves2dataset">[docs]</a><span class="k">def</span> <span class="nf">waves2dataset</span><span class="p">(</span><span class="n">audiolist</span><span class="p">,</span> <span class="n">train_perc</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Organizes audio files list into train, validation and test datasets.</span>
 
 <span class="sd">    Parameters</span>
@@ -335,7 +348,7 @@
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_waves</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">val_waves</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">test_waves</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">audiolist</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">train_waves</span><span class="p">,</span> <span class="n">val_waves</span><span class="p">,</span> <span class="n">test_waves</span></div>
 
-<div class="viewcode-block" id="audio2datasets"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.featorg.audio2datasets">[docs]</a><span class="k">def</span> <span class="nf">audio2datasets</span><span class="p">(</span><span class="n">audio_classes_dir</span><span class="p">,</span> <span class="n">encoded_labels_path</span><span class="p">,</span>
+<div class="viewcode-block" id="audio2datasets"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.audio2datasets">[docs]</a><span class="k">def</span> <span class="nf">audio2datasets</span><span class="p">(</span><span class="n">audio_classes_dir</span><span class="p">,</span> <span class="n">encoded_labels_path</span><span class="p">,</span>
                    <span class="n">label_wavfiles_path</span><span class="p">,</span> <span class="n">perc_train</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Organizes all audio in audio class directories into datasets.</span>
 
@@ -360,7 +373,8 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dataset_audio : tuple</span>
-<span class="sd">        Named tuple including three lists of tuples: the train, validation, and test lists, respectively. The tuples within the lists contain</span>
+<span class="sd">        Named tuple including three lists of tuples: the train, validation, </span>
+<span class="sd">        and test lists, respectively. The tuples within the lists contain</span>
 <span class="sd">        the encoded label integer (e.g. 0 instead of &#39;air_conditioner&#39;) and</span>
 <span class="sd">        the audio paths associated to that class and dataset.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -380,11 +394,11 @@
             <span class="n">encoded_labels_path</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Loading preexisting label and wavfiles file: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">label_wavfiles_path</span><span class="p">))</span>
-        <span class="n">encodelabels_dict_inverted</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">encoded_labels_path</span><span class="p">)</span>
+        <span class="n">encodelabels_dict_inverted</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">encoded_labels_path</span><span class="p">)</span>
         <span class="n">label2int</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">encodelabels_dict_inverted</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">label2int</span><span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="n">key</span>
-        <span class="n">class_waves_dict</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">label_wavfiles_path</span><span class="p">)</span>
+        <span class="n">class_waves_dict</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">label_wavfiles_path</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;audio_classes_dir&#39;</span><span class="p">:</span> <span class="n">audio_classes_dir</span><span class="p">,</span>
                   <span class="s1">&#39;encoded_labels_path&#39;</span><span class="p">:</span> <span class="n">encoded_labels_path</span><span class="p">,</span>
@@ -392,14 +406,14 @@
                   <span class="s1">&#39;limit&#39;</span><span class="p">:</span> <span class="n">limit</span><span class="p">}</span>
         <span class="n">label2int</span> <span class="o">=</span> <span class="n">setup_audioclass_dicts</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># load the just created label to wavfiles dictionary</span>
-        <span class="n">class_waves_dict</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">label_wavfiles_path</span><span class="p">)</span>
+        <span class="n">class_waves_dict</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">label_wavfiles_path</span><span class="p">)</span>
     <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">train</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">val</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">test</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">class_waves_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">audiolist</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">string2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">audiolist</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">string2list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">train_waves</span><span class="p">,</span> <span class="n">val_waves</span><span class="p">,</span> <span class="n">test_waves</span> <span class="o">=</span> <span class="n">waves2dataset</span><span class="p">(</span><span class="n">audiolist</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">wave</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">train_waves</span><span class="p">):</span>
@@ -416,15 +430,20 @@
     <span class="n">shuffle</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
     <span class="c1"># esure the number of training data is 80% of all available audiodata:</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">))</span><span class="o">*</span><span class="n">perc_train</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">notsufficientdata_error</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">),</span>
+        <span class="k">raise</span> <span class="n">noize</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">notsufficientdata_error</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">),</span>
                                       <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">),</span>
                                       <span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">),</span>
-                                      <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">))</span><span class="o">*</span><span class="n">perc_train</span><span class="p">))</span>
+                                      <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span>
+                                          <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="p">))</span><span class="o">*</span><span class="n">perc_train</span><span class="p">))</span>
     <span class="n">TrainingData</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s1">&#39;TrainingData&#39;</span><span class="p">,</span>
                                           <span class="p">[</span><span class="s1">&#39;train_data&#39;</span><span class="p">,</span> <span class="s1">&#39;val_data&#39;</span><span class="p">,</span> <span class="s1">&#39;test_data&#39;</span><span class="p">])</span>
     <span class="n">dataset_audio</span> <span class="o">=</span> <span class="n">TrainingData</span><span class="p">(</span>
         <span class="n">train_data</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">val_data</span><span class="o">=</span><span class="n">val</span><span class="p">,</span> <span class="n">test_data</span><span class="o">=</span><span class="n">test</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataset_audio</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
 </pre></div>
 
           </div>

@@ -53,12 +53,20 @@
 <span class="c1"># along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
 
 <span class="c1">###############################################################################</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 
-<span class="kn">from</span> <span class="nn">noize.file_architecture.paths</span> <span class="k">import</span> <span class="n">PathSetup</span>
-<span class="kn">from</span> <span class="nn">noize.acousticfeats_ml.modelfeats</span> <span class="k">import</span> <span class="n">loadfeature_settings</span><span class="p">,</span> <span class="n">prepfeatures</span>
-<span class="kn">from</span> <span class="nn">noize.models.cnn</span> <span class="k">import</span> <span class="n">ClassifySound</span><span class="p">,</span> <span class="n">loadclassifier</span><span class="p">,</span> <span class="n">buildclassifier</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="n">currentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+    <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
+<span class="n">noizedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">currentdir</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noizedir</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">noize</span>
+<span class="kn">import</span> <span class="nn">noize.models</span> <span class="k">as</span> <span class="nn">models</span>
+
+
+
 <span class="kn">from</span> <span class="nn">noize.filterfun.filters</span> <span class="k">import</span> <span class="n">calc_audioclass_powerspecs</span><span class="p">,</span>\
     <span class="n">coll_beg_audioclass_samps</span>
 <span class="kn">from</span> <span class="nn">noize.filterfun.applyfilter</span> <span class="k">import</span> <span class="n">filtersignal</span>
@@ -71,15 +79,16 @@
                   <span class="n">apply_postfilter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                   <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                   <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">use_rand_noisefile</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">use_rand_noisefile</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                   <span class="n">force_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                  <span class="n">classify_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                  <span class="n">classify_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">max_vol</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Applies feature prep, model training, and filtering to wavfile.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">scale</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;scale cannot be set to 0&#39;</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
-    <span class="n">my_filter</span> <span class="o">=</span> <span class="n">PathSetup</span><span class="p">(</span><span class="n">name_dataset</span><span class="p">,</span>
+    <span class="n">my_filter</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">PathSetup</span><span class="p">(</span><span class="n">name_dataset</span><span class="p">,</span>
                           <span class="n">headpath</span><span class="p">,</span>
                           <span class="n">audio_classes_dir</span><span class="p">,</span>
                           <span class="n">feature_type</span><span class="o">=</span><span class="n">feature_type</span><span class="p">,</span>
@@ -98,10 +107,10 @@
                 <span class="n">my_filter</span><span class="o">.</span><span class="n">features</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Features have been extracted.&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Loading corresponding feature settings.&#39;</span><span class="p">)</span>
-        <span class="n">prep_feats</span> <span class="o">=</span> <span class="n">loadfeature_settings</span><span class="p">(</span><span class="n">my_filter</span><span class="p">)</span>
+        <span class="n">prep_feats</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">getfeatsettings</span><span class="p">(</span><span class="n">my_filter</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">audio_classes_dir</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Extracting dataset features --&gt; train.npy, val.npy, test.npy&#39;</span><span class="p">)</span>
-        <span class="n">prep_feats</span><span class="p">,</span> <span class="n">my_filter</span> <span class="o">=</span> <span class="n">prepfeatures</span><span class="p">(</span>
+        <span class="n">prep_feats</span><span class="p">,</span> <span class="n">my_filter</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">run_featprep</span><span class="p">(</span>
             <span class="n">my_filter</span><span class="p">,</span>
             <span class="n">feature_type</span><span class="o">=</span><span class="n">feature_type</span><span class="p">,</span>
             <span class="n">num_filters</span><span class="o">=</span><span class="n">num_filters</span><span class="p">,</span>
@@ -120,16 +129,18 @@
     <span class="k">if</span> <span class="n">my_filter</span><span class="o">.</span><span class="n">powspec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">use_rand_noisefile</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Conducting Welch&#39;s method on each class in dataset..&quot;</span><span class="p">)</span>
-            <span class="n">calc_audioclass_powerspecs</span><span class="p">(</span><span class="n">my_filter</span><span class="p">,</span> <span class="n">prep_feats</span><span class="p">,</span> <span class="n">segment_length_ms</span><span class="p">,</span>
+            <span class="n">noize</span><span class="o">.</span><span class="n">welch2class</span><span class="p">(</span><span class="n">my_filter</span><span class="p">,</span> <span class="n">segment_length_ms</span><span class="p">,</span>
                                     <span class="n">augment_data</span><span class="o">=</span><span class="n">augment_data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">files_per_audioclass</span><span class="o">=</span><span class="mi">1</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Saving beg 120ms from </span><span class="si">{}</span><span class="s2"> files from each audioclass.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">dur_ms</span> <span class="o">=</span> <span class="mi">1000</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Saving beg </span><span class="si">{}</span><span class="s2">ms from </span><span class="si">{}</span><span class="s2"> files from each audioclass.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">dur_ms</span><span class="p">,</span>
                 <span class="n">files_per_audioclass</span><span class="p">))</span>
-            <span class="n">coll_beg_audioclass_samps</span><span class="p">(</span><span class="n">my_filter</span><span class="p">,</span> 
-                                        <span class="n">prep_feats</span><span class="p">,</span> 
-                                        <span class="n">num_each_audioclass</span><span class="o">=</span><span class="n">files_per_audioclass</span><span class="p">,</span>
-                                        <span class="n">dur_ms</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+            <span class="n">noize</span><span class="o">.</span><span class="n">save_class_noise</span><span class="p">(</span><span class="n">my_filter</span><span class="p">,</span> 
+                            <span class="n">prep_feats</span><span class="p">,</span> 
+                            <span class="n">num_each_audioclass</span><span class="o">=</span><span class="n">files_per_audioclass</span><span class="p">,</span>
+                            <span class="n">dur_ms</span><span class="o">=</span><span class="n">dur_ms</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Noise class data extraction already performed on this dataset.&quot;</span><span class="p">)</span>
 
@@ -137,7 +148,7 @@
     <span class="k">if</span> <span class="n">my_filter</span><span class="o">.</span><span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
             <span class="ow">and</span> <span class="n">feat_dir</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">my_filter</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Loading previously trained scene classifier.&#39;</span><span class="p">)</span>
-        <span class="n">scene</span> <span class="o">=</span> <span class="n">loadclassifier</span><span class="p">(</span><span class="n">my_filter</span><span class="p">)</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">loadclassifier</span><span class="p">(</span><span class="n">my_filter</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Now training scene classifier with train, val, test datasets.&#39;</span><span class="p">)</span>
         <span class="c1"># check for file conflicts</span>
@@ -145,13 +156,13 @@
         <span class="k">if</span> <span class="n">no_conflicts</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="s1">&#39;Program cannot run.</span><span class="se">\</span>
 <span class="s1">                </span><span class="se">\n</span><span class="s1">Move the conflicting files or change project name.&#39;</span><span class="p">)</span>
-        <span class="n">scene</span> <span class="o">=</span> <span class="n">buildclassifier</span><span class="p">(</span><span class="n">my_filter</span><span class="p">)</span>
+        <span class="n">scene</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">buildclassifier</span><span class="p">(</span><span class="n">my_filter</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">classify_noise</span><span class="p">:</span>
         <span class="c1"># Smart filtering begins:</span>
         <span class="c1"># Work with new audiofile: classify the background noise and</span>
         <span class="c1"># filter it out</span>
-        <span class="n">env</span> <span class="o">=</span> <span class="n">ClassifySound</span><span class="p">(</span><span class="n">sounddata</span><span class="p">,</span> <span class="n">my_filter</span><span class="p">,</span> <span class="n">prep_feats</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
+        <span class="n">env</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ClassifySound</span><span class="p">(</span><span class="n">sounddata</span><span class="p">,</span> <span class="n">my_filter</span><span class="p">,</span> <span class="n">prep_feats</span><span class="p">,</span> <span class="n">scene</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">force_label</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">force_label</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
             <span class="n">encoded_labels</span> <span class="o">=</span> <span class="n">scene</span><span class="o">.</span><span class="n">load_labels</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">encoded_labels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -197,11 +208,12 @@
         <span class="n">outputname</span> <span class="o">=</span> <span class="n">outputname</span><span class="o">+</span><span class="s1">&#39;.wav&#39;</span>
 
     <span class="n">filtersignal</span><span class="p">(</span>
-        <span class="n">output_file</span><span class="o">=</span><span class="n">my_filter</span><span class="o">.</span><span class="n">features_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">outputname</span><span class="p">),</span>
-        <span class="n">wavfile</span><span class="o">=</span><span class="n">sounddata</span><span class="p">,</span>
-        <span class="n">noise_file</span><span class="o">=</span><span class="n">noise_powspec</span><span class="p">,</span>
-        <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span>
-        <span class="n">apply_postfilter</span><span class="o">=</span><span class="n">apply_postfilter</span><span class="p">)</span>
+        <span class="n">output_filename</span> <span class="o">=</span> <span class="n">my_filter</span><span class="o">.</span><span class="n">features_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">outputname</span><span class="p">),</span>
+        <span class="n">wavfile</span> <span class="o">=</span> <span class="n">sounddata</span><span class="p">,</span>
+        <span class="n">noise_file</span> <span class="o">=</span> <span class="n">noise_powspec</span><span class="p">,</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span><span class="p">,</span>
+        <span class="n">apply_postfilter</span> <span class="o">=</span> <span class="n">apply_postfilter</span><span class="p">,</span>
+        <span class="n">max_vol</span> <span class="o">=</span> <span class="n">max_vol</span><span class="p">)</span>
     
     <span class="k">return</span> <span class="n">my_filter</span><span class="o">.</span><span class="n">features_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">outputname</span><span class="p">)</span></div>
 </pre></div>

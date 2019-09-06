@@ -334,8 +334,8 @@
 
 
 <div class="viewcode-block" id="ClassifySound"><a class="viewcode-back" href="../../../noize.models.html#noize.models.cnn.ClassifySound">[docs]</a><span class="k">class</span> <span class="nc">ClassifySound</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soundata</span><span class="p">,</span> <span class="n">filter_class</span><span class="p">,</span> <span class="n">feature_class</span><span class="p">,</span> <span class="n">model_class</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">soundata</span> <span class="o">=</span> <span class="n">soundata</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sounddata</span><span class="p">,</span> <span class="n">filter_class</span><span class="p">,</span> <span class="n">feature_class</span><span class="p">,</span> <span class="n">model_class</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sounddata</span> <span class="o">=</span> <span class="n">sounddata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature_settings</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span>
             <span class="n">pathorg</span><span class="o">.</span><span class="n">load_settings_file</span><span class="p">(</span><span class="n">model_class</span><span class="o">.</span><span class="n">features_dir</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modelsettings</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">model_class</span><span class="o">.</span><span class="n">modelsettings_path</span><span class="p">)</span>
@@ -374,7 +374,7 @@
         <span class="n">get_feats</span> <span class="o">=</span> <span class="n">modelfeats</span><span class="o">.</span><span class="n">loadfeature_settings</span><span class="p">(</span>
             <span class="n">prev_featextraction_settings_dict</span><span class="p">)</span>
         <span class="n">dur_sec</span> <span class="o">=</span> <span class="n">get_feats</span><span class="o">.</span><span class="n">training_segment_ms</span><span class="o">/</span><span class="mi">1000</span>
-        <span class="n">feats</span> <span class="o">=</span> <span class="n">get_feats</span><span class="o">.</span><span class="n">extractfeats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soundata</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="n">dur_sec</span><span class="p">,</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">get_feats</span><span class="o">.</span><span class="n">extractfeats</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sounddata</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="n">dur_sec</span><span class="p">,</span>
                                        <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">feats</span></div>
 

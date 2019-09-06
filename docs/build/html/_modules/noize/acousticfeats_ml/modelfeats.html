@@ -53,16 +53,21 @@
 <span class="c1"># along with the NoIze-framework. If not, see http://www.gnu.org/licenses/.</span>
 
 <span class="c1">###############################################################################</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">pathlib</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">featorg</span>
-<span class="kn">from</span> <span class="nn">..mathfun</span> <span class="k">import</span> <span class="n">dsp</span><span class="p">,</span> <span class="n">matrixfun</span><span class="p">,</span> <span class="n">augmentdata</span>
-<span class="kn">from</span> <span class="nn">..file_architecture</span> <span class="k">import</span> <span class="n">paths</span> <span class="k">as</span> <span class="n">pathorg</span>
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="n">currentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span>
+    <span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())))</span>
+<span class="n">parentdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">currentdir</span><span class="p">)</span>
+<span class="n">noizedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">parentdir</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">noizedir</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">noize</span>
 
 
-<div class="viewcode-block" id="PrepFeatures"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.PrepFeatures">[docs]</a><span class="k">class</span> <span class="nc">PrepFeatures</span><span class="p">:</span>
+<div class="viewcode-block" id="PrepFeatures"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.PrepFeatures">[docs]</a><span class="k">class</span> <span class="nc">PrepFeatures</span><span class="p">:</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">feature_type</span><span class="o">=</span><span class="s1">&#39;fbank&#39;</span><span class="p">,</span>
@@ -121,7 +126,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">window_shift</span> <span class="o">=</span> <span class="n">window_shift</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">window_shift</span> <span class="o">=</span> <span class="n">window_size</span><span class="o">/</span><span class="mf">2.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_frame_length</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span>
                                                   <span class="bp">self</span><span class="o">.</span><span class="n">sr</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fft_bins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">training_segment_ms</span> <span class="o">=</span> <span class="n">training_segment_ms</span>
@@ -137,17 +142,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">window_type</span> <span class="o">=</span> <span class="n">window_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">augment_data</span> <span class="o">=</span> <span class="n">augment_data</span>
 
-<div class="viewcode-block" id="PrepFeatures.calc_filter_image_sets"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.PrepFeatures.calc_filter_image_sets">[docs]</a>    <span class="k">def</span> <span class="nf">calc_filter_image_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PrepFeatures.calc_filter_image_sets"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.PrepFeatures.calc_filter_image_sets">[docs]</a>    <span class="k">def</span> <span class="nf">calc_filter_image_sets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        calculates how many feature sets create a full image, given window size, </span>
 <span class="sd">        window shift, and desired image length in milliseconds.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">sets</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_segment_ms</span><span class="p">,</span>
+        <span class="n">sets</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">calc_num_subframes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">training_segment_ms</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">window_shift</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sets</span></div>
 
-<div class="viewcode-block" id="PrepFeatures.get_max_samps"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.PrepFeatures.get_max_samps">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_samps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_features</span><span class="p">,</span> <span class="n">num_sets</span><span class="p">):</span>
+<div class="viewcode-block" id="PrepFeatures.get_max_samps"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.PrepFeatures.get_max_samps">[docs]</a>    <span class="k">def</span> <span class="nf">get_max_samps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_features</span><span class="p">,</span> <span class="n">num_sets</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        calculates the maximum  number of samples of a particular wave&#39;s </span>
 <span class="sd">        features that would also create a full image</span>
@@ -155,22 +160,21 @@
         <span class="n">max_num_samps</span> <span class="o">=</span> <span class="p">(</span><span class="n">filter_features</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">//</span><span class="n">num_sets</span><span class="p">)</span> <span class="o">*</span> <span class="n">num_sets</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_num_samps</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PrepFeatures.samps2feats"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.PrepFeatures.samps2feats">[docs]</a>    <span class="k">def</span> <span class="nf">samps2feats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PrepFeatures.samps2feats"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.PrepFeatures.samps2feats">[docs]</a>    <span class="k">def</span> <span class="nf">samps2feats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Gets features from section of samples, at varying volumes.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># when applying this to new data, dont&#39;t want to augment it.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">augment_data</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_data</span><span class="p">:</span>
-            <span class="n">y_low</span><span class="p">,</span> <span class="n">y_mid</span><span class="p">,</span> <span class="n">y_high</span> <span class="o">=</span> <span class="n">augmentdata</span><span class="o">.</span><span class="n">spread_volumes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-            <span class="n">samples</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_low</span><span class="p">,</span> <span class="n">y_mid</span><span class="p">,</span> <span class="n">y_high</span><span class="p">)</span>
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">augmentdata</span><span class="o">.</span><span class="n">spread_volumes</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">samples</span> <span class="o">=</span> <span class="p">(</span><span class="n">y</span><span class="p">,)</span>
-        <span class="n">feat_matrix</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">(</span>
+        <span class="n">feat_matrix</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">(</span>
             <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_images_per_audiofile</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)),</span>
              <span class="bp">self</span><span class="o">.</span><span class="n">feature_sets</span><span class="p">,</span>
              <span class="bp">self</span><span class="o">.</span><span class="n">num_columns</span><span class="p">))</span>
         <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">sample_set</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
-            <span class="n">feats</span><span class="p">,</span> <span class="n">frame_length</span><span class="p">,</span> <span class="n">window_size_ms</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">collect_features</span><span class="p">(</span>
+            <span class="n">feats</span><span class="p">,</span> <span class="n">frame_length</span><span class="p">,</span> <span class="n">window_size_ms</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">collect_features</span><span class="p">(</span>
                 <span class="n">feature_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_type</span><span class="p">,</span>
                 <span class="n">samples</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
                 <span class="n">sr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sr</span><span class="p">,</span>
@@ -184,17 +188,20 @@
             <span class="n">row</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">feat_matrix</span></div>
 
-<div class="viewcode-block" id="PrepFeatures.extractfeats"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.PrepFeatures.extractfeats">[docs]</a>    <span class="k">def</span> <span class="nf">extractfeats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soundata</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">soundata</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">soundata</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">soundata</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">soundata</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PosixPath</span><span class="p">)</span> <span class="ow">and</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">is_audio_ext_allowed</span><span class="p">(</span><span class="n">soundata</span><span class="p">):</span>
-            <span class="n">y</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">dsp</span><span class="o">.</span><span class="n">load_signal</span><span class="p">(</span><span class="n">soundata</span><span class="p">,</span>
+<div class="viewcode-block" id="PrepFeatures.extractfeats"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.PrepFeatures.extractfeats">[docs]</a>    <span class="k">def</span> <span class="nf">extractfeats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sounddata</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Organizes feat extraction of each audiofile according to class attributes.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sounddata</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">sounddata</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">sounddata</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sounddata</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PosixPath</span><span class="p">)</span> <span class="ow">and</span> \
+            <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">is_audio_ext_allowed</span><span class="p">(</span><span class="n">sounddata</span><span class="p">):</span>
+            <span class="n">y</span><span class="p">,</span> <span class="n">sr</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">dsp</span><span class="o">.</span><span class="n">load_signal</span><span class="p">(</span><span class="n">sounddata</span><span class="p">,</span>
                                     <span class="n">sampling_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sr</span><span class="p">,</span>
                                     <span class="n">dur_sec</span><span class="o">=</span><span class="n">dur_sec</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The following datatype for sounddata is not understood:&#39;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">soundata</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data presented: &#39;</span><span class="p">,</span> <span class="n">soundata</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">sounddata</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Data presented: &#39;</span><span class="p">,</span> <span class="n">sounddata</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">augment_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">augment_data</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_data</span><span class="p">:</span>
             <span class="n">feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samps2feats</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="n">augment_data</span><span class="p">)</span>
@@ -205,7 +212,7 @@
         <span class="n">feats</span> <span class="o">=</span> <span class="n">feats</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_sets</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">feats</span></div>
 
-<div class="viewcode-block" id="PrepFeatures.get_feats"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.PrepFeatures.get_feats">[docs]</a>    <span class="k">def</span> <span class="nf">get_feats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_waves</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="PrepFeatures.get_feats"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.PrepFeatures.get_feats">[docs]</a>    <span class="k">def</span> <span class="nf">get_feats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_waves</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;collects fbank or mfcc features of entire wavfile list</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">tot_waves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_waves</span><span class="p">)</span>
@@ -219,7 +226,7 @@
         <span class="c1"># create empty matrix to fill features into</span>
         <span class="c1"># +1 is for the label column</span>
         <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">tot_len_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_sets</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_columns</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">feats_matrix</span> <span class="o">=</span> <span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">complex_vals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">feats_matrix</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">matrixfun</span><span class="o">.</span><span class="n">create_empty_matrix</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">complex_vals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># keep track of where we are in filling the empty matrix</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label_wave</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_waves</span><span class="p">):</span>
             <span class="c1"># collect label information</span>
@@ -247,13 +254,14 @@
         <span class="k">if</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="n">tot_len_matrix</span><span class="p">:</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="n">tot_len_matrix</span> <span class="o">-</span> <span class="n">row</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;A total of </span><span class="si">{}</span><span class="s1"> wavfiles were not found. </span><span class="se">\</span>
-<span class="s1">                  </span><span class="se">\n</span><span class="s1">Expected amount: </span><span class="si">{}</span><span class="s1"> total waves.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">tot_len_matrix</span><span class="p">))</span>
+<span class="s1">                  </span><span class="se">\n</span><span class="s1">Expected amount: </span><span class="si">{}</span><span class="s1"> total waves.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                      <span class="n">diff</span><span class="p">,</span> <span class="n">tot_len_matrix</span><span class="p">))</span>
             <span class="n">feats_matrix</span> <span class="o">=</span> <span class="n">feats_matrix</span><span class="p">[:</span><span class="n">row</span><span class="p">]</span>
         <span class="c1"># randomize rows</span>
         <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">feats_matrix</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">feats_matrix</span></div>
 
-<div class="viewcode-block" id="PrepFeatures.get_save_feats"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.PrepFeatures.get_save_feats">[docs]</a>    <span class="k">def</span> <span class="nf">get_save_feats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wave_list</span><span class="p">,</span> <span class="n">directory4features</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<div class="viewcode-block" id="PrepFeatures.get_save_feats"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.PrepFeatures.get_save_feats">[docs]</a>    <span class="k">def</span> <span class="nf">get_save_feats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wave_list</span><span class="p">,</span> <span class="n">directory4features</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_waves</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">num_waves</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wave_list</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -261,21 +269,21 @@
         <span class="n">feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_feats</span><span class="p">(</span>
             <span class="n">wave_list</span><span class="p">,</span> <span class="n">dur_sec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">training_segment_ms</span><span class="o">/</span><span class="mf">1000.0</span><span class="p">)</span>
         <span class="n">save2file</span> <span class="o">=</span> <span class="n">directory4features</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="n">pathorg</span><span class="o">.</span><span class="n">save_feature_data</span><span class="p">(</span><span class="n">save2file</span><span class="p">,</span> <span class="n">feats</span><span class="p">)</span>
+        <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">save_feature_data</span><span class="p">(</span><span class="n">save2file</span><span class="p">,</span> <span class="n">feats</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="PrepFeatures.save_class_settings"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.PrepFeatures.save_class_settings">[docs]</a>    <span class="k">def</span> <span class="nf">save_class_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="PrepFeatures.save_class_settings"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.PrepFeatures.save_class_settings">[docs]</a>    <span class="k">def</span> <span class="nf">save_class_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;saves class settings to dictionary</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">class_settings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;settings_</span><span class="si">{}</span><span class="s1">.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="n">featuresettings_path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="n">pathorg</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span>
+        <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">save_dict</span><span class="p">(</span>
             <span class="n">class_settings</span><span class="p">,</span> <span class="n">featuresettings_path</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="n">replace</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div></div>
 
 
-<div class="viewcode-block" id="prepfeatures"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.prepfeatures">[docs]</a><span class="k">def</span> <span class="nf">prepfeatures</span><span class="p">(</span><span class="n">filter_class</span><span class="p">,</span> <span class="n">feature_type</span><span class="o">=</span><span class="s1">&#39;mfcc&#39;</span><span class="p">,</span> <span class="n">num_filters</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+<div class="viewcode-block" id="prepfeatures"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.prepfeatures">[docs]</a><span class="k">def</span> <span class="nf">prepfeatures</span><span class="p">(</span><span class="n">filter_class</span><span class="p">,</span> <span class="n">feature_type</span><span class="o">=</span><span class="s1">&#39;mfcc&#39;</span><span class="p">,</span> <span class="n">num_filters</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
                  <span class="n">segment_dur_ms</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">augment_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">sampling_rate</span><span class="o">=</span><span class="mi">48000</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Pulls info from &#39;filter_class&#39; instance to then extract, save features</span>
@@ -310,7 +318,7 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="c1"># extract features</span>
     <span class="c1"># create namedtuple with train, val, and test wavfiles and labels</span>
-    <span class="n">datasetwaves</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">audio2datasets</span><span class="p">(</span><span class="n">filter_class</span><span class="o">.</span><span class="n">audiodata_dir</span><span class="p">,</span>
+    <span class="n">datasetwaves</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">featorg</span><span class="o">.</span><span class="n">audio2datasets</span><span class="p">(</span><span class="n">filter_class</span><span class="o">.</span><span class="n">audiodata_dir</span><span class="p">,</span>
                                           <span class="n">filter_class</span><span class="o">.</span><span class="n">labels_encoded_path</span><span class="p">,</span>
                                           <span class="n">filter_class</span><span class="o">.</span><span class="n">labels_waves_path</span><span class="p">,</span>
                                           <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span>
@@ -331,7 +339,7 @@
     <span class="k">return</span> <span class="n">feats_class</span><span class="p">,</span> <span class="n">filter_class</span></div>
 
 
-<div class="viewcode-block" id="loadfeature_settings"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.acousticfeats_ml.modelfeats.loadfeature_settings">[docs]</a><span class="k">def</span> <span class="nf">loadfeature_settings</span><span class="p">(</span><span class="n">feature_info</span><span class="p">):</span>
+<div class="viewcode-block" id="loadfeature_settings"><a class="viewcode-back" href="../../../noize.acousticfeats_ml.html#noize.loadfeature_settings">[docs]</a><span class="k">def</span> <span class="nf">loadfeature_settings</span><span class="p">(</span><span class="n">feature_info</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Loads prev extracted feature settings into new feature class instance</span>
 
 <span class="sd">    This is useful if one wants to extract new features that match the</span>
@@ -352,18 +360,18 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_info</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">feature_settings</span> <span class="o">=</span> <span class="n">feature_info</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">featuresettings_path</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_settings_file</span><span class="p">(</span>
+        <span class="n">featuresettings_path</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_settings_file</span><span class="p">(</span>
             <span class="n">feature_info</span><span class="o">.</span><span class="n">features_dir</span><span class="p">)</span>
-        <span class="n">feature_settings</span> <span class="o">=</span> <span class="n">pathorg</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">featuresettings_path</span><span class="p">)</span>
-    <span class="n">sr</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;sr&#39;</span><span class="p">])</span>
-    <span class="n">window_size</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;window_size&#39;</span><span class="p">])</span>
-    <span class="n">window_shift</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;window_shift&#39;</span><span class="p">])</span>
-    <span class="n">feature_sets</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;feature_sets&#39;</span><span class="p">])</span>
+        <span class="n">feature_settings</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">load_dict</span><span class="p">(</span><span class="n">featuresettings_path</span><span class="p">)</span>
+    <span class="n">sr</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;sr&#39;</span><span class="p">])</span>
+    <span class="n">window_size</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;window_size&#39;</span><span class="p">])</span>
+    <span class="n">window_shift</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;window_shift&#39;</span><span class="p">])</span>
+    <span class="n">feature_sets</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;feature_sets&#39;</span><span class="p">])</span>
     <span class="n">feature_type</span> <span class="o">=</span> <span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;feature_type&#39;</span><span class="p">]</span>
-    <span class="n">num_columns</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;num_columns&#39;</span><span class="p">])</span>
-    <span class="n">num_images_per_audiofile</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span>
+    <span class="n">num_columns</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span><span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;num_columns&#39;</span><span class="p">])</span>
+    <span class="n">num_images_per_audiofile</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span>
         <span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;num_images_per_audiofile&#39;</span><span class="p">])</span>
-    <span class="n">training_segment_ms</span> <span class="o">=</span> <span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span>
+    <span class="n">training_segment_ms</span> <span class="o">=</span> <span class="n">noize</span><span class="o">.</span><span class="n">featorg</span><span class="o">.</span><span class="n">make_number</span><span class="p">(</span>
         <span class="n">feature_settings</span><span class="p">[</span><span class="s1">&#39;training_segment_ms&#39;</span><span class="p">])</span>
     <span class="k">if</span> <span class="s1">&#39;fbank&#39;</span> <span class="ow">in</span> <span class="n">feature_type</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
         <span class="n">feature_type</span> <span class="o">=</span> <span class="s1">&#39;fbank&#39;</span>

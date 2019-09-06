@@ -1,16 +1,22 @@
-Models
-======
+noize.models package
+====================
 
-noize.models.cnn
-----------------
+Submodules
+----------
+
+noize.models.cnn module
+-----------------------
 
 .. automodule:: noize.models.cnn
    :members:
    :undoc-members:
    :show-inheritance:
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
+Module contents
+---------------
 
+.. automodule:: noize.models
+   :members:
+   :undoc-members:
+   :show-inheritance:
