@@ -27,7 +27,7 @@ import numpy as np
 # TODO: https://github.com/biopython/biopython/issues/1496
 # Fix numpy array repr for Doctest. 
 def add_tensor(matrix):
-    '''Adds tensor / dimension to input ndarray
+    '''Adds tensor / dimension to input ndarray.
 
     Keras requires an extra dimension at some layers, which represents 
     the 'tensor' encapsulating the data. 
@@ -49,7 +49,7 @@ def add_tensor(matrix):
     Parameters
     ----------
     matrix : numpy.ndarray
-        The `matrix` holds the numerical data to add a dimension to
+        The `matrix` holds the numerical data to add a dimension to.
 
     Returns
     -------
@@ -115,7 +115,7 @@ def add_tensor(matrix):
             type(matrix)))
 
 def create_empty_matrix(shape, complex_vals=False):
-    '''Allows creation of a matrix filled with real or complex zeros
+    '''Allows creation of a matrix filled with real or complex zeros.
 
     In digital signal processing, complex numbers are common; it is 
     important to note that if complex_vals=False and complex values are
@@ -158,7 +158,7 @@ def create_empty_matrix(shape, complex_vals=False):
     return matrix
 
 def separate_dependent_var(matrix):
-    '''Separates matrix into features and labels
+    '''Separates matrix into features and labels.
 
     Assumes the last column of the last dimension of the matrix constitutes
     the dependent variable (labels), and all other columns the indpendent variables
