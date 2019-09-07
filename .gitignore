@@ -3,3 +3,6 @@ env/
 *.wav
 *.pyc 
 .cache/
+build/
+Makefile
+make.bat
